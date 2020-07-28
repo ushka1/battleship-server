@@ -1,0 +1,7 @@
+{
+  "env": {
+    "DB_NAME": "TEST_DECK",
+    "DB_USERNAME": "CaptainBatiuszka",
+    "DB_PASSWORD": "zaq1@WSX"
+  }
+}
