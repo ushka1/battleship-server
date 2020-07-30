@@ -40,7 +40,7 @@ exports.joinRoom = function () {
             this.emit('join-room', response);
         }
         catch (err) {
-            this.error(err);
+            this.error({ message: err.message });
         }
     });
 };

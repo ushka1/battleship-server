@@ -30,6 +30,6 @@ export const joinRoom = async function (this: ExtSocket) {
     this.join(room.id);
     this.emit('join-room', response);
   } catch (err) {
-    this.error(err);
+    this.error({ message: err.message });
   }
 };
