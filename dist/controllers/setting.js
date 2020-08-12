@@ -15,15 +15,17 @@ const ships = {
 };
 exports.applySetting = function (board) {
     try {
-        if (!board[9] || !board[9][9]) {
+        const rowsLength = 10;
+        const colsLength = 10;
+        if (!board[rowsLength - 1] || !board[rowsLength - 1][colsLength - 1]) {
             throw new Error('User passed invalid input');
         }
         const foundShips = {};
-        for (let i = 0; i < 10; i++) {
-            for (let j = 0; j < 10; j++) {
-                const curCell = board[i][j];
+        for (let row = 0; row < rowsLength; row++) {
+            for (let col = 0; col < colsLength; col++) {
+                const curCell = board[row][col];
                 if (ships[curCell.shipId] && foundShips[curCell.shipId] === undefined) {
-                    foundShips[curCell.shipId] = shipProperlySettled(curCell.shipId, board, i, j);
+                    foundShips[curCell.shipId] = shipProperlySettled(curCell.shipId, board, row, col);
                 }
             }
         }
@@ -33,28 +35,34 @@ exports.applySetting = function (board) {
             return true;
         }, true);
         if (!settingValid) {
-            throw new Error('User passed invalid input');
+            throw new Error('User passed invalid setting');
         }
         const response = {
-            message: 'Congratulations, your input is RIGHT !',
+            message: 'Congratulations, your setting is RIGHT !',
+            board,
         };
+        this.board = board;
         this.emit('apply-setting', response);
     }
     catch (err) {
         this.error({ message: err.message });
     }
 };
-const shipProperlySettled = (shipId, board, i, j) => {
+const shipProperlySettled = (shipId, board, row, col) => {
     const ship = ships[shipId];
     let orientation = '';
     if (ship.size === 1) {
         orientation = 'horizontal';
     }
     else {
-        if (board[i][j + 1] && board[i][j + 1].shipId === shipId) {
+        if (board[row] &&
+            board[row][col + 1] &&
+            board[row][col + 1].shipId === shipId) {
             orientation = 'horizontal';
         }
-        else if (board[i + 1][j].shipId === shipId) {
+        else if (board[row + 1] &&
+            board[row + 1][col] &&
+            board[row + 1][col].shipId === shipId) {
             orientation = 'vertical';
         }
         else {
@@ -62,32 +70,30 @@ const shipProperlySettled = (shipId, board, i, j) => {
         }
     }
     if (orientation === 'horizontal') {
-        for (let k = j; k < ship.size + j; k++) {
-            if (!board[i][k] || board[i][k].shipId !== shipId) {
+        for (let k = col; k < ship.size + col; k++) {
+            if (!board[row] || !board[row][k] || board[row][k].shipId !== shipId) {
                 return false;
             }
         }
-        for (let k = i - 1; k < i + 2; k++) {
-            for (let l = j - 1; l < j + ship.size + 1; l++) {
+        for (let k = row - 1; k < row + 2; k++) {
+            for (let l = col - 1; l < col + ship.size + 1; l++) {
                 if (board[k] &&
                     board[k][l] &&
-                    board[k][l].shipId !== null &&
-                    board[k] &&
-                    board[k][l] &&
-                    board[k][l].shipId !== shipId) {
+                    board[k][l].shipId !== shipId &&
+                    board[k][l].shipId !== null) {
                     return false;
                 }
             }
         }
     }
     else if (orientation === 'vertical') {
-        for (let k = i; k < i + ship.size; k++) {
-            if (!board[k] || !board[k][j] || board[k][j].shipId !== shipId) {
+        for (let k = row; k < row + ship.size; k++) {
+            if (!board[k] || !board[k][col] || board[k][col].shipId !== shipId) {
                 return false;
             }
         }
-        for (let k = i - 1; k < i + ship.size + 1; k++) {
-            for (let l = j - 1; l < j + 2; l++) {
+        for (let k = row - 1; k < row + ship.size + 1; k++) {
+            for (let l = col - 1; l < col + 2; l++) {
                 if (board[k] &&
                     board[k][l] &&
                     board[k][l].shipId !== shipId &&
