@@ -18,7 +18,10 @@ const Room_1 = __importDefault(require("../models/Room"));
 exports.matchmaking = function () {
     return __awaiter(this, void 0, void 0, function* () {
         if (this.roomId) {
-            return;
+            const room = yield Room_1.default.findById(this.roomId);
+            room === null || room === void 0 ? void 0 : room.removeFromRoom(this.playerId);
+            this.leave(this.roomId);
+            this.roomId = undefined;
         }
         try {
             const player = yield Player_1.default.findById(this.playerId);
@@ -27,7 +30,10 @@ exports.matchmaking = function () {
                 throw new Error('Player not found');
             }
             let room;
-            room = yield Room_1.default.findOne({ players: { $size: 1 } });
+            room = yield Room_1.default.findOne({
+                players: { $size: 1 },
+                disabled: { $exists: false },
+            });
             if (!room) {
                 readyToPlay = false;
                 room = yield Room_1.default.create({ players: [] });

@@ -29,9 +29,14 @@ export const onConnect = async function (this: ExtSocket, name: string) {
 
 const onDisconnect = async function (this: ExtSocket) {
   if (this.playerId) {
-    const player = await Player.findById(this.playerId);
-
     if (this.roomId) {
+      //* If player was in room:
+      //* - send message to the room that player left,
+      //* - mark room as disabled, so no one can access it.
+
+      const room = await Room.findById(this.roomId);
+      await room?.removeFromRoom(this.playerId);
+
       const response: MatchmakingResponse = {
         message: 'Player left your room.',
         playerLeft: true,
@@ -40,13 +45,6 @@ const onDisconnect = async function (this: ExtSocket) {
       this.to(this.roomId).emit('matchmaking', response);
     }
 
-    if (player?.room) {
-      const room = await Room.findById(player.room);
-      if (room) {
-        await room.removeFromRoom(player.id);
-      }
-    }
-
-    await player?.remove();
+    await Player.deleteOne({ _id: this.playerId });
   }
 };

@@ -21,6 +21,9 @@ const roomSchema = new mongoose_1.Schema({
         ],
         required: true,
     },
+    disabled: {
+        type: Boolean,
+    },
 }, { autoCreate: true });
 // tslint:disable-next-line: only-arrow-functions
 roomSchema.methods.addToRoom = function (player) {
@@ -31,13 +34,18 @@ roomSchema.methods.addToRoom = function (player) {
         this.players.push(player.id);
         player.room = this.id;
         try {
-            //TO CHANGE!!!!!!!!!!!!!!!
+            //**************************************************
+            //**************************************************
+            //**************************************************
             // const session = await startSession();
             // session.startTransaction();
             // await this.save({ session });
             // await player.save({ session });
             // await session.commitTransaction();
             // session.endSession();
+            //**************************************************
+            //**************************************************
+            //**************************************************
             yield this.save();
             yield player.save();
         }
@@ -52,8 +60,9 @@ roomSchema.methods.removeFromRoom = function (playerId) {
             yield this.remove();
             return;
         }
-        const playersUpdate = this.players.filter((id) => id.toString() !== playerId.toString());
-        this.players = playersUpdate;
+        const updatedPlayers = this.players.filter((id) => id.toString() !== playerId.toString());
+        this.players = updatedPlayers;
+        this.disabled = true;
         yield this.save();
     });
 };

@@ -1,5 +1,4 @@
 import { Schema, model, Document } from 'mongoose';
-import { IRoom } from './Room';
 
 type Board = {
   row: number;
@@ -29,6 +28,11 @@ const playerSchema = new Schema<IPlayer>(
     board: {
       type: Array,
     },
+    // expires: {
+    //   type: Date,
+    //   default: Date.now(),
+    //   expires: '6h',
+    // },
   },
   { autoCreate: true },
 );

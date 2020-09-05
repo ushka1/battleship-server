@@ -40,21 +40,19 @@ exports.onConnect = function (name) {
 const onDisconnect = function () {
     return __awaiter(this, void 0, void 0, function* () {
         if (this.playerId) {
-            const player = yield Player_1.default.findById(this.playerId);
             if (this.roomId) {
+                //* If player was in room:
+                //* - send message to the room that player left,
+                //* - mark room as disabled, so no one can access it.
+                const room = yield Room_1.default.findById(this.roomId);
+                yield (room === null || room === void 0 ? void 0 : room.removeFromRoom(this.playerId));
                 const response = {
                     message: 'Player left your room.',
                     playerLeft: true,
                 };
                 this.to(this.roomId).emit('matchmaking', response);
             }
-            if (player === null || player === void 0 ? void 0 : player.room) {
-                const room = yield Room_1.default.findById(player.room);
-                if (room) {
-                    yield room.removeFromRoom(player.id);
-                }
-            }
-            yield (player === null || player === void 0 ? void 0 : player.remove());
+            yield Player_1.default.deleteOne({ _id: this.playerId });
         }
     });
 };

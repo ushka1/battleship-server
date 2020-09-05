@@ -3,6 +3,7 @@ import { IPlayer } from './Player';
 
 export interface IRoom extends Document {
   players: IPlayer['id'][];
+  disabled?: boolean;
   addToRoom: (player: IPlayer) => Promise<void>;
   removeFromRoom: (playerId: IPlayer['id']) => Promise<void>;
 }
@@ -19,6 +20,14 @@ const roomSchema = new Schema<IRoom>(
       ],
       required: true,
     },
+    disabled: {
+      type: Boolean,
+    },
+    // expires: {
+    //   type: Date,
+    //   default: Date.now(),
+    //   expires: '6h',
+    // },
   },
   { autoCreate: true },
 );
@@ -33,7 +42,9 @@ roomSchema.methods.addToRoom = async function (player) {
   player.room = this.id;
 
   try {
-    //TO CHANGE!!!!!!!!!!!!!!!
+    //**************************************************
+    //**************************************************
+    //**************************************************
     // const session = await startSession();
     // session.startTransaction();
 
@@ -42,6 +53,9 @@ roomSchema.methods.addToRoom = async function (player) {
 
     // await session.commitTransaction();
     // session.endSession();
+    //**************************************************
+    //**************************************************
+    //**************************************************
 
     await this.save();
     await player.save();
@@ -56,10 +70,11 @@ roomSchema.methods.removeFromRoom = async function (playerId) {
     return;
   }
 
-  const playersUpdate = this.players.filter(
+  const updatedPlayers = this.players.filter(
     (id) => id.toString() !== playerId.toString(),
   );
-  this.players = playersUpdate;
+  this.players = updatedPlayers;
+  this.disabled = true;
 
   await this.save();
 };

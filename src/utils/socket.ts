@@ -2,7 +2,11 @@ type IO = null | SocketIO.Server;
 let io: IO;
 
 export function init(ioServer: IO) {
-  io = ioServer;
+  if (io) {
+    return;
+  } else {
+    io = ioServer;
+  }
 }
 
 export function getIO(): IO {

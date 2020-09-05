@@ -10,7 +10,11 @@ export type Response = {
 
 export const matchmaking = async function (this: ExtSocket) {
   if (this.roomId) {
-    return;
+    const room = await Room.findById(this.roomId);
+    room?.removeFromRoom(this.playerId);
+
+    this.leave(this.roomId);
+    this.roomId = undefined;
   }
 
   try {
@@ -22,7 +26,10 @@ export const matchmaking = async function (this: ExtSocket) {
     }
 
     let room: IRoom | null;
-    room = await Room.findOne({ players: { $size: 1 } });
+    room = await Room.findOne({
+      players: { $size: 1 },
+      disabled: { $exists: false },
+    });
 
     if (!room) {
       readyToPlay = false;
