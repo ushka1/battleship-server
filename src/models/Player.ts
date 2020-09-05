@@ -1,9 +1,17 @@
 import { Schema, model, Document } from 'mongoose';
 import { IRoom } from './Room';
 
+type Board = {
+  row: number;
+  col: number;
+  id: string;
+  shipId: null | string;
+  hit: boolean;
+}[][];
 export interface IPlayer extends Document {
   name: string;
   room?: string;
+  board?: Board;
 }
 
 const playerSchema = new Schema<IPlayer>(
@@ -18,8 +26,14 @@ const playerSchema = new Schema<IPlayer>(
       type: Schema.Types.ObjectId,
       ref: 'Room',
     },
+    board: {
+      type: Array,
+    },
   },
   { autoCreate: true },
 );
 
-export default model<IPlayer>('Player', playerSchema);
+const Player = model<IPlayer>('Player', playerSchema);
+Player.db.dropCollection('players', () => {});
+
+export default Player;

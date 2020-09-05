@@ -22,15 +22,17 @@ exports.onConnect = function (name) {
         }
         try {
             const player = yield Player_1.default.create({ name });
+            const transformedPlayer = { id: player.id, name: player.name };
             const response = {
                 message: `Congratulations ${name}, you successfully connected to our game!`,
-                player: player.toObject({ getters: true }),
+                player: transformedPlayer,
             };
             this.emit('connect-player', response);
             this.playerId = player.id;
             this.on('disconnect', onDisconnect.bind(this));
         }
         catch (err) {
+            console.log(err);
             this.error({ message: 'User passed invalid input' });
         }
     });
@@ -39,9 +41,18 @@ const onDisconnect = function () {
     return __awaiter(this, void 0, void 0, function* () {
         if (this.playerId) {
             const player = yield Player_1.default.findById(this.playerId);
+            if (this.roomId) {
+                const response = {
+                    message: 'Player left your room.',
+                    playerLeft: true,
+                };
+                this.to(this.roomId).emit('matchmaking', response);
+            }
             if (player === null || player === void 0 ? void 0 : player.room) {
                 const room = yield Room_1.default.findById(player.room);
-                yield (room === null || room === void 0 ? void 0 : room.removeFromRoom(player.id));
+                if (room) {
+                    yield room.removeFromRoom(player.id);
+                }
             }
             yield (player === null || player === void 0 ? void 0 : player.remove());
         }

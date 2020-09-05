@@ -31,12 +31,15 @@ roomSchema.methods.addToRoom = function (player) {
         this.players.push(player.id);
         player.room = this.id;
         try {
-            const session = yield mongoose_1.startSession();
-            session.startTransaction();
-            yield this.save({ session });
-            yield player.save({ session });
-            yield session.commitTransaction();
-            session.endSession();
+            //TO CHANGE!!!!!!!!!!!!!!!
+            // const session = await startSession();
+            // session.startTransaction();
+            // await this.save({ session });
+            // await player.save({ session });
+            // await session.commitTransaction();
+            // session.endSession();
+            yield this.save();
+            yield player.save();
         }
         catch (err) {
             throw new Error('An unexpected error occurred');
@@ -54,5 +57,7 @@ roomSchema.methods.removeFromRoom = function (playerId) {
         yield this.save();
     });
 };
-exports.default = mongoose_1.model('Room', roomSchema);
+const Room = mongoose_1.model('Room', roomSchema);
+Room.db.dropCollection('rooms', () => { });
+exports.default = Room;
 //# sourceMappingURL=Room.js.map

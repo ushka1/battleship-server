@@ -33,14 +33,18 @@ roomSchema.methods.addToRoom = async function (player) {
   player.room = this.id;
 
   try {
-    const session = await startSession();
-    session.startTransaction();
+    //TO CHANGE!!!!!!!!!!!!!!!
+    // const session = await startSession();
+    // session.startTransaction();
 
-    await this.save({ session });
-    await player.save({ session });
+    // await this.save({ session });
+    // await player.save({ session });
 
-    await session.commitTransaction();
-    session.endSession();
+    // await session.commitTransaction();
+    // session.endSession();
+
+    await this.save();
+    await player.save();
   } catch (err) {
     throw new Error('An unexpected error occurred');
   }
@@ -60,4 +64,7 @@ roomSchema.methods.removeFromRoom = async function (playerId) {
   await this.save();
 };
 
-export default model<IRoom>('Room', roomSchema);
+const Room = model<IRoom>('Room', roomSchema);
+Room.db.dropCollection('rooms', () => {});
+
+export default Room;

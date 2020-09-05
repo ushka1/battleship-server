@@ -12,6 +12,11 @@ const playerSchema = new mongoose_1.Schema({
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'Room',
     },
+    board: {
+        type: Array,
+    },
 }, { autoCreate: true });
-exports.default = mongoose_1.model('Player', playerSchema);
+const Player = mongoose_1.model('Player', playerSchema);
+Player.db.dropCollection('players', () => { });
+exports.default = Player;
 //# sourceMappingURL=Player.js.map

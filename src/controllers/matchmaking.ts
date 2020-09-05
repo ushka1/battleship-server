@@ -2,33 +2,52 @@ import { ExtSocket } from './index';
 import Player from '../models/Player';
 import Room, { IRoom } from '../models/Room';
 
-export const joinRoom = async function (this: ExtSocket) {
+export type Response = {
+  message?: string;
+  readyToPlay?: boolean;
+  playerLeft?: boolean;
+};
+
+export const matchmaking = async function (this: ExtSocket) {
   if (this.roomId) {
     return;
   }
 
   try {
     const player = await Player.findById(this.playerId);
+    let readyToPlay = true;
+
     if (!player) {
       throw new Error('Player not found');
     }
 
     let room: IRoom | null;
     room = await Room.findOne({ players: { $size: 1 } });
+
     if (!room) {
+      readyToPlay = false;
       room = await Room.create({ players: [] });
     }
 
     await room.addToRoom(player);
 
-    const response = {
+    const response: Response = {
       message: `Congratulations ${player.name}, you successfully joined to the room!`,
-      player: player.toObject({ getters: true }),
+      readyToPlay,
     };
 
     this.roomId = room.id;
     this.join(room.id);
-    this.emit('join-room', response);
+    this.emit('matchmaking', response);
+
+    if (readyToPlay) {
+      const response: Response = {
+        message: 'Player joined your room!',
+        readyToPlay,
+      };
+
+      this.to(this.roomId!).emit('matchmaking', response);
+    }
   } catch (err) {
     this.error({ message: err.message });
   }

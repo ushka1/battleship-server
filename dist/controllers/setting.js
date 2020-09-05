@@ -1,6 +1,19 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.applySetting = void 0;
+const Player_1 = __importDefault(require("../models/Player"));
 const ships = {
     'ship-0': { size: 4 },
     'ship-2': { size: 3 },
@@ -14,39 +27,46 @@ const ships = {
     'ship-9': { size: 1 },
 };
 exports.applySetting = function (board) {
-    try {
-        const rowsLength = 10;
-        const colsLength = 10;
-        if (!board[rowsLength - 1] || !board[rowsLength - 1][colsLength - 1]) {
-            throw new Error('User passed invalid input');
-        }
-        const foundShips = {};
-        for (let row = 0; row < rowsLength; row++) {
-            for (let col = 0; col < colsLength; col++) {
-                const curCell = board[row][col];
-                if (ships[curCell.shipId] && foundShips[curCell.shipId] === undefined) {
-                    foundShips[curCell.shipId] = shipProperlySettled(curCell.shipId, board, row, col);
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const rowsLength = 10;
+            const colsLength = 10;
+            if (!board[rowsLength - 1] || !board[rowsLength - 1][colsLength - 1]) {
+                throw new Error('User passed invalid input');
+            }
+            const foundShips = {};
+            for (let row = 0; row < rowsLength; row++) {
+                for (let col = 0; col < colsLength; col++) {
+                    const curCell = board[row][col];
+                    if (ships[curCell.shipId] && foundShips[curCell.shipId] === undefined) {
+                        foundShips[curCell.shipId] = shipProperlySettled(curCell.shipId, board, row, col);
+                    }
                 }
             }
+            const settingValid = Object.keys(ships).reduce((acc, cur) => {
+                if (!acc || !foundShips[cur])
+                    return false;
+                return true;
+            }, true);
+            const player = yield Player_1.default.findById(this.playerId);
+            if (!settingValid || !player) {
+                throw new Error('User passed invalid setting.');
+            }
+            const transformedBoard = board.map((row) => {
+                return row.map((col) => (Object.assign(Object.assign({}, col), { hit: false })));
+            });
+            const response = {
+                message: 'Congratulations, your setting is RIGHT!',
+                board: transformedBoard,
+            };
+            player.board = transformedBoard;
+            yield player.save();
+            this.emit('apply-setting', response);
         }
-        const settingValid = Object.keys(ships).reduce((acc, cur) => {
-            if (!acc || !foundShips[cur])
-                return false;
-            return true;
-        }, true);
-        if (!settingValid) {
-            throw new Error('User passed invalid setting');
+        catch (err) {
+            this.error({ message: err.message });
         }
-        const response = {
-            message: 'Congratulations, your setting is RIGHT !',
-            board,
-        };
-        this.board = board;
-        this.emit('apply-setting', response);
-    }
-    catch (err) {
-        this.error({ message: err.message });
-    }
+    });
 };
 const shipProperlySettled = (shipId, board, row, col) => {
     const ship = ships[shipId];

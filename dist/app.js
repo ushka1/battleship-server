@@ -21,7 +21,16 @@ const app = express_1.default();
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use(express_1.default.json());
 (() => __awaiter(void 0, void 0, void 0, function* () {
-    yield mongoose_1.connect(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@deck.rbvm5.mongodb.net/${process.env.DB_NAME}`, { useNewUrlParser: true, useUnifiedTopology: true });
+    yield mongoose_1.connect(`${process.env.DB_CONNECT}/${process.env.DB_NAME}`, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useCreateIndex: true,
+        auth: {
+            password: `${process.env.DB_PASSWORD}`,
+            user: `${process.env.DB_USERNAME}`,
+        },
+        dbName: `${process.env.DB_NAME}`,
+    });
     const server = app.listen(process.env.PORT || 5000);
     const io = socket_io_1.default.listen(server, { origins: ['http://localhost:3000'] });
     if (io) {

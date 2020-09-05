@@ -6,5 +6,9 @@ export function init(ioServer: IO) {
 }
 
 export function getIO(): IO {
-  return io;
+  if (io) {
+    return io;
+  } else {
+    throw new Error('Socket.io error occurred');
+  }
 }
