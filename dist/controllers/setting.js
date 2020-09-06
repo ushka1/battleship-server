@@ -29,10 +29,14 @@ const ships = {
 exports.applySetting = function (board) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            const player = yield Player_1.default.findById(this.playerId);
+            if (!player) {
+                throw new Error('User connection fault.');
+            }
             const rowsLength = 10;
             const colsLength = 10;
             if (!board[rowsLength - 1] || !board[rowsLength - 1][colsLength - 1]) {
-                throw new Error('User passed invalid input');
+                throw new Error('User passed invalid setting.');
             }
             const foundShips = {};
             for (let row = 0; row < rowsLength; row++) {
@@ -48,26 +52,27 @@ exports.applySetting = function (board) {
                     return false;
                 return true;
             }, true);
-            const player = yield Player_1.default.findById(this.playerId);
-            if (!settingValid || !player) {
+            if (!settingValid) {
                 throw new Error('User passed invalid setting.');
             }
             const transformedBoard = board.map((row) => {
                 return row.map((col) => (Object.assign(Object.assign({}, col), { hit: false })));
             });
-            const response = {
-                message: 'Congratulations, your setting is RIGHT!',
-                board: transformedBoard,
-            };
             player.board = transformedBoard;
             yield player.save();
+            const response = {
+                message: `Congratulations ${player.name}, your setting is right!`,
+                board: transformedBoard,
+            };
             this.emit('apply-setting', response);
         }
         catch (err) {
+            console.error('Error in "controllers/setting.ts [applySetting]".');
             this.error({ message: err.message });
         }
     });
 };
+//* Checks the validity of the board
 const shipProperlySettled = (shipId, board, row, col) => {
     const ship = ships[shipId];
     let orientation = '';

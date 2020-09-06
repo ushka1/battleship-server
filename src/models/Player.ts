@@ -9,8 +9,10 @@ type Board = {
 }[][];
 export interface IPlayer extends Document {
   name: string;
+  socketId: string;
   room?: string;
   board?: Board;
+  turn?: Number;
 }
 
 const playerSchema = new Schema<IPlayer>(
@@ -21,6 +23,10 @@ const playerSchema = new Schema<IPlayer>(
       maxlength: 15,
       minlength: 3,
     },
+    socketId: {
+      type: String,
+      required: true,
+    },
     room: {
       type: Schema.Types.ObjectId,
       ref: 'Room',
@@ -28,11 +34,9 @@ const playerSchema = new Schema<IPlayer>(
     board: {
       type: Array,
     },
-    // expires: {
-    //   type: Date,
-    //   default: Date.now(),
-    //   expires: '6h',
-    // },
+    turn: {
+      type: Number,
+    },
   },
   { autoCreate: true },
 );

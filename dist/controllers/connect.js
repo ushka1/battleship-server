@@ -21,7 +21,7 @@ exports.onConnect = function (name) {
             return;
         }
         try {
-            const player = yield Player_1.default.create({ name });
+            const player = yield Player_1.default.create({ name, socketId: this.id });
             const transformedPlayer = { id: player.id, name: player.name };
             const response = {
                 message: `Congratulations ${name}, you successfully connected to our game!`,
@@ -32,27 +32,32 @@ exports.onConnect = function (name) {
             this.on('disconnect', onDisconnect.bind(this));
         }
         catch (err) {
-            console.log(err);
-            this.error({ message: 'User passed invalid input' });
+            console.error('Error in "controllers/connect.ts [onConnect]".');
+            this.error({ message: 'User connection fault.' });
         }
     });
 };
 const onDisconnect = function () {
     return __awaiter(this, void 0, void 0, function* () {
-        if (this.playerId) {
-            if (this.roomId) {
-                //* If player was in room:
-                //* - send message to the room that player left,
-                //* - mark room as disabled, so no one can access it.
-                const room = yield Room_1.default.findById(this.roomId);
-                yield (room === null || room === void 0 ? void 0 : room.removeFromRoom(this.playerId));
-                const response = {
-                    message: 'Player left your room.',
-                    playerLeft: true,
-                };
-                this.to(this.roomId).emit('matchmaking', response);
+        try {
+            if (this.playerId) {
+                if (this.roomId) {
+                    //* If player was in room:
+                    //* - send message to the room that player left,
+                    //* - mark room as disabled, so no one can access it.
+                    const response = {
+                        message: 'Player left your room.',
+                        playerLeft: true,
+                    };
+                    this.to(this.roomId).emit('matchmaking', response);
+                    const room = yield Room_1.default.findById(this.roomId);
+                    yield (room === null || room === void 0 ? void 0 : room.removeFromRoom(this.playerId));
+                }
+                yield Player_1.default.deleteOne({ _id: this.playerId });
             }
-            yield Player_1.default.deleteOne({ _id: this.playerId });
+        }
+        catch (err) {
+            console.error('Error in "controllers/connect.ts [onDisconnect]".');
         }
     });
 };

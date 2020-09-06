@@ -15,19 +15,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.matchmaking = void 0;
 const Player_1 = __importDefault(require("../models/Player"));
 const Room_1 = __importDefault(require("../models/Room"));
+const turn_1 = require("./turn");
 exports.matchmaking = function () {
     return __awaiter(this, void 0, void 0, function* () {
-        if (this.roomId) {
-            const room = yield Room_1.default.findById(this.roomId);
-            room === null || room === void 0 ? void 0 : room.removeFromRoom(this.playerId);
-            this.leave(this.roomId);
-            this.roomId = undefined;
-        }
         try {
+            //* If player reconnects, some cleanup must be done
+            if (this.roomId) {
+                const room = yield Room_1.default.findById(this.roomId);
+                room === null || room === void 0 ? void 0 : room.removeFromRoom(this.playerId);
+                this.leave(this.roomId);
+                this.roomId = undefined;
+            }
             const player = yield Player_1.default.findById(this.playerId);
             let readyToPlay = true;
             if (!player) {
-                throw new Error('Player not found');
+                throw new Error('User connection fault.');
             }
             let room;
             room = yield Room_1.default.findOne({
@@ -44,17 +46,19 @@ exports.matchmaking = function () {
                 readyToPlay,
             };
             this.roomId = room.id;
-            this.join(room.id);
+            this.join(this.roomId);
             this.emit('matchmaking', response);
             if (readyToPlay) {
                 const response = {
-                    message: 'Player joined your room!',
+                    message: `Congratulations ${player.name}, new player joined your room!`,
                     readyToPlay,
                 };
                 this.to(this.roomId).emit('matchmaking', response);
+                turn_1.setTurnIds(this.roomId);
             }
         }
         catch (err) {
+            console.error('Error in "controllers/matchmaking.ts [matchmaking]".');
             this.error({ message: err.message });
         }
     });

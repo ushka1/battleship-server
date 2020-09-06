@@ -1,5 +1,10 @@
-import Player from '../models/Player';
 import { ExtSocket } from './index';
+import Player from '../models/Player';
+
+type Response = {
+  message?: string;
+  board?: any;
+};
 
 const ships = {
   'ship-0': { size: 4 },
@@ -24,11 +29,17 @@ export type Board = {
 
 export const applySetting = async function (this: ExtSocket, board: Board) {
   try {
+    const player = await Player.findById(this.playerId);
+
+    if (!player) {
+      throw new Error('User connection fault.');
+    }
+
     const rowsLength = 10;
     const colsLength = 10;
 
     if (!board[rowsLength - 1] || !board[rowsLength - 1][colsLength - 1]) {
-      throw new Error('User passed invalid input');
+      throw new Error('User passed invalid setting.');
     }
 
     const foundShips: { [x: string]: any } = {};
@@ -53,9 +64,7 @@ export const applySetting = async function (this: ExtSocket, board: Board) {
       return true;
     }, true);
 
-    const player = await Player.findById(this.playerId);
-
-    if (!settingValid || !player) {
+    if (!settingValid) {
       throw new Error('User passed invalid setting.');
     }
 
@@ -63,20 +72,22 @@ export const applySetting = async function (this: ExtSocket, board: Board) {
       return row.map((col) => ({ ...col, hit: false }));
     });
 
-    const response = {
-      message: 'Congratulations, your setting is RIGHT!',
-      board: transformedBoard,
-    };
-
     player.board = transformedBoard;
     await player.save();
 
+    const response: Response = {
+      message: `Congratulations ${player.name}, your setting is right!`,
+      board: transformedBoard,
+    };
+
     this.emit('apply-setting', response);
   } catch (err) {
+    console.error('Error in "controllers/setting.ts [applySetting]".');
     this.error({ message: err.message });
   }
 };
 
+//* Checks the validity of the board
 const shipProperlySettled = (
   shipId: ShipKey,
   board: Board,

@@ -7,9 +7,6 @@ function default_1(socket) {
     socket.on('connect-player', connect_1.onConnect);
     socket.on('apply-setting', setting_1.applySetting);
     socket.on('matchmaking', matchmaking_1.matchmaking);
-    socket.on('shit', () => {
-        console.log('BOS!');
-    });
 }
 exports.default = default_1;
 //# sourceMappingURL=index.js.map

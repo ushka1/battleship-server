@@ -1,3 +1,5 @@
+//* Room._id === Socket.io room.id
+
 import { Schema, model, Document, startSession } from 'mongoose';
 import { IPlayer } from './Player';
 
@@ -23,11 +25,6 @@ const roomSchema = new Schema<IRoom>(
     disabled: {
       type: Boolean,
     },
-    // expires: {
-    //   type: Date,
-    //   default: Date.now(),
-    //   expires: '6h',
-    // },
   },
   { autoCreate: true },
 );
@@ -35,7 +32,7 @@ const roomSchema = new Schema<IRoom>(
 // tslint:disable-next-line: only-arrow-functions
 roomSchema.methods.addToRoom = async function (player) {
   if (this.players.length >= 2) {
-    throw new Error('Room is full already');
+    throw new Error('The room is full.');
   }
 
   this.players.push(player.id);
@@ -60,7 +57,7 @@ roomSchema.methods.addToRoom = async function (player) {
     await this.save();
     await player.save();
   } catch (err) {
-    throw new Error('An unexpected error occurred');
+    throw new Error('An unexpected error occurred.');
   }
 };
 

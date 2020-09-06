@@ -1,4 +1,5 @@
 "use strict";
+//* Room._id === Socket.io room.id
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -29,7 +30,7 @@ const roomSchema = new mongoose_1.Schema({
 roomSchema.methods.addToRoom = function (player) {
     return __awaiter(this, void 0, void 0, function* () {
         if (this.players.length >= 2) {
-            throw new Error('Room is full already');
+            throw new Error('The room is full.');
         }
         this.players.push(player.id);
         player.room = this.id;
@@ -50,7 +51,7 @@ roomSchema.methods.addToRoom = function (player) {
             yield player.save();
         }
         catch (err) {
-            throw new Error('An unexpected error occurred');
+            throw new Error('An unexpected error occurred.');
         }
     });
 };
