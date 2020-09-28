@@ -12,7 +12,7 @@ export const handleGame = async function (
   const room = await Room.findById(this.roomId);
 
   try {
-    if (!room) {
+    if (!room || !io) {
       throw new Error('An unexpected error occurred.');
     }
 
@@ -27,17 +27,13 @@ export const handleGame = async function (
       throw new Error('An unexpected error occurred.');
     }
 
-    //**************************************************
-    //TODO: Handle player attack
-    //**************************************************
-
     const playerSocket = this;
-    const enemySocket = io?.sockets.connected[enemy.socketId];
+    const enemySocket = io.sockets.connected[enemy.socketId]!;
 
     const shipHitted = await enemy.handleHit(coords.row, coords.col);
 
     playerSocket.emit('game-controller', { enemyBoard: enemy.board });
-    enemySocket!.emit('game-controller', { playerBoard: enemy.board });
+    enemySocket.emit('game-controller', { playerBoard: enemy.board });
 
     if (shipHitted) {
       playerSocket!.emit('game-controller', { unlock: true });
@@ -49,9 +45,12 @@ export const handleGame = async function (
     console.error('Error in "controllers/game.ts [handleGame]".');
 
     await room?.populate('players').execPopulate();
-    room?.players.forEach((player) => {
-      const playerSocket = io?.sockets.connected[player.socketId];
-      playerSocket?.error({ message: 'An unexpected error occurred.' });
+    const socketIds = room?.players.map((player) => player.socketId);
+
+    socketIds?.forEach((socketId) => {
+      io?.sockets.connected[socketId].error({
+        message: 'An unexpected error occurred.',
+      });
     });
   }
 };

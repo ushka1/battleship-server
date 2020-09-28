@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.shipProperlySettled = exports.shipsDefault = exports.colsLength = exports.rowsLength = void 0;
+exports.shipSunked = exports.shipProperlySettled = exports.shipsDefaultArray = exports.shipsDefault = exports.colsLength = exports.rowsLength = void 0;
 exports.rowsLength = 10;
 exports.colsLength = 10;
 exports.shipsDefault = {
@@ -15,6 +15,9 @@ exports.shipsDefault = {
     'ship-8': { id: 'ship-8', size: 1, hp: 1 },
     'ship-9': { id: 'ship-9', size: 1, hp: 1 },
 };
+exports.shipsDefaultArray = Object.keys(exports.shipsDefault).map((key) => {
+    return Object.assign({}, exports.shipsDefault[key]);
+});
 exports.shipProperlySettled = (board, row, col, shipId) => {
     const ship = exports.shipsDefault[shipId];
     let orientation = '';
@@ -71,5 +74,36 @@ exports.shipProperlySettled = (board, row, col, shipId) => {
         }
     }
     return true;
+};
+exports.shipSunked = (board, shipId) => {
+    const ship = Object.assign({}, exports.shipsDefault[shipId]);
+    let orientation;
+    if (ship.size === 1) {
+        orientation = 'horizontal';
+    }
+    else {
+        let firstCell;
+        for (const row of board) {
+            for (const cell of row) {
+                if (cell.shipId === ship.id) {
+                    firstCell = cell;
+                    break;
+                }
+            }
+            if (firstCell) {
+                break;
+            }
+        }
+        if (!firstCell) {
+            return;
+        }
+        if (board[firstCell.row][firstCell.col + 1].shipId === ship.id) {
+            orientation = 'horizontal';
+        }
+        else {
+            orientation = 'vertical';
+        }
+    }
+    console.log(orientation);
 };
 //# sourceMappingURL=settingUtils.js.map

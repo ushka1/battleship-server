@@ -55,7 +55,7 @@ const onDisconnect = function () {
                             board: remainingPlayer.boardDefault,
                         };
                         const io = socket_1.getIO();
-                        io === null || io === void 0 ? void 0 : io.to(remainingPlayer.socketId).emit('matchmaking', response);
+                        io === null || io === void 0 ? void 0 : io.to(remainingPlayer.socketId).emit('disconnect', response);
                     }
                     const room = yield Room_1.default.findById(this.roomId);
                     yield (room === null || room === void 0 ? void 0 : room.removeFromRoom(this.playerId));

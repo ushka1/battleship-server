@@ -5,9 +5,8 @@ export type ConnectResponse = {
   player?: any;
 };
 
-export type MatchmakingResponse = {
+export type DisconnectResponse = {
   message?: string;
-  readyToPlay?: boolean;
   playerLeft?: boolean;
   board?: IPlayer['boardDefault'];
 };
@@ -15,4 +14,17 @@ export type MatchmakingResponse = {
 export type SettingResponse = {
   message?: string;
   validatedBoard?: any;
+};
+
+export type MatchmakingResponse = {
+  message?: string;
+  readyToPlay?: boolean;
+  playerLeft?: boolean;
+  board?: IPlayer['boardDefault'];
+};
+
+export type TurnResponse = {
+  message?: string;
+  turnId?: number;
+  turn?: number;
 };

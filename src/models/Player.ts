@@ -1,21 +1,19 @@
 import { Schema, model, Document } from 'mongoose';
-import { shipsDefault } from '../utils/settingUtils';
+import {
+  shipsDefaultArray,
+  ShipKey,
+  shipSunked,
+  Board,
+} from '../utils/settingUtils';
 
-type Board = {
-  row: number;
-  col: number;
-  id: string;
-  shipId: null | string;
-  hit: boolean;
-}[][];
 export interface IPlayer extends Document {
   name: string;
   socketId: string;
   room?: string;
-  ships?: typeof shipsDefault;
+  ships?: { id: string; size: number; hp: number }[];
   board?: Board;
   boardDefault?: Board;
-  turnId?: Number;
+  turnId?: number;
   setDefaults: (board: Board) => Promise<void>;
   setNewGame: () => Promise<void>;
   resetGame: () => Promise<void>;
@@ -75,7 +73,7 @@ playerSchema.methods.setNewGame = async function () {
   if (!this.boardDefault) throw new Error('An unexpected error occurred.');
 
   this.board = this.boardDefault;
-  this.ships = shipsDefault;
+  this.ships = shipsDefaultArray;
   await this.save();
 };
 
@@ -90,8 +88,22 @@ playerSchema.methods.handleHit = async function (row, col) {
     throw new Error('An unexpected error occurred.');
   }
 
+  if (this.board[row][col].hit) {
+    return true;
+  }
+
   let shipHitted = false;
-  if (this.board[row][col].shipId) {
+  const shipId = this.board[row][col].shipId as ShipKey | undefined;
+
+  if (shipId) {
+    const ship = this.ships?.find((ship) => ship.id === shipId)!;
+    console.log(ship);
+    ship.hp--;
+
+    if (ship.hp <= 0) {
+      shipSunked(this.board, shipId);
+    }
+
     shipHitted = true;
   }
 

@@ -14,13 +14,19 @@ export const shipsDefault = {
   'ship-9': { id: 'ship-9', size: 1, hp: 1 },
 };
 
-type ShipKey = keyof typeof shipsDefault;
-export type Board = {
+export const shipsDefaultArray = Object.keys(shipsDefault).map((key) => {
+  return { ...shipsDefault[key as ShipKey] };
+});
+
+export type ShipKey = keyof typeof shipsDefault;
+export type Cell = {
   row: number;
   col: number;
   id: string;
   shipId: ShipKey;
-}[][];
+  hit?: boolean;
+};
+export type Board = Cell[][];
 
 export const shipProperlySettled = (
   board: Board,
@@ -92,4 +98,40 @@ export const shipProperlySettled = (
   }
 
   return true;
+};
+
+export const shipSunked = (board: Board, shipId: ShipKey) => {
+  const ship = { ...shipsDefault[shipId] };
+  let orientation: string;
+
+  if (ship.size === 1) {
+    orientation = 'horizontal';
+  } else {
+    let firstCell: Cell | undefined;
+
+    for (const row of board) {
+      for (const cell of row) {
+        if (cell.shipId === ship.id) {
+          firstCell = cell;
+          break;
+        }
+      }
+
+      if (firstCell) {
+        break;
+      }
+    }
+
+    if (!firstCell) {
+      return;
+    }
+
+    if (board[firstCell.row][firstCell.col + 1].shipId === ship.id) {
+      orientation = 'horizontal';
+    } else {
+      orientation = 'vertical';
+    }
+  }
+
+  console.log(orientation);
 };

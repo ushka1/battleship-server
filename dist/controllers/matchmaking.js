@@ -20,7 +20,6 @@ exports.matchmaking = function () {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             if (this.roomId) {
-                // * PLAYER RECONNECTION CLEANUP * //
                 const room = yield Room_1.default.findById(this.roomId);
                 yield (room === null || room === void 0 ? void 0 : room.removeFromRoom(this.playerId));
                 this.leave(this.roomId);

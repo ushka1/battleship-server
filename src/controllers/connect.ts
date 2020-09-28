@@ -1,6 +1,6 @@
 import Player from '../models/Player';
 import Room from '../models/Room';
-import { ConnectResponse, MatchmakingResponse } from '../utils/responses';
+import { ConnectResponse, DisconnectResponse } from '../utils/responses';
 import { ExtSocket } from './index';
 import { getIO } from '../utils/socket';
 
@@ -40,14 +40,14 @@ const onDisconnect = async function (this: ExtSocket) {
         if (remainingPlayer) {
           await remainingPlayer.setNewGame();
 
-          const response: MatchmakingResponse = {
+          const response: DisconnectResponse = {
             message: 'Player left your room.',
             playerLeft: true,
             board: remainingPlayer.boardDefault,
           };
 
           const io = getIO();
-          io?.to(remainingPlayer.socketId).emit('matchmaking', response);
+          io?.to(remainingPlayer.socketId).emit('disconnect', response);
         }
 
         const room = await Room.findById(this.roomId);

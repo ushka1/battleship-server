@@ -19,36 +19,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.changeTurn = exports.setTurnIds = void 0;
+exports.changeTurn = exports.getTurnId = exports.setTurnIds = void 0;
 const Room_1 = __importDefault(require("../models/Room"));
+const Player_1 = __importDefault(require("../models/Player"));
 const socket_1 = require("../utils/socket");
 exports.setTurnIds = (roomId) => __awaiter(void 0, void 0, void 0, function* () {
     var e_1, _a;
-    const io = socket_1.getIO();
-    if (!io) {
-        throw new Error('Socket Error.');
-    }
-    const room = yield Room_1.default.findById(roomId);
+    const room = yield Room_1.default.findById(roomId).populate('players');
     if (!room) {
-        io.in(roomId).emit('turn-controller', {
-            message: 'An unexpected error occurred.',
-            error: 1,
-        });
         return;
     }
-    yield room.populate('players').execPopulate();
     let turnId = 1;
     try {
         for (var _b = __asyncValues(room.players), _c; _c = yield _b.next(), !_c.done;) {
             const player = _c.value;
             player.turnId = turnId;
             yield player.save();
-            const socket = io.sockets.connected[player.socketId];
-            socket.turnId = turnId;
-            io.to(player.socketId).emit('turn-controller', {
-                message: `Congratulations ${player.name}, your turnId is: ${turnId}!`,
-                turnId,
-            });
             turnId++;
         }
     }
@@ -62,11 +48,25 @@ exports.setTurnIds = (roomId) => __awaiter(void 0, void 0, void 0, function* () 
     const firstTurn = Math.round(Math.random() + 1);
     room.turn = firstTurn;
     yield room.save();
-    io.to(roomId).emit('turn-controller', {
-        message: `Congratulations to both players, player with turnId: ${firstTurn} starts a game!`,
-        turn: firstTurn,
-    });
 });
+exports.getTurnId = function () {
+    return __awaiter(this, void 0, void 0, function* () {
+        const player = yield Player_1.default.findById(this.playerId);
+        const room = yield Room_1.default.findById(this.roomId);
+        if (player && room) {
+            this.turnId = player.turnId;
+            const response = {
+                message: `Congratulations ${player.name}, your turnId is ${player.turnId}!`,
+                turnId: player.turnId,
+                turn: room.turn,
+            };
+            this.emit('turn-controller', response);
+        }
+        else {
+            this.error('An unexpected error occurred.');
+        }
+    });
+};
 exports.changeTurn = (roomId) => __awaiter(void 0, void 0, void 0, function* () {
     const io = socket_1.getIO();
     if (!io) {

@@ -1,5 +1,4 @@
 "use strict";
-//* Room._id === Socket.io room.id
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -40,7 +39,6 @@ roomSchema.methods.changeTurn = function () {
         yield this.save();
     });
 };
-// tslint:disable-next-line: only-arrow-functions
 roomSchema.methods.addToRoom = function (player) {
     return __awaiter(this, void 0, void 0, function* () {
         if (this.players.length >= 2) {
@@ -49,13 +47,6 @@ roomSchema.methods.addToRoom = function (player) {
         this.players.push(player.id);
         player.room = this.id;
         try {
-            // NOTE UNCOMMENT WHEN HOSTED ON THE REAL SERVER
-            // const session = await startSession();
-            // session.startTransaction();
-            // await this.save({ session });
-            // await player.save({ session });
-            // await session.commitTransaction();
-            // session.endSession();
             yield this.save();
             yield player.save();
         }
