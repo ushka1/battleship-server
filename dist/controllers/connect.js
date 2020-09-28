@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.onConnect = void 0;
 const Player_1 = __importDefault(require("../models/Player"));
 const Room_1 = __importDefault(require("../models/Room"));
+const socket_1 = require("../utils/socket");
 exports.onConnect = function (name) {
     return __awaiter(this, void 0, void 0, function* () {
         if (this.playerId) {
@@ -42,14 +43,20 @@ const onDisconnect = function () {
         try {
             if (this.playerId) {
                 if (this.roomId) {
-                    //* If player was in room:
-                    //* - send message to the room that player left,
-                    //* - mark room as disabled, so no one can access it.
-                    const response = {
-                        message: 'Player left your room.',
-                        playerLeft: true,
-                    };
-                    this.to(this.roomId).emit('matchmaking', response);
+                    const remainingPlayer = yield Player_1.default.findOne({
+                        _id: { $ne: this.playerId },
+                        room: this.roomId,
+                    });
+                    if (remainingPlayer) {
+                        yield remainingPlayer.setNewGame();
+                        const response = {
+                            message: 'Player left your room.',
+                            playerLeft: true,
+                            board: remainingPlayer.boardDefault,
+                        };
+                        const io = socket_1.getIO();
+                        io === null || io === void 0 ? void 0 : io.to(remainingPlayer.socketId).emit('matchmaking', response);
+                    }
                     const room = yield Room_1.default.findById(this.roomId);
                     yield (room === null || room === void 0 ? void 0 : room.removeFromRoom(this.playerId));
                 }

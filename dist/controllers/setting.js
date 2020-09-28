@@ -14,18 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.applySetting = void 0;
 const Player_1 = __importDefault(require("../models/Player"));
-const ships = {
-    'ship-0': { size: 4 },
-    'ship-2': { size: 3 },
-    'ship-1': { size: 3 },
-    'ship-3': { size: 2 },
-    'ship-4': { size: 2 },
-    'ship-5': { size: 2 },
-    'ship-6': { size: 1 },
-    'ship-7': { size: 1 },
-    'ship-8': { size: 1 },
-    'ship-9': { size: 1 },
-};
+const settingUtils_1 = require("../utils/settingUtils");
 exports.applySetting = function (board) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -33,21 +22,22 @@ exports.applySetting = function (board) {
             if (!player) {
                 throw new Error('User connection fault.');
             }
-            const rowsLength = 10;
-            const colsLength = 10;
-            if (!board[rowsLength - 1] || !board[rowsLength - 1][colsLength - 1]) {
+            if (!board[settingUtils_1.rowsLength - 1] || !board[settingUtils_1.rowsLength - 1][settingUtils_1.colsLength - 1]) {
                 throw new Error('User passed invalid setting.');
             }
             const foundShips = {};
-            for (let row = 0; row < rowsLength; row++) {
-                for (let col = 0; col < colsLength; col++) {
+            for (let row = 0; row < settingUtils_1.rowsLength; row++) {
+                for (let col = 0; col < settingUtils_1.colsLength; col++) {
                     const curCell = board[row][col];
-                    if (ships[curCell.shipId] && foundShips[curCell.shipId] === undefined) {
-                        foundShips[curCell.shipId] = shipProperlySettled(curCell.shipId, board, row, col);
+                    if (
+                    // * IF CELL CONTAINS SHIPID AND SHIP IS NOT FOUND YET * //
+                    settingUtils_1.shipsDefault[curCell.shipId] &&
+                        foundShips[curCell.shipId] === undefined) {
+                        foundShips[curCell.shipId] = settingUtils_1.shipProperlySettled(board, row, col, curCell.shipId);
                     }
                 }
             }
-            const settingValid = Object.keys(ships).reduce((acc, cur) => {
+            const settingValid = Object.keys(settingUtils_1.shipsDefault).reduce((acc, cur) => {
                 if (!acc || !foundShips[cur])
                     return false;
                 return true;
@@ -55,79 +45,20 @@ exports.applySetting = function (board) {
             if (!settingValid) {
                 throw new Error('User passed invalid setting.');
             }
-            const transformedBoard = board.map((row) => {
+            const validatedBoard = board.map((row) => {
                 return row.map((col) => (Object.assign(Object.assign({}, col), { hit: false })));
             });
-            player.board = transformedBoard;
-            yield player.save();
+            yield player.setDefaults(validatedBoard);
             const response = {
                 message: `Congratulations ${player.name}, your setting is right!`,
-                board: transformedBoard,
+                validatedBoard,
             };
             this.emit('apply-setting', response);
         }
         catch (err) {
             console.error('Error in "controllers/setting.ts [applySetting]".');
-            this.error({ message: err.message });
+            this.error({ message: err.message || 'Setting Error.' });
         }
     });
-};
-//* Checks the validity of the board
-const shipProperlySettled = (shipId, board, row, col) => {
-    const ship = ships[shipId];
-    let orientation = '';
-    if (ship.size === 1) {
-        orientation = 'horizontal';
-    }
-    else {
-        if (board[row] &&
-            board[row][col + 1] &&
-            board[row][col + 1].shipId === shipId) {
-            orientation = 'horizontal';
-        }
-        else if (board[row + 1] &&
-            board[row + 1][col] &&
-            board[row + 1][col].shipId === shipId) {
-            orientation = 'vertical';
-        }
-        else {
-            return false;
-        }
-    }
-    if (orientation === 'horizontal') {
-        for (let k = col; k < ship.size + col; k++) {
-            if (!board[row] || !board[row][k] || board[row][k].shipId !== shipId) {
-                return false;
-            }
-        }
-        for (let k = row - 1; k < row + 2; k++) {
-            for (let l = col - 1; l < col + ship.size + 1; l++) {
-                if (board[k] &&
-                    board[k][l] &&
-                    board[k][l].shipId !== shipId &&
-                    board[k][l].shipId !== null) {
-                    return false;
-                }
-            }
-        }
-    }
-    else if (orientation === 'vertical') {
-        for (let k = row; k < row + ship.size; k++) {
-            if (!board[k] || !board[k][col] || board[k][col].shipId !== shipId) {
-                return false;
-            }
-        }
-        for (let k = row - 1; k < row + ship.size + 1; k++) {
-            for (let l = col - 1; l < col + 2; l++) {
-                if (board[k] &&
-                    board[k][l] &&
-                    board[k][l].shipId !== shipId &&
-                    board[k][l].shipId !== null) {
-                    return false;
-                }
-            }
-        }
-    }
-    return true;
 };
 //# sourceMappingURL=setting.js.map

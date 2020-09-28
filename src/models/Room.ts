@@ -5,9 +5,11 @@ import { IPlayer } from './Player';
 
 export interface IRoom extends Document {
   players: IPlayer['id'][];
+  turn?: number;
   disabled?: boolean;
   addToRoom: (player: IPlayer) => Promise<void>;
   removeFromRoom: (playerId: IPlayer['id']) => Promise<void>;
+  changeTurn: () => Promise<void>;
 }
 
 const roomSchema = new Schema<IRoom>(
@@ -22,12 +24,25 @@ const roomSchema = new Schema<IRoom>(
       ],
       required: true,
     },
+    turn: {
+      type: Number,
+    },
     disabled: {
       type: Boolean,
     },
   },
   { autoCreate: true },
 );
+
+roomSchema.methods.changeTurn = async function () {
+  if (this.turn === 1) {
+    this.turn = 2;
+  } else if (this.turn === 2) {
+    this.turn = 1;
+  }
+
+  await this.save();
+};
 
 // tslint:disable-next-line: only-arrow-functions
 roomSchema.methods.addToRoom = async function (player) {
@@ -39,9 +54,7 @@ roomSchema.methods.addToRoom = async function (player) {
   player.room = this.id;
 
   try {
-    //**************************************************
-    //**************************************************
-    //**************************************************
+    // NOTE UNCOMMENT WHEN HOSTED ON THE REAL SERVER
     // const session = await startSession();
     // session.startTransaction();
 
@@ -50,9 +63,6 @@ roomSchema.methods.addToRoom = async function (player) {
 
     // await session.commitTransaction();
     // session.endSession();
-    //**************************************************
-    //**************************************************
-    //**************************************************
 
     await this.save();
     await player.save();
@@ -72,7 +82,6 @@ roomSchema.methods.removeFromRoom = async function (playerId) {
   );
   this.players = updatedPlayers;
   this.disabled = true;
-
   await this.save();
 };
 

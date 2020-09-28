@@ -19,20 +19,20 @@ const turn_1 = require("./turn");
 exports.matchmaking = function () {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            //* If player reconnects, some cleanup must be done
             if (this.roomId) {
+                // * PLAYER RECONNECTION CLEANUP * //
                 const room = yield Room_1.default.findById(this.roomId);
-                room === null || room === void 0 ? void 0 : room.removeFromRoom(this.playerId);
+                yield (room === null || room === void 0 ? void 0 : room.removeFromRoom(this.playerId));
                 this.leave(this.roomId);
                 this.roomId = undefined;
             }
             const player = yield Player_1.default.findById(this.playerId);
-            let readyToPlay = true;
             if (!player) {
                 throw new Error('User connection fault.');
             }
-            let room;
-            room = yield Room_1.default.findOne({
+            let readyToPlay = true;
+            yield player.setNewGame();
+            let room = yield Room_1.default.findOne({
                 players: { $size: 1 },
                 disabled: { $exists: false },
             });
@@ -50,7 +50,7 @@ exports.matchmaking = function () {
             this.emit('matchmaking', response);
             if (readyToPlay) {
                 const response = {
-                    message: `Congratulations ${player.name}, new player joined your room!`,
+                    message: `Congratulations, new player joined your room!`,
                     readyToPlay,
                 };
                 this.to(this.roomId).emit('matchmaking', response);
@@ -59,7 +59,7 @@ exports.matchmaking = function () {
         }
         catch (err) {
             console.error('Error in "controllers/matchmaking.ts [matchmaking]".');
-            this.error({ message: err.message });
+            this.error({ message: err.message || 'Matchmaking Error' });
         }
     });
 };

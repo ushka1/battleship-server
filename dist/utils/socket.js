@@ -16,7 +16,7 @@ function getIO() {
         return io;
     }
     else {
-        throw new Error('Socket.io error occurred');
+        throw new Error('Error in "utils/socket.ts [getIO]".');
     }
 }
 exports.getIO = getIO;

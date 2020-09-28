@@ -22,10 +22,24 @@ const roomSchema = new mongoose_1.Schema({
         ],
         required: true,
     },
+    turn: {
+        type: Number,
+    },
     disabled: {
         type: Boolean,
     },
 }, { autoCreate: true });
+roomSchema.methods.changeTurn = function () {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (this.turn === 1) {
+            this.turn = 2;
+        }
+        else if (this.turn === 2) {
+            this.turn = 1;
+        }
+        yield this.save();
+    });
+};
 // tslint:disable-next-line: only-arrow-functions
 roomSchema.methods.addToRoom = function (player) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -35,18 +49,13 @@ roomSchema.methods.addToRoom = function (player) {
         this.players.push(player.id);
         player.room = this.id;
         try {
-            //**************************************************
-            //**************************************************
-            //**************************************************
+            // NOTE UNCOMMENT WHEN HOSTED ON THE REAL SERVER
             // const session = await startSession();
             // session.startTransaction();
             // await this.save({ session });
             // await player.save({ session });
             // await session.commitTransaction();
             // session.endSession();
-            //**************************************************
-            //**************************************************
-            //**************************************************
             yield this.save();
             yield player.save();
         }

@@ -23,7 +23,6 @@ app.use(express.json());
   });
 
   const server = app.listen(process.env.PORT || 5000);
-
   const io = socketio.listen(server, { origins: ['http://localhost:3000'] });
 
   if (io) {
