@@ -22,7 +22,7 @@ exports.handleGame = function (coords) {
         const io = socket_1.getIO();
         const room = yield Room_1.default.findById(this.roomId);
         try {
-            if (!room || !io) {
+            if (!room) {
                 throw new Error('An unexpected error occurred.');
             }
             if (room.turn !== this.turnId) {
@@ -33,8 +33,11 @@ exports.handleGame = function (coords) {
             if (!enemy) {
                 throw new Error('An unexpected error occurred.');
             }
+            //**************************************************
+            //TODO: Handle player attack
+            //**************************************************
             const playerSocket = this;
-            const enemySocket = io.sockets.connected[enemy.socketId];
+            const enemySocket = io === null || io === void 0 ? void 0 : io.sockets.connected[enemy.socketId];
             const shipHitted = yield enemy.handleHit(coords.row, coords.col);
             playerSocket.emit('game-controller', { enemyBoard: enemy.board });
             enemySocket.emit('game-controller', { playerBoard: enemy.board });
@@ -49,11 +52,9 @@ exports.handleGame = function (coords) {
         catch (err) {
             console.error('Error in "controllers/game.ts [handleGame]".');
             yield (room === null || room === void 0 ? void 0 : room.populate('players').execPopulate());
-            const socketIds = room === null || room === void 0 ? void 0 : room.players.map((player) => player.socketId);
-            socketIds === null || socketIds === void 0 ? void 0 : socketIds.forEach((socketId) => {
-                io === null || io === void 0 ? void 0 : io.sockets.connected[socketId].error({
-                    message: 'An unexpected error occurred.',
-                });
+            room === null || room === void 0 ? void 0 : room.players.forEach((player) => {
+                const playerSocket = io === null || io === void 0 ? void 0 : io.sockets.connected[player.socketId];
+                playerSocket === null || playerSocket === void 0 ? void 0 : playerSocket.error({ message: 'An unexpected error occurred.' });
             });
         }
     });

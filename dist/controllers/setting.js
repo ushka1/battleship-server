@@ -29,7 +29,9 @@ exports.applySetting = function (board) {
             for (let row = 0; row < settingUtils_1.rowsLength; row++) {
                 for (let col = 0; col < settingUtils_1.colsLength; col++) {
                     const curCell = board[row][col];
-                    if (settingUtils_1.shipsDefault[curCell.shipId] &&
+                    if (
+                    // * IF CELL CONTAINS SHIPID AND SHIP IS NOT FOUND YET * //
+                    settingUtils_1.shipsDefault[curCell.shipId] &&
                         foundShips[curCell.shipId] === undefined) {
                         foundShips[curCell.shipId] = settingUtils_1.shipProperlySettled(board, row, col, curCell.shipId);
                     }
