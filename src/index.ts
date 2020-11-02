@@ -1,10 +1,10 @@
 import express from 'express';
-import socketio from 'socket.io';
+// import socketio from 'socket.io';
 import cors from 'cors';
 import { connect } from 'mongoose';
 
-import { Socket } from './utils/Socket';
-import router from './routes';
+// import { Socket } from './utils/Socket';
+// import router from './routes';
 
 const app = express();
 app.use(cors());
@@ -33,12 +33,12 @@ app.get('/', (req, res, next) => {
   });
 
   const server = app.listen(process.env.PORT || 5000);
-  const io = socketio.listen(server, {
-    // origins: [process.env.SOCKET_ORIGIN],
-  });
+  // const io = socketio.listen(server, {
+  // origins: [process.env.SOCKET_ORIGIN],
+  // });
 
-  if (io) {
-    Socket.init(io);
-    io.on('connect', router);
-  }
+  // if (io) {
+  //   Socket.init(io);
+  //   io.on('connect', router);
+  // }
 })();
