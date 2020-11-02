@@ -4,6 +4,9 @@
   "main": "index.js",
   "author": "Batiuszka Maroz <david.prajzner@op.pl>",
   "license": "MIT",
+  "engines": {
+    "node": "14.x"
+  },
   "dependencies": {
     "@types/cors": "^2.8.8",
     "cors": "^2.8.5",
@@ -12,8 +15,8 @@
     "socket.io": "^2.3.0"
   },
   "scripts": {
-    "start": "node ./dist/app.js",
-    "dev:start": "nodemon ./dist/app.js",
+    "start": "node ./dist",
+    "dev:start": "nodemon ./dist",
     "dev:build": "tsc -w"
   },
   "devDependencies": {
