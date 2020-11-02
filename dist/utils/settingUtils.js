@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sunkShip = exports.shipProperlySettled = exports.shipsDefaultArray = exports.shipsDefault = exports.colsLength = exports.rowsLength = void 0;
 exports.rowsLength = 10;
@@ -15,12 +26,12 @@ exports.shipsDefault = {
     'ship-8': { id: 'ship-8', size: 1, hp: 1 },
     'ship-9': { id: 'ship-9', size: 1, hp: 1 },
 };
-exports.shipsDefaultArray = Object.keys(exports.shipsDefault).map((key) => {
-    return Object.assign({}, exports.shipsDefault[key]);
+exports.shipsDefaultArray = Object.keys(exports.shipsDefault).map(function (key) {
+    return __assign({}, exports.shipsDefault[key]);
 });
-exports.shipProperlySettled = (board, row, col, shipId) => {
-    const ship = exports.shipsDefault[shipId];
-    let orientation = '';
+exports.shipProperlySettled = function (board, row, col, shipId) {
+    var ship = exports.shipsDefault[shipId];
+    var orientation = '';
     if (ship.size === 1) {
         orientation = 'horizontal';
     }
@@ -40,13 +51,13 @@ exports.shipProperlySettled = (board, row, col, shipId) => {
         }
     }
     if (orientation === 'horizontal') {
-        for (let k = col; k < ship.size + col; k++) {
+        for (var k = col; k < ship.size + col; k++) {
             if (!board[row] || !board[row][k] || board[row][k].shipId !== shipId) {
                 return false;
             }
         }
-        for (let k = row - 1; k < row + 2; k++) {
-            for (let l = col - 1; l < col + ship.size + 1; l++) {
+        for (var k = row - 1; k < row + 2; k++) {
+            for (var l = col - 1; l < col + ship.size + 1; l++) {
                 if (board[k] &&
                     board[k][l] &&
                     board[k][l].shipId !== shipId &&
@@ -57,13 +68,13 @@ exports.shipProperlySettled = (board, row, col, shipId) => {
         }
     }
     else if (orientation === 'vertical') {
-        for (let k = row; k < row + ship.size; k++) {
+        for (var k = row; k < row + ship.size; k++) {
             if (!board[k] || !board[k][col] || board[k][col].shipId !== shipId) {
                 return false;
             }
         }
-        for (let k = row - 1; k < row + ship.size + 1; k++) {
-            for (let l = col - 1; l < col + 2; l++) {
+        for (var k = row - 1; k < row + ship.size + 1; k++) {
+            for (var l = col - 1; l < col + 2; l++) {
                 if (board[k] &&
                     board[k][l] &&
                     board[k][l].shipId !== shipId &&
@@ -75,12 +86,14 @@ exports.shipProperlySettled = (board, row, col, shipId) => {
     }
     return true;
 };
-exports.sunkShip = (board, shipId) => {
-    const ship = Object.assign({}, exports.shipsDefault[shipId]);
-    let orientation;
-    let firstCell;
-    for (const row of board) {
-        for (const cell of row) {
+exports.sunkShip = function (board, shipId) {
+    var ship = __assign({}, exports.shipsDefault[shipId]);
+    var orientation;
+    var firstCell;
+    for (var _i = 0, board_1 = board; _i < board_1.length; _i++) {
+        var row = board_1[_i];
+        for (var _a = 0, row_1 = row; _a < row_1.length; _a++) {
+            var cell = row_1[_a];
             if (cell.shipId === ship.id) {
                 firstCell = cell;
                 break;
@@ -101,12 +114,12 @@ exports.sunkShip = (board, shipId) => {
         orientation = 'vertical';
     }
     if (orientation === 'horizontal') {
-        const firstColumn = firstCell.col - 1;
-        const lastColumn = firstCell.col + ship.size;
-        const firstRow = firstCell.row - 1;
-        const lastRow = firstCell.row + 1;
-        for (let col = firstColumn; col < lastColumn + 1; col++) {
-            for (let row = firstRow; row < lastRow + 1; row++) {
+        var firstColumn = firstCell.col - 1;
+        var lastColumn = firstCell.col + ship.size;
+        var firstRow = firstCell.row - 1;
+        var lastRow = firstCell.row + 1;
+        for (var col = firstColumn; col < lastColumn + 1; col++) {
+            for (var row = firstRow; row < lastRow + 1; row++) {
                 if (board[row] && board[row][col]) {
                     board[row][col].hit = true;
                 }
@@ -114,12 +127,12 @@ exports.sunkShip = (board, shipId) => {
         }
     }
     else if (orientation === 'vertical') {
-        const firstRow = firstCell.row - 1;
-        const lastRow = firstCell.row + ship.size;
-        const firstColumn = firstCell.col - 1;
-        const lastColumn = firstCell.col + 1;
-        for (let row = firstRow; row < lastRow + 1; row++) {
-            for (let col = firstColumn; col < lastColumn + 1; col++) {
+        var firstRow = firstCell.row - 1;
+        var lastRow = firstCell.row + ship.size;
+        var firstColumn = firstCell.col - 1;
+        var lastColumn = firstCell.col + 1;
+        for (var row = firstRow; row < lastRow + 1; row++) {
+            for (var col = firstColumn; col < lastColumn + 1; col++) {
                 if (board[row] && board[row][col]) {
                     board[row][col].hit = true;
                 }

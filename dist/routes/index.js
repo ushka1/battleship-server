@@ -1,12 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const connect_1 = require("../controllers/connect");
-const privateRoom_1 = require("../controllers/privateRoom");
-const setting_1 = require("../controllers/setting");
-const matchmaking_1 = require("../controllers/matchmaking");
-const privateMatchmaking_1 = require("../controllers/privateMatchmaking");
-const turn_1 = require("../controllers/turn");
-const game_1 = require("../controllers/game");
+var connect_1 = require("../controllers/connect");
+var privateRoom_1 = require("../controllers/privateRoom");
+var setting_1 = require("../controllers/setting");
+var matchmaking_1 = require("../controllers/matchmaking");
+var privateMatchmaking_1 = require("../controllers/privateMatchmaking");
+var turn_1 = require("../controllers/turn");
+var game_1 = require("../controllers/game");
 function default_1(socket) {
     socket.on('connect-player', connect_1.onConnect);
     socket.on('private', privateRoom_1.createPrivateRoom);
