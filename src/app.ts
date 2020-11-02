@@ -1,11 +1,15 @@
 import express from 'express';
 import socketio from 'socket.io';
+import cors from 'cors';
 import { connect } from 'mongoose';
 
 import { Socket } from './utils/Socket';
 import router from './routes';
 
 const app = express();
+app.use(
+  cors({ origin: ['https://batiuszkamaroz.github.io/BATTLESHIP_CLIENT/'] }),
+);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());

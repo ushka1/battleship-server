@@ -14,10 +14,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const socket_io_1 = __importDefault(require("socket.io"));
+const cors_1 = __importDefault(require("cors"));
 const mongoose_1 = require("mongoose");
 const Socket_1 = require("./utils/Socket");
 const routes_1 = __importDefault(require("./routes"));
 const app = express_1.default();
+app.use(cors_1.default({ origin: ['https://batiuszkamaroz.github.io/BATTLESHIP_CLIENT/'] }));
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use(express_1.default.json());
 (() => __awaiter(void 0, void 0, void 0, function* () {
