@@ -46,8 +46,6 @@ const onDisconnect = async function (this: ExtSocket) {
           io.to(remainingPlayer.socketId).emit('disconnect', response);
         }
 
-        // FIXME HANDLE PRIV LEAVE
-
         const room = await Room.findById(this.roomId);
         await room?.removeFromRoom(this.playerId);
       }
