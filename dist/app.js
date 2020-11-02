@@ -37,7 +37,9 @@ app.get('/test', (req, res, next) => {
         dbName: `${process.env.DB_NAME}`,
     });
     const server = app.listen(process.env.PORT || 5000);
-    const io = socket_io_1.default.listen(server, {});
+    const io = socket_io_1.default.listen(server, {
+        origins: [process.env.SOCKET_ORIGIN],
+    });
     if (io) {
         Socket_1.Socket.init(io);
         io.on('connect', routes_1.default);

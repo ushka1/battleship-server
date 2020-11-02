@@ -30,7 +30,7 @@ app.get('/test', (req, res, next) => {
 
   const server = app.listen(process.env.PORT || 5000);
   const io = socketio.listen(server, {
-    // origins: [process.env.SOCKET_ORIGIN]
+    origins: [process.env.SOCKET_ORIGIN],
   });
 
   if (io) {
