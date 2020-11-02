@@ -15,7 +15,7 @@
     "socket.io": "^2.3.0"
   },
   "scripts": {
-    "start": "node ./dist",
+    "start": "node ./dist/index.js",
     "dev:start": "nodemon ./dist",
     "dev:build": "tsc -w"
   },
