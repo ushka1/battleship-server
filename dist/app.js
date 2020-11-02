@@ -19,7 +19,7 @@ const mongoose_1 = require("mongoose");
 const Socket_1 = require("./utils/Socket");
 const routes_1 = __importDefault(require("./routes"));
 const app = express_1.default();
-app.use(cors_1.default({ origin: ['https://batiuszkamaroz.github.io/BATTLESHIP_CLIENT/'] }));
+app.use(cors_1.default());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use(express_1.default.json());
 (() => __awaiter(void 0, void 0, void 0, function* () {
@@ -34,7 +34,7 @@ app.use(express_1.default.json());
         dbName: `${process.env.DB_NAME}`,
     });
     const server = app.listen(process.env.PORT || 5000);
-    const io = socket_io_1.default.listen(server, { origins: [process.env.SOCKET_ORIGIN] });
+    const io = socket_io_1.default.listen(server, {});
     if (io) {
         Socket_1.Socket.init(io);
         io.on('connect', routes_1.default);

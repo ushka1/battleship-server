@@ -7,9 +7,7 @@ import { Socket } from './utils/Socket';
 import router from './routes';
 
 const app = express();
-app.use(
-  cors({ origin: ['https://batiuszkamaroz.github.io/BATTLESHIP_CLIENT/'] }),
-);
+app.use(cors());
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -27,7 +25,9 @@ app.use(express.json());
   });
 
   const server = app.listen(process.env.PORT || 5000);
-  const io = socketio.listen(server, { origins: [process.env.SOCKET_ORIGIN] });
+  const io = socketio.listen(server, {
+    // origins: [process.env.SOCKET_ORIGIN]
+  });
 
   if (io) {
     Socket.init(io);
