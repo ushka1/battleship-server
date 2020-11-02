@@ -12,6 +12,10 @@ app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+app.get('/test', (req, res, next) => {
+  res.status(200).send('TEST');
+});
+
 (async () => {
   await connect(`${process.env.DB_CONNECT}/${process.env.DB_NAME}`, {
     useNewUrlParser: true,

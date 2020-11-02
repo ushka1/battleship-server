@@ -22,6 +22,9 @@ const app = express_1.default();
 app.use(cors_1.default());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use(express_1.default.json());
+app.get('/test', (req, res, next) => {
+    res.status(200).send('TEST');
+});
 (() => __awaiter(void 0, void 0, void 0, function* () {
     yield mongoose_1.connect(`${process.env.DB_CONNECT}/${process.env.DB_NAME}`, {
         useNewUrlParser: true,
