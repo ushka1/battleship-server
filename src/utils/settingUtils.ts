@@ -100,38 +100,64 @@ export const shipProperlySettled = (
   return true;
 };
 
-export const shipSunked = (board: Board, shipId: ShipKey) => {
+export const sunkShip = (board: Board, shipId: ShipKey) => {
   const ship = { ...shipsDefault[shipId] };
   let orientation: string;
+  let firstCell: Cell | undefined;
 
-  if (ship.size === 1) {
-    orientation = 'horizontal';
-  } else {
-    let firstCell: Cell | undefined;
-
-    for (const row of board) {
-      for (const cell of row) {
-        if (cell.shipId === ship.id) {
-          firstCell = cell;
-          break;
-        }
-      }
-
-      if (firstCell) {
+  for (const row of board) {
+    for (const cell of row) {
+      if (cell.shipId === ship.id) {
+        firstCell = cell;
         break;
       }
     }
 
-    if (!firstCell) {
-      return;
-    }
-
-    if (board[firstCell.row][firstCell.col + 1].shipId === ship.id) {
-      orientation = 'horizontal';
-    } else {
-      orientation = 'vertical';
+    if (firstCell) {
+      break;
     }
   }
 
-  console.log(orientation);
+  if (!firstCell) {
+    return;
+  }
+
+  if (
+    board[firstCell.row][firstCell.col + 1] &&
+    board[firstCell.row][firstCell.col + 1].shipId === ship.id
+  ) {
+    orientation = 'horizontal';
+  } else {
+    orientation = 'vertical';
+  }
+
+  if (orientation === 'horizontal') {
+    const firstColumn = firstCell.col - 1;
+    const lastColumn = firstCell.col + ship.size;
+
+    const firstRow = firstCell.row - 1;
+    const lastRow = firstCell.row + 1;
+
+    for (let col = firstColumn; col < lastColumn + 1; col++) {
+      for (let row = firstRow; row < lastRow + 1; row++) {
+        if (board[row] && board[row][col]) {
+          board[row][col].hit = true;
+        }
+      }
+    }
+  } else if (orientation === 'vertical') {
+    const firstRow = firstCell.row - 1;
+    const lastRow = firstCell.row + ship.size;
+
+    const firstColumn = firstCell.col - 1;
+    const lastColumn = firstCell.col + 1;
+
+    for (let row = firstRow; row < lastRow + 1; row++) {
+      for (let col = firstColumn; col < lastColumn + 1; col++) {
+        if (board[row] && board[row][col]) {
+          board[row][col].hit = true;
+        }
+      }
+    }
+  }
 };

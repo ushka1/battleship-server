@@ -28,3 +28,11 @@ export type TurnResponse = {
   turnId?: number;
   turn?: number;
 };
+
+export type GameResponse = {
+  enemyBoard?: any;
+  playerBoard?: any;
+  gameOver?: {
+    win: boolean;
+  };
+};

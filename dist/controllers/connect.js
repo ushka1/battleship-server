@@ -13,23 +13,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.onConnect = void 0;
+const Socket_1 = require("../utils/Socket");
 const Player_1 = __importDefault(require("../models/Player"));
 const Room_1 = __importDefault(require("../models/Room"));
-const socket_1 = require("../utils/socket");
 exports.onConnect = function (name) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (this.playerId) {
-            return;
-        }
         try {
             const player = yield Player_1.default.create({ name, socketId: this.id });
-            const transformedPlayer = { id: player.id, name: player.name };
             const response = {
                 message: `Congratulations ${name}, you successfully connected to our game!`,
-                player: transformedPlayer,
+                player: { id: player.id, name: player.name },
             };
-            this.emit('connect-player', response);
             this.playerId = player.id;
+            this.emit('connect-player', response);
             this.on('disconnect', onDisconnect.bind(this));
         }
         catch (err) {
@@ -50,12 +46,12 @@ const onDisconnect = function () {
                     if (remainingPlayer) {
                         yield remainingPlayer.setNewGame();
                         const response = {
-                            message: 'Player left your room.',
-                            playerLeft: true,
+                            message: "Your enemy couldn't stand it, he/she disconnected.",
                             board: remainingPlayer.boardDefault,
+                            playerLeft: true,
                         };
-                        const io = socket_1.getIO();
-                        io === null || io === void 0 ? void 0 : io.to(remainingPlayer.socketId).emit('disconnect', response);
+                        const { io } = Socket_1.Socket.getInstance();
+                        io.to(remainingPlayer.socketId).emit('disconnect', response);
                     }
                     const room = yield Room_1.default.findById(this.roomId);
                     yield (room === null || room === void 0 ? void 0 : room.removeFromRoom(this.playerId));

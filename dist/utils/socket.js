@@ -1,23 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getIO = exports.init = void 0;
-let io;
-function init(ioServer) {
-    if (io) {
-        return;
+exports.Socket = void 0;
+class Socket {
+    constructor(io) {
+        this.io = io;
     }
-    else {
-        io = ioServer;
+    static init(io) {
+        this.instance = new this(io);
     }
-}
-exports.init = init;
-function getIO() {
-    if (io) {
-        return io;
-    }
-    else {
-        throw new Error('Error in "utils/socket.ts [getIO]".');
+    static getInstance() {
+        if (this.instance) {
+            return this.instance;
+        }
+        else {
+            throw new Error('Error in "utils/socket.ts [getIO]".');
+        }
     }
 }
-exports.getIO = getIO;
-//# sourceMappingURL=socket.js.map
+exports.Socket = Socket;
+//# sourceMappingURL=Socket.js.map

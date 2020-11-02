@@ -1,7 +1,7 @@
 import Room from '../models/Room';
 import Player from '../models/Player';
-import { ExtSocket } from './index';
-import { getIO } from '../utils/socket';
+import { ExtSocket } from '../routes/index';
+import { Socket } from '../utils/Socket';
 import { TurnResponse } from '../utils/responses';
 
 export const setTurnIds = async (roomId: string) => {
@@ -43,7 +43,7 @@ export const getTurnId = async function (this: ExtSocket) {
 };
 
 export const changeTurn = async (roomId: string) => {
-  const io = getIO();
+  const { io } = Socket.getInstance();
   if (!io) {
     throw new Error('Socket Error.');
   }

@@ -1,19 +1,14 @@
-import Player from '../models/Player';
-import Room from '../models/Room';
+import { ExtSocket } from '../routes/index';
 import { MatchmakingResponse } from '../utils/responses';
 import { setTurnIds } from './turn';
-import { ExtSocket } from './index';
+import { reconnectionCleanup } from '../utils/reconnectionCleanup';
+
+import Player from '../models/Player';
+import Room from '../models/Room';
 
 export const matchmaking = async function (this: ExtSocket) {
   try {
-    if (this.roomId) {
-      // * PLAYER RECONNECTION CLEANUP * //
-      const room = await Room.findById(this.roomId);
-      await room?.removeFromRoom(this.playerId);
-
-      this.leave(this.roomId);
-      this.roomId = undefined;
-    }
+    await reconnectionCleanup(this);
 
     const player = await Player.findById(this.playerId);
     if (!player) {
@@ -25,6 +20,7 @@ export const matchmaking = async function (this: ExtSocket) {
 
     let room = await Room.findOne({
       players: { $size: 1 },
+      private: { $exists: false },
       disabled: { $exists: false },
     });
 

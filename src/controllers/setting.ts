@@ -7,7 +7,7 @@ import {
   rowsLength,
   colsLength,
 } from '../utils/settingUtils';
-import { ExtSocket } from './index';
+import { ExtSocket } from '../routes/index';
 
 export const applySetting = async function (this: ExtSocket, board: Board) {
   try {
@@ -25,19 +25,10 @@ export const applySetting = async function (this: ExtSocket, board: Board) {
 
     for (let row = 0; row < rowsLength; row++) {
       for (let col = 0; col < colsLength; col++) {
-        const curCell = board[row][col];
+        const { shipId } = board[row][col];
 
-        if (
-          // * IF CELL CONTAINS SHIPID AND SHIP IS NOT FOUND YET * //
-          shipsDefault[curCell.shipId] &&
-          foundShips[curCell.shipId] === undefined
-        ) {
-          foundShips[curCell.shipId] = shipProperlySettled(
-            board,
-            row,
-            col,
-            curCell.shipId,
-          );
+        if (shipsDefault[shipId] && foundShips[shipId] === undefined) {
+          foundShips[shipId] = shipProperlySettled(board, row, col, shipId);
         }
       }
     }

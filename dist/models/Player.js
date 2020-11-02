@@ -44,12 +44,8 @@ const playerSchema = new mongoose_1.Schema({
             },
         ],
     ],
-    boardDefault: {
-        type: Array,
-    },
-    turnId: {
-        type: Number,
-    },
+    boardDefault: Array,
+    turnId: Number,
 }, { autoCreate: true });
 playerSchema.methods.setDefaults = function (board) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -86,10 +82,9 @@ playerSchema.methods.handleHit = function (row, col) {
         const shipId = this.board[row][col].shipId;
         if (shipId) {
             const ship = (_a = this.ships) === null || _a === void 0 ? void 0 : _a.find((ship) => ship.id === shipId);
-            console.log(ship);
             ship.hp--;
             if (ship.hp <= 0) {
-                settingUtils_1.shipSunked(this.board, shipId);
+                settingUtils_1.sunkShip(this.board, shipId);
             }
             shipHitted = true;
         }
@@ -97,6 +92,17 @@ playerSchema.methods.handleHit = function (row, col) {
         yield this.save();
         return shipHitted;
     });
+};
+playerSchema.methods.hasShips = function () {
+    const allShipsSunked = this.ships.reduce((acc, cur) => {
+        if (acc && cur.hp <= 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }, true);
+    return !allShipsSunked;
 };
 const Player = mongoose_1.model('Player', playerSchema);
 Player.db.dropCollection('players', () => { });

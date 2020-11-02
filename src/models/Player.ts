@@ -2,7 +2,7 @@ import { Schema, model, Document } from 'mongoose';
 import {
   shipsDefaultArray,
   ShipKey,
-  shipSunked,
+  sunkShip,
   Board,
 } from '../utils/settingUtils';
 
@@ -18,6 +18,7 @@ export interface IPlayer extends Document {
   setNewGame: () => Promise<void>;
   resetGame: () => Promise<void>;
   handleHit: (row: number, col: number) => Promise<boolean>;
+  hasShips: () => boolean;
 }
 
 const playerSchema = new Schema<IPlayer>(
@@ -54,12 +55,8 @@ const playerSchema = new Schema<IPlayer>(
         },
       ],
     ],
-    boardDefault: {
-      type: Array,
-    },
-    turnId: {
-      type: Number,
-    },
+    boardDefault: Array,
+    turnId: Number,
   },
   { autoCreate: true },
 );
@@ -93,15 +90,14 @@ playerSchema.methods.handleHit = async function (row, col) {
   }
 
   let shipHitted = false;
-  const shipId = this.board[row][col].shipId as ShipKey | undefined;
+  const shipId = this.board[row][col].shipId as ShipKey;
 
   if (shipId) {
     const ship = this.ships?.find((ship) => ship.id === shipId)!;
-    console.log(ship);
     ship.hp--;
 
     if (ship.hp <= 0) {
-      shipSunked(this.board, shipId);
+      sunkShip(this.board, shipId);
     }
 
     shipHitted = true;
@@ -111,6 +107,18 @@ playerSchema.methods.handleHit = async function (row, col) {
   await this.save();
 
   return shipHitted;
+};
+
+playerSchema.methods.hasShips = function () {
+  const allShipsSunked = this.ships!.reduce((acc, cur) => {
+    if (acc && cur.hp <= 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }, true);
+
+  return !allShipsSunked;
 };
 
 const Player = model<IPlayer>('Player', playerSchema);

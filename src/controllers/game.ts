@@ -1,14 +1,16 @@
+import { ExtSocket } from '../routes/index';
+import { Socket } from '../utils/Socket';
+import { changeTurn } from './turn';
+
 import Player from '../models/Player';
 import Room from '../models/Room';
-import { changeTurn } from './turn';
-import { ExtSocket } from './index';
-import { getIO } from '../utils/socket';
+import { GameResponse } from '../utils/responses';
 
 export const handleGame = async function (
   this: ExtSocket,
   coords: { row: number; col: number },
 ) {
-  const io = getIO();
+  const { io } = Socket.getInstance();
   const room = await Room.findById(this.roomId);
 
   try {
@@ -32,8 +34,40 @@ export const handleGame = async function (
 
     const shipHitted = await enemy.handleHit(coords.row, coords.col);
 
-    playerSocket.emit('game-controller', { enemyBoard: enemy.board });
-    enemySocket.emit('game-controller', { playerBoard: enemy.board });
+    const enemyBoard = enemy.board?.map((row) => {
+      return row.map(({ id, row, col, shipId, hit }) => {
+        return {
+          id,
+          row,
+          col,
+          shipId: !!(shipId && hit),
+          hit,
+        };
+      });
+    });
+
+    const playerBoard = enemy.board?.map((row) => {
+      return row.map(({ id, row, col, shipId, hit }) => {
+        return {
+          id,
+          row,
+          col,
+          shipId,
+          hit,
+        };
+      });
+    });
+
+    playerSocket.emit('game-controller', { enemyBoard });
+    enemySocket.emit('game-controller', { playerBoard });
+
+    const enemyHasShips = enemy.hasShips();
+
+    if (!enemyHasShips) {
+      playerSocket.emit('game-controller', { gameOver: { win: true } });
+      enemySocket.emit('game-controller', { gameOver: { win: false } });
+      return;
+    }
 
     if (shipHitted) {
       playerSocket!.emit('game-controller', { unlock: true });
@@ -42,6 +76,8 @@ export const handleGame = async function (
       enemySocket!.emit('game-controller', { unlock: true });
     }
   } catch (err) {
+    console.log(err);
+
     console.error('Error in "controllers/game.ts [handleGame]".');
 
     await room?.populate('players').execPopulate();

@@ -21,12 +21,9 @@ const roomSchema = new mongoose_1.Schema({
         ],
         required: true,
     },
-    turn: {
-        type: Number,
-    },
-    disabled: {
-        type: Boolean,
-    },
+    turn: Number,
+    disabled: Boolean,
+    private: Boolean,
 }, { autoCreate: true });
 roomSchema.methods.changeTurn = function () {
     return __awaiter(this, void 0, void 0, function* () {
@@ -44,14 +41,14 @@ roomSchema.methods.addToRoom = function (player) {
         if (this.players.length >= 2) {
             throw new Error('The room is full.');
         }
-        this.players.push(player.id);
-        player.room = this.id;
         try {
+            this.players.push(player.id);
+            player.room = this.id;
             yield this.save();
             yield player.save();
         }
         catch (err) {
-            throw new Error('An unexpected error occurred.');
+            throw new Error('An error occurred while adding player to the room.');
         }
     });
 };

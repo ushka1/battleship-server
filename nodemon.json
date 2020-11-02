@@ -3,6 +3,7 @@
     "DB_CONNECT": "mongodb://localhost:27017",
     "DB_NAME": "TEST_DECK",
     "DB_USERNAME": "CaptainBatiuszka",
-    "DB_PASSWORD": "zaq1@WSX"
+    "DB_PASSWORD": "zaq1@WSX",
+    "SOCKET_ORIGIN": "http://localhost:3000"
   }
 }

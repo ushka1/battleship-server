@@ -1,26 +1,22 @@
+import { ExtSocket } from '../routes/index';
+import { ConnectResponse, DisconnectResponse } from '../utils/responses';
+
+import { Socket } from '../utils/Socket';
 import Player from '../models/Player';
 import Room from '../models/Room';
-import { ConnectResponse, DisconnectResponse } from '../utils/responses';
-import { ExtSocket } from './index';
-import { getIO } from '../utils/socket';
 
 export const onConnect = async function (this: ExtSocket, name: string) {
-  if (this.playerId) {
-    return;
-  }
-
   try {
     const player = await Player.create({ name, socketId: this.id });
-    const transformedPlayer = { id: player.id, name: player.name };
 
     const response: ConnectResponse = {
       message: `Congratulations ${name}, you successfully connected to our game!`,
-      player: transformedPlayer,
+      player: { id: player.id, name: player.name },
     };
 
+    this.playerId = player.id;
     this.emit('connect-player', response);
 
-    this.playerId = player.id;
     this.on('disconnect', onDisconnect.bind(this));
   } catch (err) {
     console.error('Error in "controllers/connect.ts [onConnect]".');
@@ -41,14 +37,16 @@ const onDisconnect = async function (this: ExtSocket) {
           await remainingPlayer.setNewGame();
 
           const response: DisconnectResponse = {
-            message: 'Player left your room.',
-            playerLeft: true,
+            message: "Your enemy couldn't stand it, he/she disconnected.",
             board: remainingPlayer.boardDefault,
+            playerLeft: true,
           };
 
-          const io = getIO();
-          io?.to(remainingPlayer.socketId).emit('disconnect', response);
+          const { io } = Socket.getInstance();
+          io.to(remainingPlayer.socketId).emit('disconnect', response);
         }
+
+        // FIXME HANDLE PRIV LEAVE
 
         const room = await Room.findById(this.roomId);
         await room?.removeFromRoom(this.playerId);

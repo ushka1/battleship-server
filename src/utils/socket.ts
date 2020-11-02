@@ -1,18 +1,19 @@
-type IO = null | SocketIO.Server;
-let io: IO;
+export class Socket {
+  io: SocketIO.Server;
 
-export function init(ioServer: IO) {
-  if (io) {
-    return;
-  } else {
-    io = ioServer;
+  private constructor(io: SocketIO.Server) {
+    this.io = io;
   }
-}
 
-export function getIO(): IO {
-  if (io) {
-    return io;
-  } else {
-    throw new Error('Error in "utils/socket.ts [getIO]".');
+  static init(io: SocketIO.Server) {
+    this.instance = new this(io);
+  }
+  static instance: Socket;
+  static getInstance() {
+    if (this.instance) {
+      return this.instance;
+    } else {
+      throw new Error('Error in "utils/socket.ts [getIO]".');
+    }
   }
 }

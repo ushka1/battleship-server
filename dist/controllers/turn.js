@@ -22,7 +22,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.changeTurn = exports.getTurnId = exports.setTurnIds = void 0;
 const Room_1 = __importDefault(require("../models/Room"));
 const Player_1 = __importDefault(require("../models/Player"));
-const socket_1 = require("../utils/socket");
+const Socket_1 = require("../utils/Socket");
 exports.setTurnIds = (roomId) => __awaiter(void 0, void 0, void 0, function* () {
     var e_1, _a;
     const room = yield Room_1.default.findById(roomId).populate('players');
@@ -68,7 +68,7 @@ exports.getTurnId = function () {
     });
 };
 exports.changeTurn = (roomId) => __awaiter(void 0, void 0, void 0, function* () {
-    const io = socket_1.getIO();
+    const { io } = Socket_1.Socket.getInstance();
     if (!io) {
         throw new Error('Socket Error.');
     }

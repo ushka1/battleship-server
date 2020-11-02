@@ -13,18 +13,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.matchmaking = void 0;
+const turn_1 = require("./turn");
+const reconnectionCleanup_1 = require("../utils/reconnectionCleanup");
 const Player_1 = __importDefault(require("../models/Player"));
 const Room_1 = __importDefault(require("../models/Room"));
-const turn_1 = require("./turn");
 exports.matchmaking = function () {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            if (this.roomId) {
-                const room = yield Room_1.default.findById(this.roomId);
-                yield (room === null || room === void 0 ? void 0 : room.removeFromRoom(this.playerId));
-                this.leave(this.roomId);
-                this.roomId = undefined;
-            }
+            yield reconnectionCleanup_1.reconnectionCleanup(this);
             const player = yield Player_1.default.findById(this.playerId);
             if (!player) {
                 throw new Error('User connection fault.');
@@ -33,6 +29,7 @@ exports.matchmaking = function () {
             yield player.setNewGame();
             let room = yield Room_1.default.findOne({
                 players: { $size: 1 },
+                private: { $exists: false },
                 disabled: { $exists: false },
             });
             if (!room) {

@@ -13,16 +13,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleGame = void 0;
+const Socket_1 = require("../utils/Socket");
+const turn_1 = require("./turn");
 const Player_1 = __importDefault(require("../models/Player"));
 const Room_1 = __importDefault(require("../models/Room"));
-const turn_1 = require("./turn");
-const socket_1 = require("../utils/socket");
 exports.handleGame = function (coords) {
+    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
-        const io = socket_1.getIO();
+        const { io } = Socket_1.Socket.getInstance();
         const room = yield Room_1.default.findById(this.roomId);
         try {
-            if (!room) {
+            if (!room || !io) {
                 throw new Error('An unexpected error occurred.');
             }
             if (room.turn !== this.turnId) {
@@ -33,14 +34,39 @@ exports.handleGame = function (coords) {
             if (!enemy) {
                 throw new Error('An unexpected error occurred.');
             }
-            //**************************************************
-            //TODO: Handle player attack
-            //**************************************************
             const playerSocket = this;
-            const enemySocket = io === null || io === void 0 ? void 0 : io.sockets.connected[enemy.socketId];
+            const enemySocket = io.sockets.connected[enemy.socketId];
             const shipHitted = yield enemy.handleHit(coords.row, coords.col);
-            playerSocket.emit('game-controller', { enemyBoard: enemy.board });
-            enemySocket.emit('game-controller', { playerBoard: enemy.board });
+            const enemyBoard = (_a = enemy.board) === null || _a === void 0 ? void 0 : _a.map((row) => {
+                return row.map(({ id, row, col, shipId, hit }) => {
+                    return {
+                        id,
+                        row,
+                        col,
+                        shipId: !!(shipId && hit),
+                        hit,
+                    };
+                });
+            });
+            const playerBoard = (_b = enemy.board) === null || _b === void 0 ? void 0 : _b.map((row) => {
+                return row.map(({ id, row, col, shipId, hit }) => {
+                    return {
+                        id,
+                        row,
+                        col,
+                        shipId,
+                        hit,
+                    };
+                });
+            });
+            playerSocket.emit('game-controller', { enemyBoard });
+            enemySocket.emit('game-controller', { playerBoard });
+            const enemyHasShips = enemy.hasShips();
+            if (!enemyHasShips) {
+                playerSocket.emit('game-controller', { gameOver: { win: true } });
+                enemySocket.emit('game-controller', { gameOver: { win: false } });
+                return;
+            }
             if (shipHitted) {
                 playerSocket.emit('game-controller', { unlock: true });
             }
@@ -50,11 +76,14 @@ exports.handleGame = function (coords) {
             }
         }
         catch (err) {
+            console.log(err);
             console.error('Error in "controllers/game.ts [handleGame]".');
             yield (room === null || room === void 0 ? void 0 : room.populate('players').execPopulate());
-            room === null || room === void 0 ? void 0 : room.players.forEach((player) => {
-                const playerSocket = io === null || io === void 0 ? void 0 : io.sockets.connected[player.socketId];
-                playerSocket === null || playerSocket === void 0 ? void 0 : playerSocket.error({ message: 'An unexpected error occurred.' });
+            const socketIds = room === null || room === void 0 ? void 0 : room.players.map((player) => player.socketId);
+            socketIds === null || socketIds === void 0 ? void 0 : socketIds.forEach((socketId) => {
+                io === null || io === void 0 ? void 0 : io.sockets.connected[socketId].error({
+                    message: 'An unexpected error occurred.',
+                });
             });
         }
     });
