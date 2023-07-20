@@ -52,10 +52,10 @@ var privateMatchmaking = function (roomId) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 10, , 11]);
-                    return [4, Player_1.default.findById(this.playerId).exec()];
+                    return [4, Player_1.default.findById(this.playerId)];
                 case 1:
                     player = _a.sent();
-                    return [4, Room_1.default.findById(roomId).exec()];
+                    return [4, Room_1.default.findById(roomId)];
                 case 2:
                     room = _a.sent();
                     if (!player || !room) {

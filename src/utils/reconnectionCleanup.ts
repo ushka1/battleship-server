@@ -3,10 +3,14 @@ import { ExtSocket } from '../routes';
 
 export const reconnectionCleanup = async (socket: ExtSocket) => {
   if (socket.roomId) {
-    const room = await Room.findById(socket.roomId).exec();
-    await room?.removeFromRoom(socket.playerId);
+    const room = await Room.findById(socket.roomId);
+    // await room?.removeFromRoom(socket.playerId);
 
-    socket.leave(socket.roomId);
-    socket.roomId = undefined;
+    // socket.leave(socket.roomId);
+    // socket.roomId = undefined;
+    if (room) {
+      room.disabled = false;
+      await room?.save();
+    }
   }
 };

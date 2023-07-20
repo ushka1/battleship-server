@@ -5,7 +5,7 @@ import { TurnResponse } from '../utils/responses';
 import { SocketManager } from '../utils/SocketManager';
 
 export const setTurnIds = async (roomId: string) => {
-  const room = await Room.findById(roomId).populate('players').exec();
+  const room = await Room.findById(roomId).populate('players');
   if (!room) {
     return;
   }
@@ -24,8 +24,8 @@ export const setTurnIds = async (roomId: string) => {
 };
 
 export const getTurnId = async function (this: ExtSocket) {
-  const player = await Player.findById(this.playerId).exec();
-  const room = await Room.findById(this.roomId).exec();
+  const player = await Player.findById(this.playerId);
+  const room = await Room.findById(this.roomId);
 
   if (player && room) {
     this.turnId = player.turnId;
@@ -48,7 +48,7 @@ export const changeTurn = async (roomId: string) => {
     throw new Error('Socket Error.');
   }
 
-  const room = await Room.findById(roomId).exec();
+  const room = await Room.findById(roomId);
   if (!room) {
     throw new Error('An unexpected error occurred.');
   }

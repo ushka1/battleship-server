@@ -61,7 +61,7 @@ var applySetting = function (board) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 3, , 4]);
-                    return [4, Player_1.default.findById(this.playerId).exec()];
+                    return [4, Player_1.default.findById(this.playerId)];
                 case 1:
                     player = _a.sent();
                     if (!player) {

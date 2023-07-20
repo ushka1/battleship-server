@@ -10,7 +10,7 @@ export const handleGame = async function (
   coords: { row: number; col: number },
 ) {
   const { io } = SocketManager.getInstance();
-  const room = await Room.findById(this.roomId).exec();
+  const room = await Room.findById(this.roomId);
 
   try {
     if (!room || !io) {
@@ -22,7 +22,7 @@ export const handleGame = async function (
     }
 
     const enemyId = room.players.find((id) => id.toString() !== this.playerId);
-    const enemy = await Player.findById(enemyId).exec();
+    const enemy = await Player.findById(enemyId);
 
     if (!enemy) {
       throw new Error('An unexpected error occurred.');

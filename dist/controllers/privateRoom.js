@@ -53,7 +53,7 @@ var createPrivateRoom = function () {
                     return [4, (0, reconnectionCleanup_1.reconnectionCleanup)(this)];
                 case 1:
                     _a.sent();
-                    return [4, Player_1.default.findById(this.playerId).exec()];
+                    return [4, Player_1.default.findById(this.playerId)];
                 case 2:
                     player = _a.sent();
                     if (!player) {

@@ -57,7 +57,7 @@ roomSchema.methods.addToRoom = async function (player: any) {
 };
 
 roomSchema.methods.removeFromRoom = async function (playerId: string) {
-  if (this.players.length <= 1) {
+  if (this.players.length < 2) {
     await this.remove();
     return;
   }

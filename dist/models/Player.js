@@ -111,7 +111,7 @@ playerSchema.methods.resetGame = function () {
             switch (_a.label) {
                 case 0: return [4, this.updateOne([
                         { $unset: ['ships', 'board', 'boardDefault', 'room', 'turnId'] },
-                    ]).exec()];
+                    ])];
                 case 1:
                     _a.sent();
                     return [2];

@@ -47,14 +47,14 @@ var reconnectionCleanup = function (socket) { return __awaiter(void 0, void 0, v
         switch (_a.label) {
             case 0:
                 if (!socket.roomId) return [3, 3];
-                return [4, Room_1.default.findById(socket.roomId).exec()];
+                return [4, Room_1.default.findById(socket.roomId)];
             case 1:
                 room = _a.sent();
-                return [4, (room === null || room === void 0 ? void 0 : room.removeFromRoom(socket.playerId))];
+                if (!room) return [3, 3];
+                room.disabled = false;
+                return [4, (room === null || room === void 0 ? void 0 : room.save())];
             case 2:
                 _a.sent();
-                socket.leave(socket.roomId);
-                socket.roomId = undefined;
                 _a.label = 3;
             case 3: return [2];
         }

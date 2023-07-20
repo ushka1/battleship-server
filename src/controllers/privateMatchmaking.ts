@@ -11,8 +11,8 @@ export const privateMatchmaking = async function (
   roomId: string,
 ) {
   try {
-    const player = await Player.findById(this.playerId).exec();
-    const room = await Room.findById(roomId).exec();
+    const player = await Player.findById(this.playerId);
+    const room = await Room.findById(roomId);
 
     if (!player || !room) {
       throw new Error('Your link has expired.');

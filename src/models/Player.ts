@@ -72,7 +72,7 @@ playerSchema.methods.setNewGame = async function () {
 playerSchema.methods.resetGame = async function () {
   await this.updateOne([
     { $unset: ['ships', 'board', 'boardDefault', 'room', 'turnId'] },
-  ]).exec();
+  ]);
 };
 
 playerSchema.methods.handleHit = async function (row, col) {

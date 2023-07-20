@@ -12,7 +12,7 @@ import {
 
 export const applySetting = async function (this: ExtSocket, board: Board) {
   try {
-    const player = await Player.findById(this.playerId).exec();
+    const player = await Player.findById(this.playerId);
     if (!player) {
       throw new Error('User connection fault.');
     }

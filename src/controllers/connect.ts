@@ -31,7 +31,7 @@ const onDisconnect = async function (this: ExtSocket) {
         const remainingPlayer = await Player.findOne({
           _id: { $ne: this.playerId },
           room: this.roomId,
-        }).exec();
+        });
 
         if (remainingPlayer) {
           await remainingPlayer.setNewGame();
@@ -43,14 +43,14 @@ const onDisconnect = async function (this: ExtSocket) {
           };
 
           const { io } = SocketManager.getInstance();
-          io.to(remainingPlayer.socketId).emit('disconnect', response);
+          io.to(remainingPlayer.socketId).emit('enemy-disconnected', response);
         }
 
-        const room = await Room.findById(this.roomId).exec();
+        const room = await Room.findById(this.roomId);
         await room?.removeFromRoom(this.playerId);
       }
 
-      await Player.deleteOne({ _id: this.playerId }).exec();
+      await Player.deleteOne({ _id: this.playerId });
     }
   } catch (err) {
     console.error(err);

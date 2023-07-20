@@ -84,7 +84,7 @@ var onDisconnect = function () {
                     return [4, Player_1.default.findOne({
                             _id: { $ne: this.playerId },
                             room: this.roomId,
-                        }).exec()];
+                        })];
                 case 1:
                     remainingPlayer = _a.sent();
                     if (!remainingPlayer) return [3, 3];
@@ -97,16 +97,16 @@ var onDisconnect = function () {
                         playerLeft: true,
                     };
                     io = SocketManager_1.SocketManager.getInstance().io;
-                    io.to(remainingPlayer.socketId).emit('disconnect', response);
+                    io.to(remainingPlayer.socketId).emit('enemy-disconnected', response);
                     _a.label = 3;
-                case 3: return [4, Room_1.default.findById(this.roomId).exec()];
+                case 3: return [4, Room_1.default.findById(this.roomId)];
                 case 4:
                     room = _a.sent();
                     return [4, (room === null || room === void 0 ? void 0 : room.removeFromRoom(this.playerId))];
                 case 5:
                     _a.sent();
                     _a.label = 6;
-                case 6: return [4, Player_1.default.deleteOne({ _id: this.playerId }).exec()];
+                case 6: return [4, Player_1.default.deleteOne({ _id: this.playerId })];
                 case 7:
                     _a.sent();
                     _a.label = 8;

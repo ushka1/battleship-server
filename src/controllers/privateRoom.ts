@@ -7,7 +7,7 @@ export const createPrivateRoom = async function (this: ExtSocket) {
   try {
     await reconnectionCleanup(this);
 
-    const player = await Player.findById(this.playerId).exec();
+    const player = await Player.findById(this.playerId);
     if (!player) {
       throw new Error('Player not found.');
     }

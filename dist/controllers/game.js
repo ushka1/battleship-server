@@ -53,7 +53,7 @@ var handleGame = function (coords) {
             switch (_c.label) {
                 case 0:
                     io = SocketManager_1.SocketManager.getInstance().io;
-                    return [4, Room_1.default.findById(this.roomId).exec()];
+                    return [4, Room_1.default.findById(this.roomId)];
                 case 1:
                     room = _c.sent();
                     _c.label = 2;
@@ -66,7 +66,7 @@ var handleGame = function (coords) {
                         return [2];
                     }
                     enemyId = room.players.find(function (id) { return id.toString() !== _this.playerId; });
-                    return [4, Player_1.default.findById(enemyId).exec()];
+                    return [4, Player_1.default.findById(enemyId)];
                 case 3:
                     enemy = _c.sent();
                     if (!enemy) {

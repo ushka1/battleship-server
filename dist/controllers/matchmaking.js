@@ -47,64 +47,66 @@ var Room_1 = __importDefault(require("../models/Room"));
 var errors_1 = require("../utils/errors");
 var matchmaking = function () {
     return __awaiter(this, void 0, void 0, function () {
-        var player, readyToPlay, room, response, response_1, err_1;
+        var player, readyToPlay, room, response_1, response, err_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 10, , 11]);
+                    _a.trys.push([0, 11, , 12]);
                     return [4, (0, reconnectionCleanup_1.reconnectionCleanup)(this)];
                 case 1:
                     _a.sent();
-                    return [4, Player_1.default.findById(this.playerId).exec()];
+                    return [4, Player_1.default.findById(this.playerId)];
                 case 2:
                     player = _a.sent();
                     if (!player) {
                         throw new Error('User connection fault.');
                     }
-                    readyToPlay = true;
                     return [4, player.setNewGame()];
                 case 3:
                     _a.sent();
+                    readyToPlay = false;
                     return [4, Room_1.default.findOne({
                             players: { $size: 1 },
                             private: { $exists: false },
                             disabled: { $exists: false },
-                        }).exec()];
+                        })];
                 case 4:
                     room = _a.sent();
-                    if (!!room) return [3, 6];
-                    readyToPlay = false;
-                    return [4, Room_1.default.create({ players: [] })];
-                case 5:
+                    if (!room) return [3, 5];
+                    readyToPlay = true;
+                    return [3, 7];
+                case 5: return [4, Room_1.default.create({ players: [] })];
+                case 6:
                     room = _a.sent();
-                    _a.label = 6;
-                case 6: return [4, room.addToRoom(player)];
-                case 7:
+                    _a.label = 7;
+                case 7: return [4, room.addToRoom(player)];
+                case 8:
                     _a.sent();
-                    response = {
-                        message: "Congratulations ".concat(player.name, ", you successfully joined to the room!"),
-                        readyToPlay: readyToPlay,
-                    };
                     this.roomId = room.id;
                     this.join(this.roomId);
-                    this.emit('matchmaking', response);
-                    if (!readyToPlay) return [3, 9];
+                    if (!readyToPlay) return [3, 10];
+                    return [4, (0, turn_1.setTurnIds)(this.roomId)];
+                case 9:
+                    _a.sent();
                     response_1 = {
                         message: "Congratulations, new player joined your room!",
                         readyToPlay: readyToPlay,
                     };
-                    return [4, (0, turn_1.setTurnIds)(this.roomId)];
-                case 8:
-                    _a.sent();
                     this.to(this.roomId).emit('matchmaking', response_1);
-                    _a.label = 9;
-                case 9: return [3, 11];
+                    _a.label = 10;
                 case 10:
+                    response = {
+                        message: "Congratulations ".concat(player.name, ", you successfully joined to the room!"),
+                        readyToPlay: readyToPlay,
+                    };
+                    this.emit('matchmaking', response);
+                    return [3, 12];
+                case 11:
                     err_1 = _a.sent();
                     console.error('Error in "controllers/matchmaking.ts [matchmaking]".');
                     this._error({ message: (0, errors_1.getErrorMessage)(err_1) || 'Matchmaking Error' });
-                    return [3, 11];
-                case 11: return [2];
+                    return [3, 12];
+                case 12: return [2];
             }
         });
     });

@@ -106,7 +106,7 @@ roomSchema.methods.removeFromRoom = function (playerId) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    if (!(this.players.length <= 1)) return [3, 2];
+                    if (!(this.players.length < 2)) return [3, 2];
                     return [4, this.remove()];
                 case 1:
                     _a.sent();
