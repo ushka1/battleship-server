@@ -1,16 +1,13 @@
-import Room from '../models/Room';
 import Player from '../models/Player';
+import Room from '../models/Room';
 import { ExtSocket } from '../routes/index';
 import { reconnectionCleanup } from '../utils/reconnectionCleanup';
 
-export const createPrivateRoom = async function (
-  this: ExtSocket,
-  roomId: string,
-) {
+export const createPrivateRoom = async function (this: ExtSocket) {
   try {
     await reconnectionCleanup(this);
 
-    const player = await Player.findById(this.playerId);
+    const player = await Player.findById(this.playerId).exec();
     if (!player) {
       throw new Error('Player not found.');
     }

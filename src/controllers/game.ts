@@ -10,7 +10,7 @@ export const handleGame = async function (
   coords: { row: number; col: number },
 ) {
   const { io } = SocketManager.getInstance();
-  const room = await Room.findById(this.roomId);
+  const room = await Room.findById(this.roomId).exec();
 
   try {
     if (!room || !io) {
@@ -22,14 +22,15 @@ export const handleGame = async function (
     }
 
     const enemyId = room.players.find((id) => id.toString() !== this.playerId);
-    const enemy = await Player.findById(enemyId);
+    const enemy = await Player.findById(enemyId).exec();
 
     if (!enemy) {
       throw new Error('An unexpected error occurred.');
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const playerSocket = this;
-    const enemySocket = io.sockets.connected[enemy.socketId]!;
+    const enemySocket = io.sockets.sockets.get(enemy.socketId)!;
 
     const shipHitted = await enemy.handleHit(coords.row, coords.col);
 
@@ -69,23 +70,27 @@ export const handleGame = async function (
     }
 
     if (shipHitted) {
-      playerSocket!.emit('game-controller', { unlock: true });
+      playerSocket.emit('game-controller', { unlock: true });
     } else {
       await changeTurn(this.roomId!);
-      enemySocket!.emit('game-controller', { unlock: true });
+      enemySocket.emit('game-controller', { unlock: true });
     }
   } catch (err) {
     console.log(err);
 
     console.error('Error in "controllers/game.ts [handleGame]".');
 
-    await room?.populate('players').execPopulate();
+    await room?.populate('players');
     const socketIds = room?.players.map((player) => player.socketId);
 
     socketIds?.forEach((socketId) => {
-      io?.sockets.connected[socketId].error({
+      io.sockets.sockets.get(socketId)?._error({
         message: 'An unexpected error occurred.',
       });
+
+      // io?.sockets.connected[socketId].error({
+      //   message: 'An unexpected error occurred.',
+      // });
     });
   }
 };

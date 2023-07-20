@@ -5,15 +5,15 @@
   "author": "ushka1",
   "license": "MIT",
   "engines": {
-    "node": "14.x"
+    "node": "19.x"
   },
   "dependencies": {
-    "@types/cors": "^2.8.8",
+    "@types/cors": "^2.8.13",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "express": "^4.17.1",
-    "mongoose": "^5.9.25",
-    "socket.io": "^2.3.0"
+    "express": "^4.18.2",
+    "mongoose": "^7.4.0",
+    "socket.io": "^4.7.1"
   },
   "scripts": {
     "start": "node ./dist/index.js",
@@ -21,12 +21,14 @@
     "dev:start": "nodemon -r dotenv/config ./dist"
   },
   "devDependencies": {
-    "@types/express": "^4.17.7",
-    "@types/mongoose": "^5.7.32",
-    "@types/node": "^14.0.24",
-    "@types/socket.io": "^2.1.10",
-    "nodemon": "^2.0.4",
-    "tslint": "^6.1.2",
-    "typescript": "^3.9.7"
+    "@types/express": "^4.17.17",
+    "@types/mongoose": "^5.11.96",
+    "@types/node": "^20.4.2",
+    "@types/socket.io": "^3.0.1",
+    "@typescript-eslint/eslint-plugin": "^6.1.0",
+    "@typescript-eslint/parser": "^6.1.0",
+    "eslint": "^8.45.0",
+    "nodemon": "^3.0.1",
+    "typescript": "^5.1.6"
   }
 }

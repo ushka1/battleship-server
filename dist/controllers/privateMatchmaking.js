@@ -14,7 +14,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -43,18 +43,19 @@ exports.privateMatchmaking = void 0;
 var SocketManager_1 = require("../utils/SocketManager");
 var Player_1 = __importDefault(require("../models/Player"));
 var Room_1 = __importDefault(require("../models/Room"));
+var utils_1 = require("../utils/utils");
 var turn_1 = require("./turn");
-exports.privateMatchmaking = function (roomId) {
+var privateMatchmaking = function (roomId) {
     return __awaiter(this, void 0, void 0, function () {
         var player, room, io, err_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 8, , 9]);
-                    return [4, Player_1.default.findById(this.playerId)];
+                    return [4, Player_1.default.findById(this.playerId).exec()];
                 case 1:
                     player = _a.sent();
-                    return [4, Room_1.default.findById(roomId)];
+                    return [4, Room_1.default.findById(roomId).exec()];
                 case 2:
                     room = _a.sent();
                     if (!player || !room) {
@@ -85,12 +86,12 @@ exports.privateMatchmaking = function (roomId) {
                             message: 'Congratulations to both players, room is ready to start a game!',
                             readyToPlay: true,
                         });
-                        turn_1.setTurnIds(room.id);
+                        (0, turn_1.setTurnIds)(room.id);
                     }
                     return [3, 9];
                 case 8:
                     err_1 = _a.sent();
-                    this.error({ message: err_1.message });
+                    this._error({ message: (0, utils_1.getErrorMessage)(err_1) });
                     console.log('Error in "controllers/privateMatchmaking.ts [privateMatchmaking]"');
                     return [3, 9];
                 case 9: return [2];
@@ -98,4 +99,5 @@ exports.privateMatchmaking = function (roomId) {
         });
     });
 };
+exports.privateMatchmaking = privateMatchmaking;
 //# sourceMappingURL=privateMatchmaking.js.map

@@ -1,10 +1,5 @@
 import { Document, Schema, model } from 'mongoose';
-import {
-  Board,
-  ShipKey,
-  shipDefaultsArr,
-  sunkShip,
-} from '../utils/settingUtils';
+import { Board, shipDefaultsArr, sunkShip } from '../utils/settingUtils';
 
 export interface IPlayer extends Document {
   name: string;
@@ -77,7 +72,7 @@ playerSchema.methods.setNewGame = async function () {
 playerSchema.methods.resetGame = async function () {
   await this.updateOne([
     { $unset: ['ships', 'board', 'boardDefault', 'room', 'turnId'] },
-  ]);
+  ]).exec();
 };
 
 playerSchema.methods.handleHit = async function (row, col) {
@@ -90,10 +85,10 @@ playerSchema.methods.handleHit = async function (row, col) {
   }
 
   let shipHitted = false;
-  const shipId = this.board[row][col].shipId as ShipKey;
+  const shipId = this.board[row][col].shipId;
 
-  if (shipId) {
-    const ship = this.ships?.find((ship) => ship.id === shipId)!;
+  if (shipId && this.ships) {
+    const ship = this.ships.find((ship) => ship.id === shipId)!;
     ship.hp--;
 
     if (ship.hp <= 0) {
@@ -122,6 +117,6 @@ playerSchema.methods.hasShips = function () {
 };
 
 const Player = model<IPlayer>('Player', playerSchema);
-Player.db.dropCollection('players', () => {});
+Player.db.dropCollection('players');
 
 export default Player;

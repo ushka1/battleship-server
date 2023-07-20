@@ -8,10 +8,11 @@ import {
   shipDefaults,
   shipProperlySettled,
 } from '../utils/settingUtils';
+import { getErrorMessage } from '../utils/utils';
 
 export const applySetting = async function (this: ExtSocket, board: Board) {
   try {
-    const player = await Player.findById(this.playerId);
+    const player = await Player.findById(this.playerId).exec();
 
     if (!player) {
       throw new Error('User connection fault.');
@@ -55,6 +56,6 @@ export const applySetting = async function (this: ExtSocket, board: Board) {
     this.emit('apply-setting', response);
   } catch (err) {
     console.error('Error in "controllers/setting.ts [applySetting]".');
-    this.error({ message: err.message || 'Setting Error.' });
+    this._error({ message: getErrorMessage(err) || 'Setting Error.' });
   }
 };

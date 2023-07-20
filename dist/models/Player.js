@@ -14,7 +14,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -111,7 +111,7 @@ playerSchema.methods.resetGame = function () {
             switch (_a.label) {
                 case 0: return [4, this.updateOne([
                         { $unset: ['ships', 'board', 'boardDefault', 'room', 'turnId'] },
-                    ])];
+                    ]).exec()];
                 case 1:
                     _a.sent();
                     return [2];
@@ -120,11 +120,10 @@ playerSchema.methods.resetGame = function () {
     });
 };
 playerSchema.methods.handleHit = function (row, col) {
-    var _a;
     return __awaiter(this, void 0, void 0, function () {
         var shipHitted, shipId, ship;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
                 case 0:
                     if (!this.board) {
                         throw new Error('An unexpected error occurred.');
@@ -134,18 +133,18 @@ playerSchema.methods.handleHit = function (row, col) {
                     }
                     shipHitted = false;
                     shipId = this.board[row][col].shipId;
-                    if (shipId) {
-                        ship = (_a = this.ships) === null || _a === void 0 ? void 0 : _a.find(function (ship) { return ship.id === shipId; });
+                    if (shipId && this.ships) {
+                        ship = this.ships.find(function (ship) { return ship.id === shipId; });
                         ship.hp--;
                         if (ship.hp <= 0) {
-                            settingUtils_1.sunkShip(this.board, shipId);
+                            (0, settingUtils_1.sunkShip)(this.board, shipId);
                         }
                         shipHitted = true;
                     }
                     this.board[row][col].hit = true;
                     return [4, this.save()];
                 case 1:
-                    _b.sent();
+                    _a.sent();
                     return [2, shipHitted];
             }
         });
@@ -162,7 +161,7 @@ playerSchema.methods.hasShips = function () {
     }, true);
     return !allShipsSunked;
 };
-var Player = mongoose_1.model('Player', playerSchema);
-Player.db.dropCollection('players', function () { });
+var Player = (0, mongoose_1.model)('Player', playerSchema);
+Player.db.dropCollection('players');
 exports.default = Player;
 //# sourceMappingURL=Player.js.map

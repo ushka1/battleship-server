@@ -1,4 +1,4 @@
-import { Schema, model, Document, startSession } from 'mongoose';
+import { Document, Schema, model } from 'mongoose';
 import { IPlayer } from './Player';
 
 export interface IRoom extends Document {
@@ -40,7 +40,7 @@ roomSchema.methods.changeTurn = async function () {
   await this.save();
 };
 
-roomSchema.methods.addToRoom = async function (player) {
+roomSchema.methods.addToRoom = async function (player: any) {
   if (this.players.length >= 2) {
     throw new Error('The room is full.');
   }
@@ -63,7 +63,7 @@ roomSchema.methods.removeFromRoom = async function (playerId: string) {
   }
 
   const updatedPlayers = this.players.filter(
-    (id) => id.toString() !== playerId.toString(),
+    (id: string) => id.toString() !== playerId.toString(),
   );
 
   this.players = updatedPlayers;
@@ -72,6 +72,6 @@ roomSchema.methods.removeFromRoom = async function (playerId: string) {
 };
 
 const Room = model<IRoom>('Room', roomSchema);
-Room.db.dropCollection('rooms', () => {});
+Room.db.dropCollection('rooms');
 
 export default Room;

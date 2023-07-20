@@ -14,7 +14,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -50,46 +50,50 @@ exports.changeTurn = exports.getTurnId = exports.setTurnIds = void 0;
 var Player_1 = __importDefault(require("../models/Player"));
 var Room_1 = __importDefault(require("../models/Room"));
 var SocketManager_1 = require("../utils/SocketManager");
-exports.setTurnIds = function (roomId) { return __awaiter(void 0, void 0, void 0, function () {
-    var room, turnId, _a, _b, player, e_1_1, firstTurn;
-    var e_1, _c;
-    return __generator(this, function (_d) {
-        switch (_d.label) {
+var setTurnIds = function (roomId) { return __awaiter(void 0, void 0, void 0, function () {
+    var room, turnId, _a, _b, _c, player, e_1_1, firstTurn;
+    var _d, e_1, _e, _f;
+    return __generator(this, function (_g) {
+        switch (_g.label) {
             case 0: return [4, Room_1.default.findById(roomId).populate('players')];
             case 1:
-                room = _d.sent();
+                room = _g.sent();
                 if (!room) {
                     return [2];
                 }
                 turnId = 1;
-                _d.label = 2;
+                _g.label = 2;
             case 2:
-                _d.trys.push([2, 8, 9, 14]);
-                _a = __asyncValues(room.players);
-                _d.label = 3;
-            case 3: return [4, _a.next()];
+                _g.trys.push([2, 8, 9, 14]);
+                _a = true, _b = __asyncValues(room.players);
+                _g.label = 3;
+            case 3: return [4, _b.next()];
             case 4:
-                if (!(_b = _d.sent(), !_b.done)) return [3, 7];
-                player = _b.value;
+                if (!(_c = _g.sent(), _d = _c.done, !_d)) return [3, 7];
+                _f = _c.value;
+                _a = false;
+                player = _f;
                 player.turnId = turnId;
                 return [4, player.save()];
             case 5:
-                _d.sent();
+                _g.sent();
                 turnId++;
-                _d.label = 6;
-            case 6: return [3, 3];
+                _g.label = 6;
+            case 6:
+                _a = true;
+                return [3, 3];
             case 7: return [3, 14];
             case 8:
-                e_1_1 = _d.sent();
+                e_1_1 = _g.sent();
                 e_1 = { error: e_1_1 };
                 return [3, 14];
             case 9:
-                _d.trys.push([9, , 12, 13]);
-                if (!(_b && !_b.done && (_c = _a.return))) return [3, 11];
-                return [4, _c.call(_a)];
+                _g.trys.push([9, , 12, 13]);
+                if (!(!_a && !_d && (_e = _b.return))) return [3, 11];
+                return [4, _e.call(_b)];
             case 10:
-                _d.sent();
-                _d.label = 11;
+                _g.sent();
+                _g.label = 11;
             case 11: return [3, 13];
             case 12:
                 if (e_1) throw e_1.error;
@@ -100,12 +104,13 @@ exports.setTurnIds = function (roomId) { return __awaiter(void 0, void 0, void 0
                 room.turn = firstTurn;
                 return [4, room.save()];
             case 15:
-                _d.sent();
+                _g.sent();
                 return [2];
         }
     });
 }); };
-exports.getTurnId = function () {
+exports.setTurnIds = setTurnIds;
+var getTurnId = function () {
     return __awaiter(this, void 0, void 0, function () {
         var player, room, response;
         return __generator(this, function (_a) {
@@ -119,21 +124,22 @@ exports.getTurnId = function () {
                     if (player && room) {
                         this.turnId = player.turnId;
                         response = {
-                            message: "Congratulations " + player.name + ", your turnId is " + player.turnId + "!",
+                            message: "Congratulations ".concat(player.name, ", your turnId is ").concat(player.turnId, "!"),
                             turnId: player.turnId,
                             turn: room.turn,
                         };
                         this.emit('turn-controller', response);
                     }
                     else {
-                        this.error('An unexpected error occurred.');
+                        this._error('An unexpected error occurred.');
                     }
                     return [2];
             }
         });
     });
 };
-exports.changeTurn = function (roomId) { return __awaiter(void 0, void 0, void 0, function () {
+exports.getTurnId = getTurnId;
+var changeTurn = function (roomId) { return __awaiter(void 0, void 0, void 0, function () {
     var io, room;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -159,4 +165,5 @@ exports.changeTurn = function (roomId) { return __awaiter(void 0, void 0, void 0
         }
     });
 }); };
+exports.changeTurn = changeTurn;
 //# sourceMappingURL=turn.js.map

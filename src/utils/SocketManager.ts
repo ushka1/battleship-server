@@ -1,13 +1,15 @@
+import { Server } from 'socket.io';
+
 export class SocketManager {
   private static instance: SocketManager;
 
-  private constructor(io: SocketIO.Server) {
+  private constructor(io: Server) {
     this.io = io;
   }
 
-  io: SocketIO.Server;
+  io: Server;
 
-  static init(io: SocketIO.Server): SocketManager {
+  static init(io: Server): SocketManager {
     this.instance = new this(io);
     return this.instance;
   }

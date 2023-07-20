@@ -14,7 +14,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -44,7 +44,7 @@ var SocketManager_1 = require("../utils/SocketManager");
 var turn_1 = require("./turn");
 var Player_1 = __importDefault(require("../models/Player"));
 var Room_1 = __importDefault(require("../models/Room"));
-exports.handleGame = function (coords) {
+var handleGame = function (coords) {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function () {
         var io, room, enemyId, enemy, playerSocket, enemySocket, shipHitted, enemyBoard, playerBoard, enemyHasShips, err_1, socketIds;
@@ -53,7 +53,7 @@ exports.handleGame = function (coords) {
             switch (_c.label) {
                 case 0:
                     io = SocketManager_1.SocketManager.getInstance().io;
-                    return [4, Room_1.default.findById(this.roomId)];
+                    return [4, Room_1.default.findById(this.roomId).exec()];
                 case 1:
                     room = _c.sent();
                     _c.label = 2;
@@ -66,14 +66,14 @@ exports.handleGame = function (coords) {
                         return [2];
                     }
                     enemyId = room.players.find(function (id) { return id.toString() !== _this.playerId; });
-                    return [4, Player_1.default.findById(enemyId)];
+                    return [4, Player_1.default.findById(enemyId).exec()];
                 case 3:
                     enemy = _c.sent();
                     if (!enemy) {
                         throw new Error('An unexpected error occurred.');
                     }
                     playerSocket = this;
-                    enemySocket = io.sockets.connected[enemy.socketId];
+                    enemySocket = io.sockets.sockets.get(enemy.socketId);
                     return [4, enemy.handleHit(coords.row, coords.col)];
                 case 4:
                     shipHitted = _c.sent();
@@ -112,7 +112,7 @@ exports.handleGame = function (coords) {
                     if (!shipHitted) return [3, 5];
                     playerSocket.emit('game-controller', { unlock: true });
                     return [3, 7];
-                case 5: return [4, turn_1.changeTurn(this.roomId)];
+                case 5: return [4, (0, turn_1.changeTurn)(this.roomId)];
                 case 6:
                     _c.sent();
                     enemySocket.emit('game-controller', { unlock: true });
@@ -122,12 +122,13 @@ exports.handleGame = function (coords) {
                     err_1 = _c.sent();
                     console.log(err_1);
                     console.error('Error in "controllers/game.ts [handleGame]".');
-                    return [4, (room === null || room === void 0 ? void 0 : room.populate('players').execPopulate())];
+                    return [4, (room === null || room === void 0 ? void 0 : room.populate('players'))];
                 case 9:
                     _c.sent();
                     socketIds = room === null || room === void 0 ? void 0 : room.players.map(function (player) { return player.socketId; });
                     socketIds === null || socketIds === void 0 ? void 0 : socketIds.forEach(function (socketId) {
-                        io === null || io === void 0 ? void 0 : io.sockets.connected[socketId].error({
+                        var _a;
+                        (_a = io.sockets.sockets.get(socketId)) === null || _a === void 0 ? void 0 : _a._error({
                             message: 'An unexpected error occurred.',
                         });
                     });
@@ -137,4 +138,5 @@ exports.handleGame = function (coords) {
         });
     });
 };
+exports.handleGame = handleGame;
 //# sourceMappingURL=game.js.map

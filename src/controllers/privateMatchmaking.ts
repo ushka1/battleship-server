@@ -3,6 +3,7 @@ import { SocketManager } from '../utils/SocketManager';
 
 import Player from '../models/Player';
 import Room from '../models/Room';
+import { getErrorMessage } from '../utils/utils';
 import { setTurnIds } from './turn';
 
 export const privateMatchmaking = async function (
@@ -10,8 +11,8 @@ export const privateMatchmaking = async function (
   roomId: string,
 ) {
   try {
-    const player = await Player.findById(this.playerId);
-    const room = await Room.findById(roomId);
+    const player = await Player.findById(this.playerId).exec();
+    const room = await Room.findById(roomId).exec();
 
     if (!player || !room) {
       throw new Error('Your link has expired.');
@@ -44,7 +45,7 @@ export const privateMatchmaking = async function (
       setTurnIds(room.id);
     }
   } catch (err) {
-    this.error({ message: err.message });
+    this._error({ message: getErrorMessage(err) });
     console.log(
       'Error in "controllers/privateMatchmaking.ts [privateMatchmaking]"',
     );

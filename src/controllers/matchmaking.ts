@@ -1,16 +1,17 @@
 import { ExtSocket } from '../routes/index';
+import { reconnectionCleanup } from '../utils/reconnectionCleanup';
 import { MatchmakingResponse } from '../utils/responses';
 import { setTurnIds } from './turn';
-import { reconnectionCleanup } from '../utils/reconnectionCleanup';
 
 import Player from '../models/Player';
 import Room from '../models/Room';
+import { getErrorMessage } from '../utils/utils';
 
 export const matchmaking = async function (this: ExtSocket) {
   try {
     await reconnectionCleanup(this);
 
-    const player = await Player.findById(this.playerId);
+    const player = await Player.findById(this.playerId).exec();
     if (!player) {
       throw new Error('User connection fault.');
     }
@@ -22,7 +23,7 @@ export const matchmaking = async function (this: ExtSocket) {
       players: { $size: 1 },
       private: { $exists: false },
       disabled: { $exists: false },
-    });
+    }).exec();
 
     if (!room) {
       readyToPlay = false;
@@ -50,6 +51,6 @@ export const matchmaking = async function (this: ExtSocket) {
     }
   } catch (err) {
     console.error('Error in "controllers/matchmaking.ts [matchmaking]".');
-    this.error({ message: err.message || 'Matchmaking Error' });
+    this._error({ message: getErrorMessage(err) || 'Matchmaking Error' });
   }
 };

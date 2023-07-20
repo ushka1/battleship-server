@@ -14,7 +14,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -40,20 +40,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createPrivateRoom = void 0;
-var Room_1 = __importDefault(require("../models/Room"));
 var Player_1 = __importDefault(require("../models/Player"));
+var Room_1 = __importDefault(require("../models/Room"));
 var reconnectionCleanup_1 = require("../utils/reconnectionCleanup");
-exports.createPrivateRoom = function (roomId) {
+var createPrivateRoom = function () {
     return __awaiter(this, void 0, void 0, function () {
         var player, privateRoom, response, err_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 4, , 5]);
-                    return [4, reconnectionCleanup_1.reconnectionCleanup(this)];
+                    return [4, (0, reconnectionCleanup_1.reconnectionCleanup)(this)];
                 case 1:
                     _a.sent();
-                    return [4, Player_1.default.findById(this.playerId)];
+                    return [4, Player_1.default.findById(this.playerId).exec()];
                 case 2:
                     player = _a.sent();
                     if (!player) {
@@ -70,7 +70,7 @@ exports.createPrivateRoom = function (roomId) {
                     this.join(privateRoom.id);
                     this.roomId = privateRoom.id;
                     response = {
-                        message: "Congratulations " + player.name + ", you successfully joined to the private room!",
+                        message: "Congratulations ".concat(player.name, ", you successfully joined to the private room!"),
                         roomId: privateRoom.id,
                     };
                     this.emit('private', response);
@@ -84,4 +84,5 @@ exports.createPrivateRoom = function (roomId) {
         });
     });
 };
+exports.createPrivateRoom = createPrivateRoom;
 //# sourceMappingURL=privateRoom.js.map

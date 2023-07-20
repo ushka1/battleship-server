@@ -20,7 +20,7 @@ export const onConnect = async function (this: ExtSocket, name: string) {
     this.on('disconnect', onDisconnect.bind(this));
   } catch (err) {
     console.error('Error in "controllers/connect.ts [onConnect]".');
-    this.error({ message: 'User connection fault.' });
+    this._error({ message: 'User connection fault.' });
   }
 };
 

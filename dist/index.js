@@ -14,7 +14,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -42,14 +42,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var cors_1 = __importDefault(require("cors"));
 var express_1 = __importDefault(require("express"));
 var mongoose_1 = require("mongoose");
-var socket_io_1 = __importDefault(require("socket.io"));
+var socket_io_1 = require("socket.io");
 var routes_1 = __importDefault(require("./routes"));
 var SocketManager_1 = require("./utils/SocketManager");
-var app = express_1.default();
-app.use(cors_1.default());
+var app = (0, express_1.default)();
+app.use((0, cors_1.default)());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use(express_1.default.json());
-app.get('/', function (req, res, next) {
+app.get('/', function (req, res) {
     res.status(200).send('Server is up.');
 });
 (function () { return __awaiter(void 0, void 0, void 0, function () {
@@ -59,14 +59,11 @@ app.get('/', function (req, res, next) {
         switch (_b.label) {
             case 0:
                 _b.trys.push([0, 2, , 3]);
-                return [4, mongoose_1.connect('mongodb://localhost:27017', {
-                        useNewUrlParser: true,
-                        useUnifiedTopology: true,
-                        useCreateIndex: true,
+                return [4, (0, mongoose_1.connect)('mongodb://localhost:27017', {
                         dbName: process.env.DB_NAME,
                         auth: {
                             password: process.env.DB_PASSWORD,
-                            user: process.env.DB_USERNAME,
+                            username: process.env.DB_USERNAME,
                         },
                         authSource: process.env.DB_AUTH_SOURCE,
                     })];
@@ -75,10 +72,11 @@ app.get('/', function (req, res, next) {
                 console.log('Connected to MongoDB.');
                 port = (_a = process.env.PORT) !== null && _a !== void 0 ? _a : 8080;
                 server = app.listen(port);
-                console.log("Server listening on port " + port + ".");
-                io = socket_io_1.default.listen(server, {
-                    origins: [process.env.SOCKET_ORIGIN],
+                console.log("Server listening on port ".concat(port, "."));
+                io = new socket_io_1.Server({
+                    cors: { origin: process.env.SOCKET_ORIGIN },
                 });
+                io.listen(server);
                 io.on('connect', routes_1.default);
                 console.log("Socket listening.");
                 SocketManager_1.SocketManager.init(io);
@@ -86,7 +84,7 @@ app.get('/', function (req, res, next) {
                 return [3, 3];
             case 2:
                 err_1 = _b.sent();
-                console.error("An error occurred during server startup: " + err_1);
+                console.error("An error occurred during server startup: ".concat(err_1));
                 return [3, 3];
             case 3: return [2];
         }

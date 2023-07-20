@@ -14,7 +14,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -40,21 +40,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.matchmaking = void 0;
-var turn_1 = require("./turn");
 var reconnectionCleanup_1 = require("../utils/reconnectionCleanup");
+var turn_1 = require("./turn");
 var Player_1 = __importDefault(require("../models/Player"));
 var Room_1 = __importDefault(require("../models/Room"));
-exports.matchmaking = function () {
+var utils_1 = require("../utils/utils");
+var matchmaking = function () {
     return __awaiter(this, void 0, void 0, function () {
         var player, readyToPlay, room, response, response_1, err_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 8, , 9]);
-                    return [4, reconnectionCleanup_1.reconnectionCleanup(this)];
+                    return [4, (0, reconnectionCleanup_1.reconnectionCleanup)(this)];
                 case 1:
                     _a.sent();
-                    return [4, Player_1.default.findById(this.playerId)];
+                    return [4, Player_1.default.findById(this.playerId).exec()];
                 case 2:
                     player = _a.sent();
                     if (!player) {
@@ -68,7 +69,7 @@ exports.matchmaking = function () {
                             players: { $size: 1 },
                             private: { $exists: false },
                             disabled: { $exists: false },
-                        })];
+                        }).exec()];
                 case 4:
                     room = _a.sent();
                     if (!!room) return [3, 6];
@@ -81,7 +82,7 @@ exports.matchmaking = function () {
                 case 7:
                     _a.sent();
                     response = {
-                        message: "Congratulations " + player.name + ", you successfully joined to the room!",
+                        message: "Congratulations ".concat(player.name, ", you successfully joined to the room!"),
                         readyToPlay: readyToPlay,
                     };
                     this.roomId = room.id;
@@ -93,17 +94,18 @@ exports.matchmaking = function () {
                             readyToPlay: readyToPlay,
                         };
                         this.to(this.roomId).emit('matchmaking', response_1);
-                        turn_1.setTurnIds(this.roomId);
+                        (0, turn_1.setTurnIds)(this.roomId);
                     }
                     return [3, 9];
                 case 8:
                     err_1 = _a.sent();
                     console.error('Error in "controllers/matchmaking.ts [matchmaking]".');
-                    this.error({ message: err_1.message || 'Matchmaking Error' });
+                    this._error({ message: (0, utils_1.getErrorMessage)(err_1) || 'Matchmaking Error' });
                     return [3, 9];
                 case 9: return [2];
             }
         });
     });
 };
+exports.matchmaking = matchmaking;
 //# sourceMappingURL=matchmaking.js.map

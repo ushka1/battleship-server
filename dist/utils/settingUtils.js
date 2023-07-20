@@ -29,7 +29,7 @@ exports.shipDefaults = {
 exports.shipDefaultsArr = Object.keys(exports.shipDefaults).map(function (key) {
     return __assign({}, exports.shipDefaults[key]);
 });
-exports.shipProperlySettled = function (board, row, col, shipId) {
+var shipProperlySettled = function (board, row, col, shipId) {
     var ship = exports.shipDefaults[shipId];
     var orientation = '';
     if (ship.size === 1) {
@@ -86,7 +86,8 @@ exports.shipProperlySettled = function (board, row, col, shipId) {
     }
     return true;
 };
-exports.sunkShip = function (board, shipId) {
+exports.shipProperlySettled = shipProperlySettled;
+var sunkShip = function (board, shipId) {
     var ship = __assign({}, exports.shipDefaults[shipId]);
     var orientation;
     var firstCell;
@@ -140,4 +141,5 @@ exports.sunkShip = function (board, shipId) {
         }
     }
 };
+exports.sunkShip = sunkShip;
 //# sourceMappingURL=settingUtils.js.map

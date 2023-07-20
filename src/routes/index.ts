@@ -1,12 +1,14 @@
+import { Socket } from 'socket.io';
+
 import { onConnect } from '../controllers/connect';
-import { createPrivateRoom } from '../controllers/privateRoom';
-import { applySetting } from '../controllers/setting';
+import { handleGame } from '../controllers/game';
 import { matchmaking } from '../controllers/matchmaking';
 import { privateMatchmaking } from '../controllers/privateMatchmaking';
+import { createPrivateRoom } from '../controllers/privateRoom';
+import { applySetting } from '../controllers/setting';
 import { getTurnId } from '../controllers/turn';
-import { handleGame } from '../controllers/game';
 
-export interface ExtSocket extends SocketIO.Socket {
+export interface ExtSocket extends Socket {
   playerId?: string;
   roomId?: string;
   turnId?: number;

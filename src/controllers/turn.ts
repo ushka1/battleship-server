@@ -38,7 +38,7 @@ export const getTurnId = async function (this: ExtSocket) {
 
     this.emit('turn-controller', response);
   } else {
-    this.error('An unexpected error occurred.');
+    this._error('An unexpected error occurred.');
   }
 };
 
