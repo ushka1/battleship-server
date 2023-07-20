@@ -1,4 +1,4 @@
-import { ExtSocket } from '../routes/index';
+import { ExtendedSocket } from '../socket/router';
 import { SocketManager } from '../utils/SocketManager';
 
 import Player from '../models/Player';
@@ -7,7 +7,7 @@ import { getErrorMessage } from '../utils/errors';
 import { setTurnIds } from './turn';
 
 export const privateMatchmaking = async function (
-  this: ExtSocket,
+  this: ExtendedSocket,
   roomId: string,
 ) {
   try {

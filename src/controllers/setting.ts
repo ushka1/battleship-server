@@ -1,5 +1,5 @@
 import Player from '../models/Player';
-import { ExtSocket } from '../routes/index';
+import { ExtendedSocket } from '../socket/router';
 import { getErrorMessage } from '../utils/errors';
 import { SettingResponse } from '../utils/responses';
 import {
@@ -10,7 +10,10 @@ import {
   validateShipPosition,
 } from '../utils/settingUtils';
 
-export const applySetting = async function (this: ExtSocket, board: Board) {
+export const applySetting = async function (
+  this: ExtendedSocket,
+  board: Board,
+) {
   try {
     const player = await Player.findById(this.playerId);
     if (!player) {

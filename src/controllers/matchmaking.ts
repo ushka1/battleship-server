@@ -1,4 +1,4 @@
-import { ExtSocket } from '../routes/index';
+import { ExtendedSocket } from '../socket/router';
 import { reconnectionCleanup } from '../utils/reconnectionCleanup';
 import { MatchmakingResponse } from '../utils/responses';
 import { setTurnIds } from './turn';
@@ -7,7 +7,7 @@ import Player from '../models/Player';
 import Room from '../models/Room';
 import { getErrorMessage } from '../utils/errors';
 
-export const matchmaking = async function (this: ExtSocket) {
+export const matchmaking = async function (this: ExtendedSocket) {
   try {
     await reconnectionCleanup(this);
 

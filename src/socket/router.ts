@@ -8,13 +8,13 @@ import { createPrivateRoom } from '../controllers/privateRoom';
 import { applySetting } from '../controllers/setting';
 import { getTurnId } from '../controllers/turn';
 
-export interface ExtSocket extends Socket {
+export interface ExtendedSocket extends Socket {
   playerId?: string;
   roomId?: string;
   turnId?: number;
 }
 
-export default function (socket: ExtSocket) {
+export function socketRouter(socket: ExtendedSocket) {
   //1
   socket.on('connect-player', onConnect);
   //1 PRIV

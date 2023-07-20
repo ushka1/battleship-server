@@ -6,7 +6,7 @@ import socketio from 'socket.io';
 
 import Player from './models/Player';
 import Room from './models/Room';
-import router from './routes';
+import { socketRouter } from './socket/router';
 import { SocketManager } from './utils/SocketManager';
 
 const app = express();
@@ -76,7 +76,7 @@ function setupSocketIOServer(server: http.Server) {
     cors: { origin: process.env.SOCKET_ORIGIN, methods: ['GET', 'POST'] },
   });
   SocketManager.init(io);
-  io.on('connection', router);
+  io.on('connection', socketRouter);
 }
 
 function setupGracefulShutdown(server: http.Server) {

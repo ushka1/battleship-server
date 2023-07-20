@@ -1,6 +1,6 @@
 import Player from '../models/Player';
 import Room from '../models/Room';
-import { ExtSocket } from '../routes/index';
+import { ExtendedSocket } from '../socket/router';
 import { TurnResponse } from '../utils/responses';
 import { SocketManager } from '../utils/SocketManager';
 
@@ -23,7 +23,7 @@ export const setTurnIds = async (roomId: string) => {
   await room.save();
 };
 
-export const getTurnId = async function (this: ExtSocket) {
+export const getTurnId = async function (this: ExtendedSocket) {
   const player = await Player.findById(this.playerId);
   const room = await Room.findById(this.roomId);
 

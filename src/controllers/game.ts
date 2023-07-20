@@ -1,4 +1,4 @@
-import { ExtSocket } from '../routes/index';
+import { ExtendedSocket } from '../socket/router';
 import { SocketManager } from '../utils/SocketManager';
 import { changeTurn } from './turn';
 
@@ -6,7 +6,7 @@ import Player from '../models/Player';
 import Room from '../models/Room';
 
 export const handleGame = async function (
-  this: ExtSocket,
+  this: ExtendedSocket,
   coords: { row: number; col: number },
 ) {
   const { io } = SocketManager.getInstance();

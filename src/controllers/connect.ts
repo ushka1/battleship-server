@@ -1,11 +1,11 @@
-import { ExtSocket } from '../routes/index';
+import { ExtendedSocket } from '../socket/router';
 import { ConnectResponse, DisconnectResponse } from '../utils/responses';
 
 import Player from '../models/Player';
 import Room from '../models/Room';
 import { SocketManager } from '../utils/SocketManager';
 
-export const onConnect = async function (this: ExtSocket, name: string) {
+export const onConnect = async function (this: ExtendedSocket, name: string) {
   try {
     const player = await Player.create({ name, socketId: this.id });
 
@@ -24,7 +24,7 @@ export const onConnect = async function (this: ExtSocket, name: string) {
   }
 };
 
-const onDisconnect = async function (this: ExtSocket) {
+const onDisconnect = async function (this: ExtendedSocket) {
   try {
     if (this.playerId) {
       if (this.roomId) {

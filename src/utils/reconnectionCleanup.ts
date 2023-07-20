@@ -1,7 +1,7 @@
 import Room from '../models/Room';
-import { ExtSocket } from '../routes';
+import { ExtendedSocket } from '../socket/router';
 
-export const reconnectionCleanup = async (socket: ExtSocket) => {
+export const reconnectionCleanup = async (socket: ExtendedSocket) => {
   if (socket.roomId) {
     const room = await Room.findById(socket.roomId);
     // await room?.removeFromRoom(socket.playerId);

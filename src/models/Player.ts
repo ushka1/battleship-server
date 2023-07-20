@@ -1,14 +1,16 @@
-import { Document, Schema, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
 import { Board, shipsDefaultStateArr, sunkShip } from '../utils/settingUtils';
 
-export interface IPlayer extends Document {
+export interface IPlayer {
   name: string;
   socketId: string;
+
   room?: string;
   ships?: { id: string; size: number; hp: number }[];
   board?: Board;
   boardDefault?: Board;
   turnId?: number;
+
   setDefaults: (board: Board) => Promise<void>;
   setNewGame: () => Promise<void>;
   resetGame: () => Promise<void>;
@@ -16,7 +18,7 @@ export interface IPlayer extends Document {
   hasShips: () => boolean;
 }
 
-const playerSchema = new Schema<IPlayer>(
+const schema = new Schema<IPlayer>(
   {
     name: {
       type: String,
@@ -56,12 +58,12 @@ const playerSchema = new Schema<IPlayer>(
   { autoCreate: true },
 );
 
-playerSchema.methods.setDefaults = async function (board: Board) {
+schema.methods.setDefaults = async function (board: Board) {
   this.boardDefault = board;
   await this.save();
 };
 
-playerSchema.methods.setNewGame = async function () {
+schema.methods.setNewGame = async function () {
   if (!this.boardDefault) throw new Error('An unexpected error occurred.');
 
   this.board = this.boardDefault;
@@ -69,13 +71,13 @@ playerSchema.methods.setNewGame = async function () {
   await this.save();
 };
 
-playerSchema.methods.resetGame = async function () {
+schema.methods.resetGame = async function () {
   await this.updateOne([
     { $unset: ['ships', 'board', 'boardDefault', 'room', 'turnId'] },
   ]);
 };
 
-playerSchema.methods.handleHit = async function (row, col) {
+schema.methods.handleHit = async function (row: number, col: number) {
   if (!this.board) {
     throw new Error('An unexpected error occurred.');
   }
@@ -104,7 +106,7 @@ playerSchema.methods.handleHit = async function (row, col) {
   return shipHitted;
 };
 
-playerSchema.methods.hasShips = function () {
+schema.methods.hasShips = function () {
   const allShipsSunked = this.ships!.reduce((acc, cur) => {
     if (acc && cur.hp <= 0) {
       return true;
@@ -116,5 +118,5 @@ playerSchema.methods.hasShips = function () {
   return !allShipsSunked;
 };
 
-const Player = model<IPlayer>('Player', playerSchema);
+const Player = model<IPlayer>('Player', schema);
 export default Player;
