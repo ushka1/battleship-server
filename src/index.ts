@@ -1,7 +1,8 @@
 import cors from 'cors';
 import express from 'express';
-import { connect } from 'mongoose';
-import { Server as SocketServer } from 'socket.io';
+import http from 'http';
+import mongoose from 'mongoose';
+import socketio from 'socket.io';
 
 import router from './routes';
 import { SocketManager } from './utils/SocketManager';
@@ -13,34 +14,60 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.status(200).send('Server is up.');
+  res.status(200).send('Battleship server is up.');
 });
 
-(async () => {
+async function startup() {
   try {
-    await connect(`${process.env.DB_CONNECT}/${process.env.DB_NAME}`, {
-      dbName: process.env.DB_NAME,
-      auth: {
-        password: process.env.DB_PASSWORD,
-        username: process.env.DB_USERNAME,
-      },
-      authSource: process.env.DB_AUTH_SOURCE,
-    });
+    await connectToMongoDB();
     console.log('Connected to MongoDB.');
 
     const port = process.env.PORT ?? 8080;
     const server = app.listen(port);
     console.log(`Server listening on port ${port}.`);
 
-    const io = new SocketServer(server, {
-      cors: { origin: process.env.SOCKET_ORIGIN, methods: ['GET', 'POST'] },
-    });
-    SocketManager.init(io);
-    io.on('connection', router);
-    console.log(`Socket listening.`);
+    setupSocketIOServer(server);
+    console.log(`SocketIO server listening.`);
 
-    console.log('Server is up.');
+    setupGracefulShutdown(server);
+    console.log('Graceful shutdown is set.');
+
+    console.log('Server startup successful.');
   } catch (err) {
-    console.error(`An error occurred during server startup: ${err}`);
+    console.error(`An error occurred during server startup.`, err);
   }
-})();
+}
+
+function connectToMongoDB() {
+  return mongoose.connect(`${process.env.DB_CONNECT}/${process.env.DB_NAME}`, {
+    dbName: process.env.DB_NAME,
+    auth: {
+      password: process.env.DB_PASSWORD,
+      username: process.env.DB_USERNAME,
+    },
+    authSource: process.env.DB_AUTH_SOURCE,
+  });
+}
+
+function setupSocketIOServer(server: http.Server) {
+  const io = new socketio.Server(server, {
+    cors: { origin: process.env.SOCKET_ORIGIN, methods: ['GET', 'POST'] },
+  });
+  SocketManager.init(io);
+  io.on('connection', router);
+}
+
+function setupGracefulShutdown(server: http.Server) {
+  process.on('SIGTERM', () => {
+    console.info('SIGTERM signal received, closing http server.');
+    server.close(() => {
+      console.log('Http server closed.');
+      mongoose.connection.close(false).then(() => {
+        console.log('MongoDb connection closed.');
+        process.exit(0);
+      });
+    });
+  });
+}
+
+startup();
