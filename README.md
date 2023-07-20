@@ -17,3 +17,7 @@
 
 1. Build server with `npm build`.
 1. Start server with `npm start`.
+
+## Tips
+
+1. Source maps are required for debugging.

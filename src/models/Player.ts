@@ -117,6 +117,4 @@ playerSchema.methods.hasShips = function () {
 };
 
 const Player = model<IPlayer>('Player', playerSchema);
-// Player.db.dropCollection('players');
-
 export default Player;

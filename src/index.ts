@@ -4,6 +4,8 @@ import http from 'http';
 import mongoose from 'mongoose';
 import socketio from 'socket.io';
 
+import Player from './models/Player';
+import Room from './models/Room';
 import router from './routes';
 import { SocketManager } from './utils/SocketManager';
 
@@ -38,8 +40,8 @@ async function startup() {
   }
 }
 
-function connectToMongoDB() {
-  return mongoose.connect(`${process.env.DB_CONNECT}/${process.env.DB_NAME}`, {
+async function connectToMongoDB() {
+  await mongoose.connect(process.env.DB_CONNECT_URI, {
     dbName: process.env.DB_NAME,
     auth: {
       password: process.env.DB_PASSWORD,
@@ -47,6 +49,26 @@ function connectToMongoDB() {
     },
     authSource: process.env.DB_AUTH_SOURCE,
   });
+
+  if (process.env.NODE_ENV === 'development') {
+    await dropMongoDBCollections();
+  }
+}
+
+/**
+ * Development-only utility function for clearing database.
+ */
+async function dropMongoDBCollections() {
+  try {
+    await Player.db.dropCollection('players');
+  } catch (err) {
+    console.log('Could not drop players collection.');
+  }
+  try {
+    await Room.db.dropCollection('rooms');
+  } catch (err) {
+    console.log('Could not drop rooms collection.');
+  }
 }
 
 function setupSocketIOServer(server: http.Server) {

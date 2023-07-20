@@ -17,8 +17,8 @@
   },
   "scripts": {
     "build": "npx tsc",
-    "start": "node ./dist/index.js",
-    "dev": "concurrently \"npx tsc --watch\" \"nodemon -r dotenv/config dist/index.js\""
+    "start": "export NODE_ENV=production && node ./dist/index.js",
+    "dev": "export NODE_ENV=development && concurrently \"npx tsc --watch\" \"nodemon -r dotenv/config ./dist/index.js\""
   },
   "devDependencies": {
     "@types/express": "^4.17.17",

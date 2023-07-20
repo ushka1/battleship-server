@@ -72,6 +72,4 @@ roomSchema.methods.removeFromRoom = async function (playerId: string) {
 };
 
 const Room = model<IRoom>('Room', roomSchema);
-// Room.db.dropCollection('rooms');
-
 export default Room;
