@@ -1,4 +1,4 @@
-import { IPlayer } from '../models/Player';
+import { IPlayer } from '../models/player/Player';
 
 export type ConnectResponse = {
   message?: string;

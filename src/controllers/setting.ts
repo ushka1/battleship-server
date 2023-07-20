@@ -1,11 +1,10 @@
-import Player from '../models/Player';
+import { COL_COUNT, ROW_COUNT } from '../config/constants';
+import Player from '../models/player/Player';
 import { ExtendedSocket } from '../socket/router';
 import { getErrorMessage } from '../utils/errors';
 import { SettingResponse } from '../utils/responses';
 import {
   Board,
-  columns,
-  rows,
   shipsDefaultState,
   validateShipPosition,
 } from '../utils/settingUtils';
@@ -20,13 +19,13 @@ export const applySetting = async function (
       throw new Error('User connection fault.');
     }
 
-    if (!board[rows - 1] || !board[rows - 1][columns - 1]) {
+    if (!board[ROW_COUNT - 1] || !board[ROW_COUNT - 1][COL_COUNT - 1]) {
       throw new Error('User passed invalid setting (invalid board size).');
     }
 
     const foundShips: { [x: string]: boolean } = {};
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < columns; col++) {
+    for (let row = 0; row < ROW_COUNT; row++) {
+      for (let col = 0; col < COL_COUNT; col++) {
         const { shipId } = board[row][col];
 
         if (shipsDefaultState[shipId] && foundShips[shipId] === undefined) {

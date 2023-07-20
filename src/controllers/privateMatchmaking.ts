@@ -1,8 +1,8 @@
 import { ExtendedSocket } from '../socket/router';
 import { SocketManager } from '../utils/SocketManager';
 
-import Player from '../models/Player';
-import Room from '../models/Room';
+import Player from '../models/player/Player';
+import Room from '../models/room/Room';
 import { getErrorMessage } from '../utils/errors';
 import { setTurnIds } from './turn';
 

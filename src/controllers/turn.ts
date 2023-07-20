@@ -1,11 +1,11 @@
-import Player from '../models/Player';
-import Room from '../models/Room';
+import Player from '../models/player/Player';
+import Room from '../models/room/Room';
 import { ExtendedSocket } from '../socket/router';
 import { TurnResponse } from '../utils/responses';
 import { SocketManager } from '../utils/SocketManager';
 
 export const setTurnIds = async (roomId: string) => {
-  const room = await Room.findById(roomId).populate('players');
+  const room = await Room.findById(roomId).populate('players').exec();
   if (!room) {
     return;
   }

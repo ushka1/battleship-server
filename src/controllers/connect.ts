@@ -1,8 +1,8 @@
 import { ExtendedSocket } from '../socket/router';
 import { ConnectResponse, DisconnectResponse } from '../utils/responses';
 
-import Player from '../models/Player';
-import Room from '../models/Room';
+import Player from '../models/player/Player';
+import Room from '../models/room/Room';
 import { SocketManager } from '../utils/SocketManager';
 
 export const onConnect = async function (this: ExtendedSocket, name: string) {

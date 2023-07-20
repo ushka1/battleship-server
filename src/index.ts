@@ -4,8 +4,8 @@ import http from 'http';
 import mongoose from 'mongoose';
 import socketio from 'socket.io';
 
-import Player from './models/Player';
-import Room from './models/Room';
+import Player from './models/player/Player';
+import Room from './models/room/Room';
 import { socketRouter } from './socket/router';
 import { SocketManager } from './utils/SocketManager';
 

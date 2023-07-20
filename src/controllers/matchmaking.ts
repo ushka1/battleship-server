@@ -3,8 +3,8 @@ import { reconnectionCleanup } from '../utils/reconnectionCleanup';
 import { MatchmakingResponse } from '../utils/responses';
 import { setTurnIds } from './turn';
 
-import Player from '../models/Player';
-import Room from '../models/Room';
+import Player from '../models/player/Player';
+import Room from '../models/room/Room';
 import { getErrorMessage } from '../utils/errors';
 
 export const matchmaking = async function (this: ExtendedSocket) {

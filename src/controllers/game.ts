@@ -2,8 +2,8 @@ import { ExtendedSocket } from '../socket/router';
 import { SocketManager } from '../utils/SocketManager';
 import { changeTurn } from './turn';
 
-import Player from '../models/Player';
-import Room from '../models/Room';
+import Player from '../models/player/Player';
+import Room from '../models/room/Room';
 
 export const handleGame = async function (
   this: ExtendedSocket,

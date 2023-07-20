@@ -1,5 +1,5 @@
-import Player from '../models/Player';
-import Room from '../models/Room';
+import Player from '../models/player/Player';
+import Room from '../models/room/Room';
 import { ExtendedSocket } from '../socket/router';
 import { reconnectionCleanup } from '../utils/reconnectionCleanup';
 

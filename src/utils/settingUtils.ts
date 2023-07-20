@@ -1,10 +1,27 @@
-export const rows = 10;
-export const columns = 10;
+import { COL_COUNT, ROW_COUNT } from '../config/constants';
 
-export const shipsDefaultState = {
+export type Ship = {
+  id: string;
+  size: number;
+  hp: number;
+};
+
+export type ShipID =
+  | 'ship-0'
+  | 'ship-1'
+  | 'ship-2'
+  | 'ship-3'
+  | 'ship-4'
+  | 'ship-5'
+  | 'ship-6'
+  | 'ship-7'
+  | 'ship-8'
+  | 'ship-9';
+
+export const shipsDefaultState: { [key in ShipID]: Ship } = {
   'ship-0': { id: 'ship-0', size: 4, hp: 4 },
-  'ship-2': { id: 'ship-2', size: 3, hp: 3 },
   'ship-1': { id: 'ship-1', size: 3, hp: 3 },
+  'ship-2': { id: 'ship-2', size: 3, hp: 3 },
   'ship-3': { id: 'ship-3', size: 2, hp: 2 },
   'ship-4': { id: 'ship-4', size: 2, hp: 2 },
   'ship-5': { id: 'ship-5', size: 2, hp: 2 },
@@ -14,13 +31,6 @@ export const shipsDefaultState = {
   'ship-9': { id: 'ship-9', size: 1, hp: 1 },
 };
 
-export const shipsDefaultStateArr = Object.keys(shipsDefaultState).map(
-  (key) => {
-    return { ...shipsDefaultState[key as ShipID] };
-  },
-);
-
-export type ShipID = keyof typeof shipsDefaultState;
 export type Cell = {
   row: number;
   col: number;
@@ -70,8 +80,8 @@ export function validateShipPosition(
 
   if (orientation === 'horizontal') {
     // check ship position
-    if (row < 0 || row >= rows) return false;
-    if (col < 0 || col + ship.size - 1 >= columns) return false;
+    if (row < 0 || row >= ROW_COUNT) return false;
+    if (col < 0 || col + ship.size - 1 >= COL_COUNT) return false;
 
     for (let i = col; i <= col + ship.size - 1; i++) {
       if (board[row][i].shipId !== shipId) {
@@ -96,8 +106,8 @@ export function validateShipPosition(
 
   if (orientation === 'vertical') {
     // check ship position
-    if (row < 0 || row + ship.size - 1 >= rows) return false;
-    if (col < 0 || col >= columns) return false;
+    if (row < 0 || row + ship.size - 1 >= ROW_COUNT) return false;
+    if (col < 0 || col >= COL_COUNT) return false;
 
     for (let i = row; i < row + ship.size; i++) {
       if (board[i][col].shipId !== shipId) {
