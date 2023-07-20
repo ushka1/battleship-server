@@ -1,9 +1,9 @@
 import { ExtSocket } from '../routes/index';
-import { Socket } from '../utils/Socket';
+import { SocketManager } from '../utils/SocketManager';
 
-import { setTurnIds } from './turn';
-import Room from '../models/Room';
 import Player from '../models/Player';
+import Room from '../models/Room';
+import { setTurnIds } from './turn';
 
 export const privateMatchmaking = async function (
   this: ExtSocket,
@@ -34,7 +34,7 @@ export const privateMatchmaking = async function (
     await player.setNewGame();
 
     if (room.players.length === 2 && !room.disabled) {
-      const { io } = Socket.getInstance();
+      const { io } = SocketManager.getInstance();
       io.in(room.id).emit('private-matchmaking', {
         message:
           'Congratulations to both players, room is ready to start a game!',

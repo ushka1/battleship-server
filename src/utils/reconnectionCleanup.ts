@@ -1,5 +1,5 @@
-import { ExtSocket } from '../routes';
 import Room from '../models/Room';
+import { ExtSocket } from '../routes';
 
 export const reconnectionCleanup = async (socket: ExtSocket) => {
   if (socket.roomId) {

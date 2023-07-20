@@ -40,10 +40,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.privateMatchmaking = void 0;
-var Socket_1 = require("../utils/Socket");
-var turn_1 = require("./turn");
-var Room_1 = __importDefault(require("../models/Room"));
+var SocketManager_1 = require("../utils/SocketManager");
 var Player_1 = __importDefault(require("../models/Player"));
+var Room_1 = __importDefault(require("../models/Room"));
+var turn_1 = require("./turn");
 exports.privateMatchmaking = function (roomId) {
     return __awaiter(this, void 0, void 0, function () {
         var player, room, io, err_1;
@@ -80,7 +80,7 @@ exports.privateMatchmaking = function (roomId) {
                 case 7:
                     _a.sent();
                     if (room.players.length === 2 && !room.disabled) {
-                        io = Socket_1.Socket.getInstance().io;
+                        io = SocketManager_1.SocketManager.getInstance().io;
                         io.in(room.id).emit('private-matchmaking', {
                             message: 'Congratulations to both players, room is ready to start a game!',
                             readyToPlay: true,

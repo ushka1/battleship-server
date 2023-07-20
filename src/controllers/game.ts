@@ -1,16 +1,15 @@
 import { ExtSocket } from '../routes/index';
-import { Socket } from '../utils/Socket';
+import { SocketManager } from '../utils/SocketManager';
 import { changeTurn } from './turn';
 
 import Player from '../models/Player';
 import Room from '../models/Room';
-import { GameResponse } from '../utils/responses';
 
 export const handleGame = async function (
   this: ExtSocket,
   coords: { row: number; col: number },
 ) {
-  const { io } = Socket.getInstance();
+  const { io } = SocketManager.getInstance();
   const room = await Room.findById(this.roomId);
 
   try {

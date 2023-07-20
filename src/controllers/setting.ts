@@ -1,13 +1,13 @@
 import Player from '../models/Player';
+import { ExtSocket } from '../routes/index';
 import { SettingResponse } from '../utils/responses';
 import {
-  shipProperlySettled,
   Board,
-  shipsDefault,
-  rowsLength,
-  colsLength,
+  columns,
+  rows,
+  shipDefaults,
+  shipProperlySettled,
 } from '../utils/settingUtils';
-import { ExtSocket } from '../routes/index';
 
 export const applySetting = async function (this: ExtSocket, board: Board) {
   try {
@@ -17,23 +17,23 @@ export const applySetting = async function (this: ExtSocket, board: Board) {
       throw new Error('User connection fault.');
     }
 
-    if (!board[rowsLength - 1] || !board[rowsLength - 1][colsLength - 1]) {
+    if (!board[rows - 1] || !board[rows - 1][columns - 1]) {
       throw new Error('User passed invalid setting.');
     }
 
     const foundShips: { [x: string]: any } = {};
 
-    for (let row = 0; row < rowsLength; row++) {
-      for (let col = 0; col < colsLength; col++) {
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < columns; col++) {
         const { shipId } = board[row][col];
 
-        if (shipsDefault[shipId] && foundShips[shipId] === undefined) {
+        if (shipDefaults[shipId] && foundShips[shipId] === undefined) {
           foundShips[shipId] = shipProperlySettled(board, row, col, shipId);
         }
       }
     }
 
-    const settingValid = Object.keys(shipsDefault).reduce((acc, cur) => {
+    const settingValid = Object.keys(shipDefaults).reduce((acc, cur) => {
       if (!acc || !foundShips[cur]) return false;
       return true;
     }, true);

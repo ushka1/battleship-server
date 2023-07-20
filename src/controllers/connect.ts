@@ -1,9 +1,9 @@
 import { ExtSocket } from '../routes/index';
 import { ConnectResponse, DisconnectResponse } from '../utils/responses';
 
-import { Socket } from '../utils/Socket';
 import Player from '../models/Player';
 import Room from '../models/Room';
+import { SocketManager } from '../utils/SocketManager';
 
 export const onConnect = async function (this: ExtSocket, name: string) {
   try {
@@ -42,7 +42,7 @@ const onDisconnect = async function (this: ExtSocket) {
             playerLeft: true,
           };
 
-          const { io } = Socket.getInstance();
+          const { io } = SocketManager.getInstance();
           io.to(remainingPlayer.socketId).emit('disconnect', response);
         }
 

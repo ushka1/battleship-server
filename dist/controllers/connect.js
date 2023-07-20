@@ -40,9 +40,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.onConnect = void 0;
-var Socket_1 = require("../utils/Socket");
 var Player_1 = __importDefault(require("../models/Player"));
 var Room_1 = __importDefault(require("../models/Room"));
+var SocketManager_1 = require("../utils/SocketManager");
 exports.onConnect = function (name) {
     return __awaiter(this, void 0, void 0, function () {
         var player, response, err_1;
@@ -95,7 +95,7 @@ var onDisconnect = function () {
                         board: remainingPlayer.boardDefault,
                         playerLeft: true,
                     };
-                    io = Socket_1.Socket.getInstance().io;
+                    io = SocketManager_1.SocketManager.getInstance().io;
                     io.to(remainingPlayer.socketId).emit('disconnect', response);
                     _a.label = 3;
                 case 3: return [4, Room_1.default.findById(this.roomId)];

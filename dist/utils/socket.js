@@ -1,22 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Socket = void 0;
-var Socket = (function () {
-    function Socket(io) {
+exports.SocketManager = void 0;
+var SocketManager = (function () {
+    function SocketManager(io) {
         this.io = io;
     }
-    Socket.init = function (io) {
+    SocketManager.init = function (io) {
         this.instance = new this(io);
+        return this.instance;
     };
-    Socket.getInstance = function () {
+    SocketManager.getInstance = function () {
         if (this.instance) {
             return this.instance;
         }
-        else {
-            throw new Error('Error in "utils/socket.ts [getIO]".');
-        }
+        throw new Error('Socket instance not initialized.');
     };
-    return Socket;
+    return SocketManager;
 }());
-exports.Socket = Socket;
-//# sourceMappingURL=Socket.js.map
+exports.SocketManager = SocketManager;
+//# sourceMappingURL=socket.js.map

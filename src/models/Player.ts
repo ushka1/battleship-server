@@ -1,9 +1,9 @@
-import { Schema, model, Document } from 'mongoose';
+import { Document, Schema, model } from 'mongoose';
 import {
-  shipsDefaultArray,
-  ShipKey,
-  sunkShip,
   Board,
+  ShipKey,
+  shipDefaultsArr,
+  sunkShip,
 } from '../utils/settingUtils';
 
 export interface IPlayer extends Document {
@@ -70,7 +70,7 @@ playerSchema.methods.setNewGame = async function () {
   if (!this.boardDefault) throw new Error('An unexpected error occurred.');
 
   this.board = this.boardDefault;
-  this.ships = shipsDefaultArray;
+  this.ships = shipDefaultsArr;
   await this.save();
 };
 

@@ -47,9 +47,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.changeTurn = exports.getTurnId = exports.setTurnIds = void 0;
-var Room_1 = __importDefault(require("../models/Room"));
 var Player_1 = __importDefault(require("../models/Player"));
-var Socket_1 = require("../utils/Socket");
+var Room_1 = __importDefault(require("../models/Room"));
+var SocketManager_1 = require("../utils/SocketManager");
 exports.setTurnIds = function (roomId) { return __awaiter(void 0, void 0, void 0, function () {
     var room, turnId, _a, _b, player, e_1_1, firstTurn;
     var e_1, _c;
@@ -138,7 +138,7 @@ exports.changeTurn = function (roomId) { return __awaiter(void 0, void 0, void 0
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                io = Socket_1.Socket.getInstance().io;
+                io = SocketManager_1.SocketManager.getInstance().io;
                 if (!io) {
                     throw new Error('Socket Error.');
                 }

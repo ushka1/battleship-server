@@ -39,45 +39,56 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var express_1 = __importDefault(require("express"));
-var socket_io_1 = __importDefault(require("socket.io"));
 var cors_1 = __importDefault(require("cors"));
+var express_1 = __importDefault(require("express"));
 var mongoose_1 = require("mongoose");
-var Socket_1 = require("./utils/Socket");
+var socket_io_1 = __importDefault(require("socket.io"));
 var routes_1 = __importDefault(require("./routes"));
+var SocketManager_1 = require("./utils/SocketManager");
 var app = express_1.default();
 app.use(cors_1.default());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use(express_1.default.json());
-app.get('/test', function (req, res, next) {
-    res.status(200).send('TEST');
-});
 app.get('/', function (req, res, next) {
-    res.status(200).send('WORK');
+    res.status(200).send('Server is up.');
 });
 (function () { return __awaiter(void 0, void 0, void 0, function () {
-    var server, io;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0: return [4, mongoose_1.connect(process.env.DB_CONNECT + "/" + process.env.DB_NAME, {
-                    useNewUrlParser: true,
-                    useUnifiedTopology: true,
-                    useCreateIndex: true,
-                    auth: {
-                        password: "" + process.env.DB_PASSWORD,
-                        user: "" + process.env.DB_USERNAME,
-                    },
-                    dbName: "" + process.env.DB_NAME,
-                })];
+    var port, server, io, err_1;
+    var _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _b.trys.push([0, 2, , 3]);
+                return [4, mongoose_1.connect('mongodb://localhost:27017', {
+                        useNewUrlParser: true,
+                        useUnifiedTopology: true,
+                        useCreateIndex: true,
+                        dbName: process.env.DB_NAME,
+                        auth: {
+                            password: process.env.DB_PASSWORD,
+                            user: process.env.DB_USERNAME,
+                        },
+                        authSource: process.env.DB_AUTH_SOURCE,
+                    })];
             case 1:
-                _a.sent();
-                server = app.listen(process.env.PORT || 5000);
-                io = socket_io_1.default.listen(server, {});
-                if (io) {
-                    Socket_1.Socket.init(io);
-                    io.on('connect', routes_1.default);
-                }
-                return [2];
+                _b.sent();
+                console.log('Connected to MongoDB.');
+                port = (_a = process.env.PORT) !== null && _a !== void 0 ? _a : 8080;
+                server = app.listen(port);
+                console.log("Server listening on port " + port + ".");
+                io = socket_io_1.default.listen(server, {
+                    origins: [process.env.SOCKET_ORIGIN],
+                });
+                io.on('connect', routes_1.default);
+                console.log("Socket listening.");
+                SocketManager_1.SocketManager.init(io);
+                console.log('Server is up.');
+                return [3, 3];
+            case 2:
+                err_1 = _b.sent();
+                console.error("An error occurred during server startup: " + err_1);
+                return [3, 3];
+            case 3: return [2];
         }
     });
 }); })();

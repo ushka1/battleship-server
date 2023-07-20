@@ -1,44 +1,49 @@
-import express from 'express';
-// import socketio from 'socket.io';
 import cors from 'cors';
+import express from 'express';
 import { connect } from 'mongoose';
+import socketio from 'socket.io';
 
-// import { Socket } from './utils/Socket';
-// import router from './routes';
+import router from './routes';
+import { SocketManager } from './utils/SocketManager';
 
 const app = express();
-app.use(cors());
 
+app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.get('/test', (req, res, next) => {
-  res.status(200).send('TEST');
-});
-
 app.get('/', (req, res, next) => {
-  res.status(200).send('WORK');
+  res.status(200).send('Server is up.');
 });
 
 (async () => {
-  await connect(`${process.env.DB_CONNECT}/${process.env.DB_NAME}`, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-    auth: {
-      password: `${process.env.DB_PASSWORD}`,
-      user: `${process.env.DB_USERNAME}`,
-    },
-    dbName: `${process.env.DB_NAME}`,
-  });
+  try {
+    await connect('mongodb://localhost:27017', {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useCreateIndex: true,
+      dbName: process.env.DB_NAME,
+      auth: {
+        password: process.env.DB_PASSWORD,
+        user: process.env.DB_USERNAME,
+      },
+      authSource: process.env.DB_AUTH_SOURCE,
+    });
+    console.log('Connected to MongoDB.');
 
-  const server = app.listen(process.env.PORT || 5000);
-  // const io = socketio.listen(server, {
-  // origins: [process.env.SOCKET_ORIGIN],
-  // });
+    const port = process.env.PORT ?? 8080;
+    const server = app.listen(port);
+    console.log(`Server listening on port ${port}.`);
 
-  // if (io) {
-  //   Socket.init(io);
-  //   io.on('connect', router);
-  // }
+    const io = socketio.listen(server, {
+      origins: [process.env.SOCKET_ORIGIN],
+    });
+    io.on('connect', router);
+    console.log(`Socket listening.`);
+
+    SocketManager.init(io);
+    console.log('Server is up.');
+  } catch (err) {
+    console.error(`An error occurred during server startup: ${err}`);
+  }
 })();

@@ -11,10 +11,10 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sunkShip = exports.shipProperlySettled = exports.shipsDefaultArray = exports.shipsDefault = exports.colsLength = exports.rowsLength = void 0;
-exports.rowsLength = 10;
-exports.colsLength = 10;
-exports.shipsDefault = {
+exports.sunkShip = exports.shipProperlySettled = exports.shipDefaultsArr = exports.shipDefaults = exports.columns = exports.rows = void 0;
+exports.rows = 10;
+exports.columns = 10;
+exports.shipDefaults = {
     'ship-0': { id: 'ship-0', size: 4, hp: 4 },
     'ship-2': { id: 'ship-2', size: 3, hp: 3 },
     'ship-1': { id: 'ship-1', size: 3, hp: 3 },
@@ -26,11 +26,11 @@ exports.shipsDefault = {
     'ship-8': { id: 'ship-8', size: 1, hp: 1 },
     'ship-9': { id: 'ship-9', size: 1, hp: 1 },
 };
-exports.shipsDefaultArray = Object.keys(exports.shipsDefault).map(function (key) {
-    return __assign({}, exports.shipsDefault[key]);
+exports.shipDefaultsArr = Object.keys(exports.shipDefaults).map(function (key) {
+    return __assign({}, exports.shipDefaults[key]);
 });
 exports.shipProperlySettled = function (board, row, col, shipId) {
-    var ship = exports.shipsDefault[shipId];
+    var ship = exports.shipDefaults[shipId];
     var orientation = '';
     if (ship.size === 1) {
         orientation = 'horizontal';
@@ -87,7 +87,7 @@ exports.shipProperlySettled = function (board, row, col, shipId) {
     return true;
 };
 exports.sunkShip = function (board, shipId) {
-    var ship = __assign({}, exports.shipsDefault[shipId]);
+    var ship = __assign({}, exports.shipDefaults[shipId]);
     var orientation;
     var firstCell;
     for (var _i = 0, board_1 = board; _i < board_1.length; _i++) {

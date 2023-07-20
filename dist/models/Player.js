@@ -96,7 +96,7 @@ playerSchema.methods.setNewGame = function () {
                     if (!this.boardDefault)
                         throw new Error('An unexpected error occurred.');
                     this.board = this.boardDefault;
-                    this.ships = settingUtils_1.shipsDefaultArray;
+                    this.ships = settingUtils_1.shipDefaultsArr;
                     return [4, this.save()];
                 case 1:
                     _a.sent();

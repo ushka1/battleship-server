@@ -40,7 +40,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleGame = void 0;
-var Socket_1 = require("../utils/Socket");
+var SocketManager_1 = require("../utils/SocketManager");
 var turn_1 = require("./turn");
 var Player_1 = __importDefault(require("../models/Player"));
 var Room_1 = __importDefault(require("../models/Room"));
@@ -52,7 +52,7 @@ exports.handleGame = function (coords) {
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
-                    io = Socket_1.Socket.getInstance().io;
+                    io = SocketManager_1.SocketManager.getInstance().io;
                     return [4, Room_1.default.findById(this.roomId)];
                 case 1:
                     room = _c.sent();

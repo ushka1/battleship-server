@@ -1,7 +1,7 @@
-export const rowsLength = 10;
-export const colsLength = 10;
+export const rows = 10;
+export const columns = 10;
 
-export const shipsDefault = {
+export const shipDefaults = {
   'ship-0': { id: 'ship-0', size: 4, hp: 4 },
   'ship-2': { id: 'ship-2', size: 3, hp: 3 },
   'ship-1': { id: 'ship-1', size: 3, hp: 3 },
@@ -14,11 +14,11 @@ export const shipsDefault = {
   'ship-9': { id: 'ship-9', size: 1, hp: 1 },
 };
 
-export const shipsDefaultArray = Object.keys(shipsDefault).map((key) => {
-  return { ...shipsDefault[key as ShipKey] };
+export const shipDefaultsArr = Object.keys(shipDefaults).map((key) => {
+  return { ...shipDefaults[key as ShipKey] };
 });
 
-export type ShipKey = keyof typeof shipsDefault;
+export type ShipKey = keyof typeof shipDefaults;
 export type Cell = {
   row: number;
   col: number;
@@ -34,7 +34,7 @@ export const shipProperlySettled = (
   col: number,
   shipId: ShipKey,
 ) => {
-  const ship = shipsDefault[shipId];
+  const ship = shipDefaults[shipId];
   let orientation: string = '';
 
   if (ship.size === 1) {
@@ -101,7 +101,7 @@ export const shipProperlySettled = (
 };
 
 export const sunkShip = (board: Board, shipId: ShipKey) => {
-  const ship = { ...shipsDefault[shipId] };
+  const ship = { ...shipDefaults[shipId] };
   let orientation: string;
   let firstCell: Cell | undefined;
 

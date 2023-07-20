@@ -66,19 +66,19 @@ exports.applySetting = function (board) {
                     if (!player) {
                         throw new Error('User connection fault.');
                     }
-                    if (!board[settingUtils_1.rowsLength - 1] || !board[settingUtils_1.rowsLength - 1][settingUtils_1.colsLength - 1]) {
+                    if (!board[settingUtils_1.rows - 1] || !board[settingUtils_1.rows - 1][settingUtils_1.columns - 1]) {
                         throw new Error('User passed invalid setting.');
                     }
                     foundShips_1 = {};
-                    for (row = 0; row < settingUtils_1.rowsLength; row++) {
-                        for (col = 0; col < settingUtils_1.colsLength; col++) {
+                    for (row = 0; row < settingUtils_1.rows; row++) {
+                        for (col = 0; col < settingUtils_1.columns; col++) {
                             shipId = board[row][col].shipId;
-                            if (settingUtils_1.shipsDefault[shipId] && foundShips_1[shipId] === undefined) {
+                            if (settingUtils_1.shipDefaults[shipId] && foundShips_1[shipId] === undefined) {
                                 foundShips_1[shipId] = settingUtils_1.shipProperlySettled(board, row, col, shipId);
                             }
                         }
                     }
-                    settingValid = Object.keys(settingUtils_1.shipsDefault).reduce(function (acc, cur) {
+                    settingValid = Object.keys(settingUtils_1.shipDefaults).reduce(function (acc, cur) {
                         if (!acc || !foundShips_1[cur])
                             return false;
                         return true;

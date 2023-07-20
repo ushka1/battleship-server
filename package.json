@@ -2,7 +2,7 @@
   "name": "battleship-backend",
   "version": "1.0.0",
   "main": "index.js",
-  "author": "Batiuszka Maroz <david.prajzner@op.pl>",
+  "author": "ushka1",
   "license": "MIT",
   "engines": {
     "node": "14.x"
@@ -10,14 +10,15 @@
   "dependencies": {
     "@types/cors": "^2.8.8",
     "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
     "express": "^4.17.1",
     "mongoose": "^5.9.25",
     "socket.io": "^2.3.0"
   },
   "scripts": {
     "start": "node ./dist/index.js",
-    "dev:start": "nodemon ./dist",
-    "dev:build": "tsc -w"
+    "dev:build": "tsc -w",
+    "dev:start": "nodemon -r dotenv/config ./dist"
   },
   "devDependencies": {
     "@types/express": "^4.17.7",
