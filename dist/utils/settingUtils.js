@@ -11,10 +11,10 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sunkShip = exports.shipProperlySettled = exports.shipDefaultsArr = exports.shipDefaults = exports.columns = exports.rows = void 0;
+exports.sunkShip = exports.validateShipPosition = exports.shipsDefaultStateArr = exports.shipsDefaultState = exports.columns = exports.rows = void 0;
 exports.rows = 10;
 exports.columns = 10;
-exports.shipDefaults = {
+exports.shipsDefaultState = {
     'ship-0': { id: 'ship-0', size: 4, hp: 4 },
     'ship-2': { id: 'ship-2', size: 3, hp: 3 },
     'ship-1': { id: 'ship-1', size: 3, hp: 3 },
@@ -26,69 +26,80 @@ exports.shipDefaults = {
     'ship-8': { id: 'ship-8', size: 1, hp: 1 },
     'ship-9': { id: 'ship-9', size: 1, hp: 1 },
 };
-exports.shipDefaultsArr = Object.keys(exports.shipDefaults).map(function (key) {
-    return __assign({}, exports.shipDefaults[key]);
+exports.shipsDefaultStateArr = Object.keys(exports.shipsDefaultState).map(function (key) {
+    return __assign({}, exports.shipsDefaultState[key]);
 });
-var shipProperlySettled = function (board, row, col, shipId) {
-    var ship = exports.shipDefaults[shipId];
-    var orientation = '';
+function getShipOrientation(board, row, col, shipId) {
+    var ship = exports.shipsDefaultState[shipId];
     if (ship.size === 1) {
-        orientation = 'horizontal';
+        return 'horizontal';
     }
     else {
         if (board[row] &&
             board[row][col + 1] &&
             board[row][col + 1].shipId === shipId) {
-            orientation = 'horizontal';
+            return 'horizontal';
         }
         else if (board[row + 1] &&
             board[row + 1][col] &&
             board[row + 1][col].shipId === shipId) {
-            orientation = 'vertical';
+            return 'vertical';
         }
         else {
-            return false;
+            throw new Error('Invalid ship position.');
         }
     }
+}
+function validateShipPosition(board, row, col, shipId) {
+    var ship = exports.shipsDefaultState[shipId];
+    var orientation = getShipOrientation(board, row, col, shipId);
     if (orientation === 'horizontal') {
-        for (var k = col; k < ship.size + col; k++) {
-            if (!board[row] || !board[row][k] || board[row][k].shipId !== shipId) {
+        if (row < 0 || row >= exports.rows)
+            return false;
+        if (col < 0 || col + ship.size - 1 >= exports.columns)
+            return false;
+        for (var i = col; i <= col + ship.size - 1; i++) {
+            if (board[row][i].shipId !== shipId) {
                 return false;
             }
         }
-        for (var k = row - 1; k < row + 2; k++) {
-            for (var l = col - 1; l < col + ship.size + 1; l++) {
-                if (board[k] &&
-                    board[k][l] &&
-                    board[k][l].shipId !== shipId &&
-                    board[k][l].shipId !== null) {
+        for (var i = row - 1; i <= row + 1; i++) {
+            for (var j = col - 1; j <= col + ship.size; j++) {
+                if (board[i] &&
+                    board[i][j] &&
+                    board[i][j].shipId !== null &&
+                    board[i][j].shipId !== shipId) {
                     return false;
                 }
             }
         }
     }
-    else if (orientation === 'vertical') {
-        for (var k = row; k < row + ship.size; k++) {
-            if (!board[k] || !board[k][col] || board[k][col].shipId !== shipId) {
+    if (orientation === 'vertical') {
+        if (row < 0 || row + ship.size - 1 >= exports.rows)
+            return false;
+        if (col < 0 || col >= exports.columns)
+            return false;
+        for (var i = row; i < row + ship.size; i++) {
+            if (board[i][col].shipId !== shipId) {
                 return false;
             }
         }
-        for (var k = row - 1; k < row + ship.size + 1; k++) {
-            for (var l = col - 1; l < col + 2; l++) {
-                if (board[k] &&
-                    board[k][l] &&
-                    board[k][l].shipId !== shipId &&
-                    board[k][l].shipId !== null) {
+        for (var i = row - 1; i <= row + ship.size; i++) {
+            for (var j = col - 1; j <= col + 1; j++) {
+                if (board[i] &&
+                    board[i][j] &&
+                    board[i][j].shipId !== null &&
+                    board[i][j].shipId !== shipId) {
                     return false;
                 }
             }
         }
     }
     return true;
-};
-exports.shipProperlySettled = shipProperlySettled;
+}
+exports.validateShipPosition = validateShipPosition;
 var sunkShip = function (board, shipId) {
-    var ship = __assign({}, exports.shipDefaults[shipId]);
+    var ship = __assign({}, exports.shipsDefaultState[shipId]);
     var orientation;
     var firstCell;
     for (var _i = 0, board_1 = board; _i < board_1.length; _i++) {

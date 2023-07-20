@@ -43,7 +43,7 @@ exports.privateMatchmaking = void 0;
 var SocketManager_1 = require("../utils/SocketManager");
 var Player_1 = __importDefault(require("../models/Player"));
 var Room_1 = __importDefault(require("../models/Room"));
-var utils_1 = require("../utils/utils");
+var errors_1 = require("../utils/errors");
 var turn_1 = require("./turn");
 var privateMatchmaking = function (roomId) {
     return __awaiter(this, void 0, void 0, function () {
@@ -51,7 +51,7 @@ var privateMatchmaking = function (roomId) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 8, , 9]);
+                    _a.trys.push([0, 10, , 11]);
                     return [4, Player_1.default.findById(this.playerId).exec()];
                 case 1:
                     player = _a.sent();
@@ -80,21 +80,23 @@ var privateMatchmaking = function (roomId) {
                     return [4, player.setNewGame()];
                 case 7:
                     _a.sent();
-                    if (room.players.length === 2 && !room.disabled) {
-                        io = SocketManager_1.SocketManager.getInstance().io;
-                        io.in(room.id).emit('private-matchmaking', {
-                            message: 'Congratulations to both players, room is ready to start a game!',
-                            readyToPlay: true,
-                        });
-                        (0, turn_1.setTurnIds)(room.id);
-                    }
-                    return [3, 9];
+                    if (!(room.players.length === 2 && !room.disabled)) return [3, 9];
+                    io = SocketManager_1.SocketManager.getInstance().io;
+                    return [4, (0, turn_1.setTurnIds)(room.id)];
                 case 8:
+                    _a.sent();
+                    io.in(room.id).emit('private-matchmaking', {
+                        message: 'Congratulations to both players, room is ready to start a game!',
+                        readyToPlay: true,
+                    });
+                    _a.label = 9;
+                case 9: return [3, 11];
+                case 10:
                     err_1 = _a.sent();
-                    this._error({ message: (0, utils_1.getErrorMessage)(err_1) });
+                    this._error({ message: (0, errors_1.getErrorMessage)(err_1) });
                     console.log('Error in "controllers/privateMatchmaking.ts [privateMatchmaking]"');
-                    return [3, 9];
-                case 9: return [2];
+                    return [3, 11];
+                case 11: return [2];
             }
         });
     });

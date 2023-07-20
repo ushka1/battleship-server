@@ -3,7 +3,7 @@ import { ExtSocket } from '../routes';
 
 export const reconnectionCleanup = async (socket: ExtSocket) => {
   if (socket.roomId) {
-    const room = await Room.findById(socket.roomId);
+    const room = await Room.findById(socket.roomId).exec();
     await room?.removeFromRoom(socket.playerId);
 
     socket.leave(socket.roomId);

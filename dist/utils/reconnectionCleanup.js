@@ -47,7 +47,7 @@ var reconnectionCleanup = function (socket) { return __awaiter(void 0, void 0, v
         switch (_a.label) {
             case 0:
                 if (!socket.roomId) return [3, 3];
-                return [4, Room_1.default.findById(socket.roomId)];
+                return [4, Room_1.default.findById(socket.roomId).exec()];
             case 1:
                 room = _a.sent();
                 return [4, (room === null || room === void 0 ? void 0 : room.removeFromRoom(socket.playerId))];

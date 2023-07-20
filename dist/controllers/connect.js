@@ -84,7 +84,7 @@ var onDisconnect = function () {
                     return [4, Player_1.default.findOne({
                             _id: { $ne: this.playerId },
                             room: this.roomId,
-                        })];
+                        }).exec()];
                 case 1:
                     remainingPlayer = _a.sent();
                     if (!remainingPlayer) return [3, 3];
@@ -99,21 +99,21 @@ var onDisconnect = function () {
                     io = SocketManager_1.SocketManager.getInstance().io;
                     io.to(remainingPlayer.socketId).emit('disconnect', response);
                     _a.label = 3;
-                case 3: return [4, Room_1.default.findById(this.roomId)];
+                case 3: return [4, Room_1.default.findById(this.roomId).exec()];
                 case 4:
                     room = _a.sent();
                     return [4, (room === null || room === void 0 ? void 0 : room.removeFromRoom(this.playerId))];
                 case 5:
                     _a.sent();
                     _a.label = 6;
-                case 6: return [4, Player_1.default.deleteOne({ _id: this.playerId })];
+                case 6: return [4, Player_1.default.deleteOne({ _id: this.playerId }).exec()];
                 case 7:
                     _a.sent();
                     _a.label = 8;
                 case 8: return [3, 10];
                 case 9:
                     err_2 = _a.sent();
-                    console.error('Error in "controllers/connect.ts [onDisconnect]".');
+                    console.error(err_2);
                     return [3, 10];
                 case 10: return [2];
             }

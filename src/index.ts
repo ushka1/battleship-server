@@ -18,10 +18,7 @@ app.get('/', (req, res) => {
 
 (async () => {
   try {
-    await connect('mongodb://localhost:27017', {
-      // useNewUrlParser: true,
-      // useUnifiedTopology: true,
-      // useCreateIndex: true,
+    await connect(`${process.env.DB_CONNECT}/${process.env.DB_NAME}`, {
       dbName: process.env.DB_NAME,
       auth: {
         password: process.env.DB_PASSWORD,
@@ -35,14 +32,13 @@ app.get('/', (req, res) => {
     const server = app.listen(port);
     console.log(`Server listening on port ${port}.`);
 
-    const io = new SocketServer({
-      cors: { origin: process.env.SOCKET_ORIGIN },
+    const io = new SocketServer(server, {
+      cors: { origin: process.env.SOCKET_ORIGIN, methods: ['GET', 'POST'] },
     });
-    io.listen(server);
-    io.on('connect', router);
+    SocketManager.init(io);
+    io.on('connection', router);
     console.log(`Socket listening.`);
 
-    SocketManager.init(io);
     console.log('Server is up.');
   } catch (err) {
     console.error(`An error occurred during server startup: ${err}`);

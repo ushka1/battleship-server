@@ -124,6 +124,5 @@ roomSchema.methods.removeFromRoom = function (playerId) {
     });
 };
 var Room = (0, mongoose_1.model)('Room', roomSchema);
-Room.db.dropCollection('rooms');
 exports.default = Room;
 //# sourceMappingURL=Room.js.map

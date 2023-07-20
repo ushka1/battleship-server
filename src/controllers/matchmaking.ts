@@ -5,7 +5,7 @@ import { setTurnIds } from './turn';
 
 import Player from '../models/Player';
 import Room from '../models/Room';
-import { getErrorMessage } from '../utils/utils';
+import { getErrorMessage } from '../utils/errors';
 
 export const matchmaking = async function (this: ExtSocket) {
   try {
@@ -46,8 +46,8 @@ export const matchmaking = async function (this: ExtSocket) {
         readyToPlay,
       };
 
+      await setTurnIds(this.roomId);
       this.to(this.roomId).emit('matchmaking', response);
-      setTurnIds(this.roomId);
     }
   } catch (err) {
     console.error('Error in "controllers/matchmaking.ts [matchmaking]".');

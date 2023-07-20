@@ -3,7 +3,7 @@ import { SocketManager } from '../utils/SocketManager';
 
 import Player from '../models/Player';
 import Room from '../models/Room';
-import { getErrorMessage } from '../utils/utils';
+import { getErrorMessage } from '../utils/errors';
 import { setTurnIds } from './turn';
 
 export const privateMatchmaking = async function (
@@ -36,13 +36,13 @@ export const privateMatchmaking = async function (
 
     if (room.players.length === 2 && !room.disabled) {
       const { io } = SocketManager.getInstance();
+      await setTurnIds(room.id);
+
       io.in(room.id).emit('private-matchmaking', {
         message:
           'Congratulations to both players, room is ready to start a game!',
         readyToPlay: true,
       });
-
-      setTurnIds(room.id);
     }
   } catch (err) {
     this._error({ message: getErrorMessage(err) });

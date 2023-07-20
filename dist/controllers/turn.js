@@ -55,7 +55,7 @@ var setTurnIds = function (roomId) { return __awaiter(void 0, void 0, void 0, fu
     var _d, e_1, _e, _f;
     return __generator(this, function (_g) {
         switch (_g.label) {
-            case 0: return [4, Room_1.default.findById(roomId).populate('players')];
+            case 0: return [4, Room_1.default.findById(roomId).populate('players').exec()];
             case 1:
                 room = _g.sent();
                 if (!room) {
@@ -100,7 +100,7 @@ var setTurnIds = function (roomId) { return __awaiter(void 0, void 0, void 0, fu
                 return [7];
             case 13: return [7];
             case 14:
-                firstTurn = Math.round(Math.random() + 1);
+                firstTurn = Math.round(Math.random()) + 1;
                 room.turn = firstTurn;
                 return [4, room.save()];
             case 15:
@@ -115,10 +115,10 @@ var getTurnId = function () {
         var player, room, response;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4, Player_1.default.findById(this.playerId)];
+                case 0: return [4, Player_1.default.findById(this.playerId).exec()];
                 case 1:
                     player = _a.sent();
-                    return [4, Room_1.default.findById(this.roomId)];
+                    return [4, Room_1.default.findById(this.roomId).exec()];
                 case 2:
                     room = _a.sent();
                     if (player && room) {
@@ -148,7 +148,7 @@ var changeTurn = function (roomId) { return __awaiter(void 0, void 0, void 0, fu
                 if (!io) {
                     throw new Error('Socket Error.');
                 }
-                return [4, Room_1.default.findById(roomId)];
+                return [4, Room_1.default.findById(roomId).exec()];
             case 1:
                 room = _a.sent();
                 if (!room) {

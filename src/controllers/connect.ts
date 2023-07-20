@@ -31,7 +31,7 @@ const onDisconnect = async function (this: ExtSocket) {
         const remainingPlayer = await Player.findOne({
           _id: { $ne: this.playerId },
           room: this.roomId,
-        });
+        }).exec();
 
         if (remainingPlayer) {
           await remainingPlayer.setNewGame();
@@ -46,13 +46,13 @@ const onDisconnect = async function (this: ExtSocket) {
           io.to(remainingPlayer.socketId).emit('disconnect', response);
         }
 
-        const room = await Room.findById(this.roomId);
+        const room = await Room.findById(this.roomId).exec();
         await room?.removeFromRoom(this.playerId);
       }
 
-      await Player.deleteOne({ _id: this.playerId });
+      await Player.deleteOne({ _id: this.playerId }).exec();
     }
   } catch (err) {
-    console.error('Error in "controllers/connect.ts [onDisconnect]".');
+    console.error(err);
   }
 };

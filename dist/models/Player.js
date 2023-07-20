@@ -96,7 +96,7 @@ playerSchema.methods.setNewGame = function () {
                     if (!this.boardDefault)
                         throw new Error('An unexpected error occurred.');
                     this.board = this.boardDefault;
-                    this.ships = settingUtils_1.shipDefaultsArr;
+                    this.ships = settingUtils_1.shipsDefaultStateArr;
                     return [4, this.save()];
                 case 1:
                     _a.sent();
@@ -162,6 +162,5 @@ playerSchema.methods.hasShips = function () {
     return !allShipsSunked;
 };
 var Player = (0, mongoose_1.model)('Player', playerSchema);
-Player.db.dropCollection('players');
 exports.default = Player;
 //# sourceMappingURL=Player.js.map

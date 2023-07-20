@@ -17,8 +17,7 @@ export interface ExtSocket extends Socket {
 export default function (socket: ExtSocket) {
   //1
   socket.on('connect-player', onConnect);
-
-  //1.1 PRIV
+  //1 PRIV
   socket.on('private', createPrivateRoom);
 
   //2
@@ -26,7 +25,6 @@ export default function (socket: ExtSocket) {
 
   //3
   socket.on('matchmaking', matchmaking);
-
   //3 PRIV
   socket.on('private-matchmaking', privateMatchmaking);
 

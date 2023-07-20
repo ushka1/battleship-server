@@ -1,46 +1,43 @@
 import Player from '../models/Player';
 import { ExtSocket } from '../routes/index';
+import { getErrorMessage } from '../utils/errors';
 import { SettingResponse } from '../utils/responses';
 import {
   Board,
   columns,
   rows,
-  shipDefaults,
-  shipProperlySettled,
+  shipsDefaultState,
+  validateShipPosition,
 } from '../utils/settingUtils';
-import { getErrorMessage } from '../utils/utils';
 
 export const applySetting = async function (this: ExtSocket, board: Board) {
   try {
     const player = await Player.findById(this.playerId).exec();
-
     if (!player) {
       throw new Error('User connection fault.');
     }
 
     if (!board[rows - 1] || !board[rows - 1][columns - 1]) {
-      throw new Error('User passed invalid setting.');
+      throw new Error('User passed invalid setting (invalid board size).');
     }
 
-    const foundShips: { [x: string]: any } = {};
-
+    const foundShips: { [x: string]: boolean } = {};
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < columns; col++) {
         const { shipId } = board[row][col];
 
-        if (shipDefaults[shipId] && foundShips[shipId] === undefined) {
-          foundShips[shipId] = shipProperlySettled(board, row, col, shipId);
+        if (shipsDefaultState[shipId] && foundShips[shipId] === undefined) {
+          foundShips[shipId] = validateShipPosition(board, row, col, shipId);
         }
       }
     }
 
-    const settingValid = Object.keys(shipDefaults).reduce((acc, cur) => {
+    const settingValid = Object.keys(shipsDefaultState).reduce((acc, cur) => {
       if (!acc || !foundShips[cur]) return false;
       return true;
     }, true);
-
     if (!settingValid) {
-      throw new Error('User passed invalid setting.');
+      throw new Error('User passed invalid setting (ships placement).');
     }
 
     const validatedBoard = board.map((row) => {
@@ -55,7 +52,7 @@ export const applySetting = async function (this: ExtSocket, board: Board) {
 
     this.emit('apply-setting', response);
   } catch (err) {
-    console.error('Error in "controllers/setting.ts [applySetting]".');
-    this._error({ message: getErrorMessage(err) || 'Setting Error.' });
+    console.error(err);
+    this._error({ message: getErrorMessage(err) || 'Apply setting error.' });
   }
 };

@@ -1,7 +1,7 @@
 export const rows = 10;
 export const columns = 10;
 
-export const shipDefaults = {
+export const shipsDefaultState = {
   'ship-0': { id: 'ship-0', size: 4, hp: 4 },
   'ship-2': { id: 'ship-2', size: 3, hp: 3 },
   'ship-1': { id: 'ship-1', size: 3, hp: 3 },
@@ -14,82 +14,105 @@ export const shipDefaults = {
   'ship-9': { id: 'ship-9', size: 1, hp: 1 },
 };
 
-export const shipDefaultsArr = Object.keys(shipDefaults).map((key) => {
-  return { ...shipDefaults[key as ShipKey] };
-});
+export const shipsDefaultStateArr = Object.keys(shipsDefaultState).map(
+  (key) => {
+    return { ...shipsDefaultState[key as ShipID] };
+  },
+);
 
-export type ShipKey = keyof typeof shipDefaults;
+export type ShipID = keyof typeof shipsDefaultState;
 export type Cell = {
   row: number;
   col: number;
   id: string;
-  shipId: ShipKey;
+  shipId: ShipID;
   hit?: boolean;
 };
 export type Board = Cell[][];
 
-export const shipProperlySettled = (
+function getShipOrientation(
   board: Board,
   row: number,
   col: number,
-  shipId: ShipKey,
-) => {
-  const ship = shipDefaults[shipId];
-  let orientation: string = '';
+  shipId: ShipID,
+): string {
+  const ship = shipsDefaultState[shipId];
 
   if (ship.size === 1) {
-    orientation = 'horizontal';
+    return 'horizontal';
   } else {
     if (
       board[row] &&
       board[row][col + 1] &&
       board[row][col + 1].shipId === shipId
     ) {
-      orientation = 'horizontal';
+      return 'horizontal';
     } else if (
       board[row + 1] &&
       board[row + 1][col] &&
       board[row + 1][col].shipId === shipId
     ) {
-      orientation = 'vertical';
+      return 'vertical';
     } else {
-      return false;
+      throw new Error('Invalid ship position.');
     }
   }
+}
+
+export function validateShipPosition(
+  board: Board,
+  row: number,
+  col: number,
+  shipId: ShipID,
+) {
+  const ship = shipsDefaultState[shipId];
+  const orientation = getShipOrientation(board, row, col, shipId);
 
   if (orientation === 'horizontal') {
-    for (let k = col; k < ship.size + col; k++) {
-      if (!board[row] || !board[row][k] || board[row][k].shipId !== shipId) {
+    // check ship position
+    if (row < 0 || row >= rows) return false;
+    if (col < 0 || col + ship.size - 1 >= columns) return false;
+
+    for (let i = col; i <= col + ship.size - 1; i++) {
+      if (board[row][i].shipId !== shipId) {
         return false;
       }
     }
 
-    for (let k = row - 1; k < row + 2; k++) {
-      for (let l = col - 1; l < col + ship.size + 1; l++) {
+    // check ship surroundings
+    for (let i = row - 1; i <= row + 1; i++) {
+      for (let j = col - 1; j <= col + ship.size; j++) {
         if (
-          board[k] &&
-          board[k][l] &&
-          board[k][l].shipId !== shipId &&
-          board[k][l].shipId !== null
+          board[i] &&
+          board[i][j] &&
+          board[i][j].shipId !== null &&
+          board[i][j].shipId !== shipId
         ) {
           return false;
         }
       }
     }
-  } else if (orientation === 'vertical') {
-    for (let k = row; k < row + ship.size; k++) {
-      if (!board[k] || !board[k][col] || board[k][col].shipId !== shipId) {
+  }
+
+  if (orientation === 'vertical') {
+    // check ship position
+    if (row < 0 || row + ship.size - 1 >= rows) return false;
+    if (col < 0 || col >= columns) return false;
+
+    for (let i = row; i < row + ship.size; i++) {
+      if (board[i][col].shipId !== shipId) {
         return false;
       }
     }
 
-    for (let k = row - 1; k < row + ship.size + 1; k++) {
-      for (let l = col - 1; l < col + 2; l++) {
+    // check ship surroundings
+    for (let i = row - 1; i <= row + ship.size; i++) {
+      for (let j = col - 1; j <= col + 1; j++) {
         if (
-          board[k] &&
-          board[k][l] &&
-          board[k][l].shipId !== shipId &&
-          board[k][l].shipId !== null
+          board[i] &&
+          board[i][j] &&
+          board[i][j].shipId !== null &&
+          board[i][j].shipId !== shipId
         ) {
           return false;
         }
@@ -98,10 +121,10 @@ export const shipProperlySettled = (
   }
 
   return true;
-};
+}
 
-export const sunkShip = (board: Board, shipId: ShipKey) => {
-  const ship = { ...shipDefaults[shipId] };
+export const sunkShip = (board: Board, shipId: ShipID) => {
+  const ship = { ...shipsDefaultState[shipId] };
   let orientation: string;
   let firstCell: Cell | undefined;
 

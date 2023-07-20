@@ -59,7 +59,7 @@ app.get('/', function (req, res) {
         switch (_b.label) {
             case 0:
                 _b.trys.push([0, 2, , 3]);
-                return [4, (0, mongoose_1.connect)('mongodb://localhost:27017', {
+                return [4, (0, mongoose_1.connect)("".concat(process.env.DB_CONNECT, "/").concat(process.env.DB_NAME), {
                         dbName: process.env.DB_NAME,
                         auth: {
                             password: process.env.DB_PASSWORD,
@@ -73,13 +73,12 @@ app.get('/', function (req, res) {
                 port = (_a = process.env.PORT) !== null && _a !== void 0 ? _a : 8080;
                 server = app.listen(port);
                 console.log("Server listening on port ".concat(port, "."));
-                io = new socket_io_1.Server({
-                    cors: { origin: process.env.SOCKET_ORIGIN },
+                io = new socket_io_1.Server(server, {
+                    cors: { origin: process.env.SOCKET_ORIGIN, methods: ['GET', 'POST'] },
                 });
-                io.listen(server);
-                io.on('connect', routes_1.default);
-                console.log("Socket listening.");
                 SocketManager_1.SocketManager.init(io);
+                io.on('connection', routes_1.default);
+                console.log("Socket listening.");
                 console.log('Server is up.');
                 return [3, 3];
             case 2:

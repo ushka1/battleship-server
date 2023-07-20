@@ -44,14 +44,14 @@ var reconnectionCleanup_1 = require("../utils/reconnectionCleanup");
 var turn_1 = require("./turn");
 var Player_1 = __importDefault(require("../models/Player"));
 var Room_1 = __importDefault(require("../models/Room"));
-var utils_1 = require("../utils/utils");
+var errors_1 = require("../utils/errors");
 var matchmaking = function () {
     return __awaiter(this, void 0, void 0, function () {
         var player, readyToPlay, room, response, response_1, err_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 8, , 9]);
+                    _a.trys.push([0, 10, , 11]);
                     return [4, (0, reconnectionCleanup_1.reconnectionCleanup)(this)];
                 case 1:
                     _a.sent();
@@ -88,21 +88,23 @@ var matchmaking = function () {
                     this.roomId = room.id;
                     this.join(this.roomId);
                     this.emit('matchmaking', response);
-                    if (readyToPlay) {
-                        response_1 = {
-                            message: "Congratulations, new player joined your room!",
-                            readyToPlay: readyToPlay,
-                        };
-                        this.to(this.roomId).emit('matchmaking', response_1);
-                        (0, turn_1.setTurnIds)(this.roomId);
-                    }
-                    return [3, 9];
+                    if (!readyToPlay) return [3, 9];
+                    response_1 = {
+                        message: "Congratulations, new player joined your room!",
+                        readyToPlay: readyToPlay,
+                    };
+                    return [4, (0, turn_1.setTurnIds)(this.roomId)];
                 case 8:
+                    _a.sent();
+                    this.to(this.roomId).emit('matchmaking', response_1);
+                    _a.label = 9;
+                case 9: return [3, 11];
+                case 10:
                     err_1 = _a.sent();
                     console.error('Error in "controllers/matchmaking.ts [matchmaking]".');
-                    this._error({ message: (0, utils_1.getErrorMessage)(err_1) || 'Matchmaking Error' });
-                    return [3, 9];
-                case 9: return [2];
+                    this._error({ message: (0, errors_1.getErrorMessage)(err_1) || 'Matchmaking Error' });
+                    return [3, 11];
+                case 11: return [2];
             }
         });
     });

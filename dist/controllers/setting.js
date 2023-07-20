@@ -52,8 +52,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.applySetting = void 0;
 var Player_1 = __importDefault(require("../models/Player"));
+var errors_1 = require("../utils/errors");
 var settingUtils_1 = require("../utils/settingUtils");
-var utils_1 = require("../utils/utils");
 var applySetting = function (board) {
     return __awaiter(this, void 0, void 0, function () {
         var player, foundShips_1, row, col, shipId, settingValid, validatedBoard, response, err_1;
@@ -68,24 +68,24 @@ var applySetting = function (board) {
                         throw new Error('User connection fault.');
                     }
                     if (!board[settingUtils_1.rows - 1] || !board[settingUtils_1.rows - 1][settingUtils_1.columns - 1]) {
-                        throw new Error('User passed invalid setting.');
+                        throw new Error('User passed invalid setting (invalid board size).');
                     }
                     foundShips_1 = {};
                     for (row = 0; row < settingUtils_1.rows; row++) {
                         for (col = 0; col < settingUtils_1.columns; col++) {
                             shipId = board[row][col].shipId;
-                            if (settingUtils_1.shipDefaults[shipId] && foundShips_1[shipId] === undefined) {
-                                foundShips_1[shipId] = (0, settingUtils_1.shipProperlySettled)(board, row, col, shipId);
+                            if (settingUtils_1.shipsDefaultState[shipId] && foundShips_1[shipId] === undefined) {
+                                foundShips_1[shipId] = (0, settingUtils_1.validateShipPosition)(board, row, col, shipId);
                             }
                         }
                     }
-                    settingValid = Object.keys(settingUtils_1.shipDefaults).reduce(function (acc, cur) {
+                    settingValid = Object.keys(settingUtils_1.shipsDefaultState).reduce(function (acc, cur) {
                         if (!acc || !foundShips_1[cur])
                             return false;
                         return true;
                     }, true);
                     if (!settingValid) {
-                        throw new Error('User passed invalid setting.');
+                        throw new Error('User passed invalid setting (ships placement).');
                     }
                     validatedBoard = board.map(function (row) {
                         return row.map(function (col) { return (__assign(__assign({}, col), { hit: false })); });
@@ -101,8 +101,8 @@ var applySetting = function (board) {
                     return [3, 4];
                 case 3:
                     err_1 = _a.sent();
-                    console.error('Error in "controllers/setting.ts [applySetting]".');
-                    this._error({ message: (0, utils_1.getErrorMessage)(err_1) || 'Setting Error.' });
+                    console.error(err_1);
+                    this._error({ message: (0, errors_1.getErrorMessage)(err_1) || 'Apply setting error.' });
                     return [3, 4];
                 case 4: return [2];
             }
