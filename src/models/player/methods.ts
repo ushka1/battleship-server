@@ -1,5 +1,7 @@
 import { Schema } from 'mongoose';
-import { Board, shipsDefaultState, sunkShip } from '../../utils/settingUtils';
+
+import { defaultFleet, sinkShip } from '../../services/settings/helpers';
+import { Board } from '../../services/settings/types';
 import { IPlayer, IPlayerMethods, PlayerModel } from './Player';
 
 export function setupPlayerMethods(
@@ -14,7 +16,7 @@ export function setupPlayerMethods(
     if (!this.boardDefault) throw new Error('Default board is not set.');
 
     this.board = this.boardDefault;
-    this.ships = Object.values(shipsDefaultState);
+    this.ships = Object.values(defaultFleet);
     await this.save();
   });
 
@@ -43,7 +45,7 @@ export function setupPlayerMethods(
         ship.hp--;
 
         if (ship.hp <= 0) {
-          sunkShip(this.board, shipId);
+          sinkShip(this.board, shipId);
         }
 
         shipHitted = true;

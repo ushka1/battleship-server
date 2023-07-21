@@ -4,10 +4,10 @@ import http from 'http';
 import mongoose from 'mongoose';
 import socketio from 'socket.io';
 
-import Player from './models/player/Player';
-import Room from './models/room/Room';
-import { socketRouter } from './socket/router';
-import { SocketManager } from './utils/SocketManager';
+import { Player } from './models/player/Player';
+import { Room } from './models/room/Room';
+import { socketRouter } from './services/socket/router';
+import { SocketServerProvider } from './services/socket/SocketServerProvider';
 
 const app = express();
 
@@ -75,7 +75,7 @@ function setupSocketIOServer(server: http.Server) {
   const io = new socketio.Server(server, {
     cors: { origin: process.env.SOCKET_ORIGIN, methods: ['GET', 'POST'] },
   });
-  SocketManager.init(io);
+  SocketServerProvider.init(io);
   io.on('connection', socketRouter);
 }
 

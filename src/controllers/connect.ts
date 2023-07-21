@@ -1,9 +1,9 @@
-import { ExtendedSocket } from '../socket/router';
-import { ConnectResponse, DisconnectResponse } from '../utils/responses';
+import { ExtendedSocket } from '../services/socket/router';
+import { ConnectResponse, DisconnectResponse } from '../types/responses';
 
-import Player from '../models/player/Player';
-import Room from '../models/room/Room';
-import { SocketManager } from '../utils/SocketManager';
+import { Player } from '../models/player/Player';
+import { Room } from '../models/room/Room';
+import { SocketServerProvider } from '../services/socket/SocketServerProvider';
 
 export const onConnect = async function (this: ExtendedSocket, name: string) {
   try {
@@ -31,7 +31,7 @@ const onDisconnect = async function (this: ExtendedSocket) {
         const remainingPlayer = await Player.findOne({
           _id: { $ne: this.playerId },
           room: this.roomId,
-        });
+        }).exec();
 
         if (remainingPlayer) {
           await remainingPlayer.setNewGame();
@@ -42,15 +42,15 @@ const onDisconnect = async function (this: ExtendedSocket) {
             playerLeft: true,
           };
 
-          const { io } = SocketManager.getInstance();
+          const { io } = SocketServerProvider.getInstance();
           io.to(remainingPlayer.socketId).emit('enemy-disconnected', response);
         }
 
-        const room = await Room.findById(this.roomId);
-        await room?.removeFromRoom(this.playerId);
+        const room = await Room.findById(this.roomId).exec();
+        await room?.removePlayerFromRoom(this.playerId);
       }
 
-      await Player.deleteOne({ _id: this.playerId });
+      await Player.deleteOne({ _id: this.playerId }).exec();
     }
   } catch (err) {
     console.error(err);

@@ -6,14 +6,14 @@ export interface IRoom extends Document {
   players: IPlayer['id'][];
 
   turn?: number;
-  disabled?: boolean;
+  locked?: boolean;
   private?: boolean;
 }
 
 export interface IRoomMethods {
-  addToRoom: (player: IPlayer) => Promise<void>;
-  removeFromRoom: (playerId: IPlayer['id']) => Promise<void>;
-  changeTurn: () => Promise<void>;
+  addPlayerToRoom: (player: IPlayer) => Promise<void>;
+  removePlayerFromRoom: (playerId: IPlayer['id']) => Promise<void>;
+  switchTurns: () => Promise<void>;
 }
 
 export type RoomModel = Model<IRoom, object, IRoomMethods>;
@@ -31,12 +31,11 @@ const schema = new Schema<IRoom, RoomModel, IRoomMethods>(
       required: true,
     },
     turn: Number,
-    disabled: Boolean,
+    locked: Boolean,
     private: Boolean,
   },
   { autoCreate: true },
 );
 
 setupRoomMethods(schema);
-const Room = model<IRoom, RoomModel>('Room', schema);
-export default Room;
+export const Room = model<IRoom, RoomModel>('Room', schema);

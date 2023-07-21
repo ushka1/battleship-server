@@ -1,5 +1,5 @@
 import { Document, Model, Schema, model } from 'mongoose';
-import { Board, Ship } from '../../utils/settingUtils';
+import { Board, Ship } from '../../services/settings/types';
 import { setupPlayerMethods } from './methods';
 
 export interface IPlayer extends Document {
@@ -64,5 +64,4 @@ const schema = new Schema<IPlayer, PlayerModel, IPlayerMethods>(
 );
 
 setupPlayerMethods(schema);
-const Player = model<IPlayer, PlayerModel>('Player', schema);
-export default Player;
+export const Player = model<IPlayer, PlayerModel>('Player', schema);

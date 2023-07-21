@@ -1,17 +1,17 @@
-import { ExtendedSocket } from '../socket/router';
+import { ExtendedSocket } from '../services/socket/router';
+import { MatchmakingResponse } from '../types/responses';
 import { reconnectionCleanup } from '../utils/reconnectionCleanup';
-import { MatchmakingResponse } from '../utils/responses';
 import { setTurnIds } from './turn';
 
-import Player from '../models/player/Player';
-import Room from '../models/room/Room';
+import { Player } from '../models/player/Player';
+import { Room } from '../models/room/Room';
 import { getErrorMessage } from '../utils/errors';
 
 export const matchmaking = async function (this: ExtendedSocket) {
   try {
     await reconnectionCleanup(this);
 
-    const player = await Player.findById(this.playerId);
+    const player = await Player.findById(this.playerId).exec();
     if (!player) {
       throw new Error('User connection fault.');
     }
@@ -22,8 +22,8 @@ export const matchmaking = async function (this: ExtendedSocket) {
     let room = await Room.findOne({
       players: { $size: 1 },
       private: { $exists: false },
-      disabled: { $exists: false },
-    });
+      locked: { $exists: false },
+    }).exec();
 
     if (room) {
       readyToPlay = true;
@@ -31,7 +31,7 @@ export const matchmaking = async function (this: ExtendedSocket) {
       room = await Room.create({ players: [] });
     }
 
-    await room.addToRoom(player);
+    await room.addPlayerToRoom(player);
     this.roomId = room.id as string;
     this.join(this.roomId);
 

@@ -1,20 +1,19 @@
 import { COL_COUNT, ROW_COUNT } from '../config/constants';
-import Player from '../models/player/Player';
-import { ExtendedSocket } from '../socket/router';
+import { Player } from '../models/player/Player';
+import { defaultFleet } from '../services/settings/helpers';
+import { Board } from '../services/settings/types';
+import { validateShipPosition } from '../services/settings/validators';
+
+import { ExtendedSocket } from '../services/socket/router';
+import { SettingResponse } from '../types/responses';
 import { getErrorMessage } from '../utils/errors';
-import { SettingResponse } from '../utils/responses';
-import {
-  Board,
-  shipsDefaultState,
-  validateShipPosition,
-} from '../utils/settingUtils';
 
 export const applySetting = async function (
   this: ExtendedSocket,
   board: Board,
 ) {
   try {
-    const player = await Player.findById(this.playerId);
+    const player = await Player.findById(this.playerId).exec();
     if (!player) {
       throw new Error('User connection fault.');
     }
@@ -28,13 +27,13 @@ export const applySetting = async function (
       for (let col = 0; col < COL_COUNT; col++) {
         const { shipId } = board[row][col];
 
-        if (shipsDefaultState[shipId] && foundShips[shipId] === undefined) {
+        if (defaultFleet[shipId] && foundShips[shipId] === undefined) {
           foundShips[shipId] = validateShipPosition(board, row, col, shipId);
         }
       }
     }
 
-    const settingValid = Object.keys(shipsDefaultState).reduce((acc, cur) => {
+    const settingValid = Object.keys(defaultFleet).reduce((acc, cur) => {
       if (!acc || !foundShips[cur]) return false;
       return true;
     }, true);

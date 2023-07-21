@@ -1,8 +1,8 @@
-import { ExtendedSocket } from '../socket/router';
-import { SocketManager } from '../utils/SocketManager';
+import { ExtendedSocket } from '../services/socket/router';
+import { SocketServerProvider } from '../services/socket/SocketServerProvider';
 
-import Player from '../models/player/Player';
-import Room from '../models/room/Room';
+import { Player } from '../models/player/Player';
+import { Room } from '../models/room/Room';
 import { getErrorMessage } from '../utils/errors';
 import { setTurnIds } from './turn';
 
@@ -11,21 +11,21 @@ export const privateMatchmaking = async function (
   roomId: string,
 ) {
   try {
-    const player = await Player.findById(this.playerId);
-    const room = await Room.findById(roomId);
+    const player = await Player.findById(this.playerId).exec();
+    const room = await Room.findById(roomId).exec();
 
     if (!player || !room) {
       throw new Error('Your link has expired.');
     }
 
     if (room.players.includes(this.playerId)) {
-      room.disabled = false;
+      room.locked = false;
     } else {
       if (room.players.length >= 2) {
         throw new Error('The room is full.');
       }
 
-      await room.addToRoom(player);
+      await room.addPlayerToRoom(player);
 
       this.roomId = room.id;
       this.join(room.id);
@@ -34,8 +34,8 @@ export const privateMatchmaking = async function (
     await room.save();
     await player.setNewGame();
 
-    if (room.players.length === 2 && !room.disabled) {
-      const { io } = SocketManager.getInstance();
+    if (room.players.length === 2 && !room.locked) {
+      const { io } = SocketServerProvider.getInstance();
       await setTurnIds(room.id);
 
       io.in(room.id).emit('private-matchmaking', {

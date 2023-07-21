@@ -5,7 +5,7 @@ import { IRoom, IRoomMethods, RoomModel } from './Room';
 export function setupRoomMethods(
   schema: Schema<IRoom, RoomModel, IRoomMethods>,
 ) {
-  schema.method('changeTurn', async function (this: IRoom) {
+  schema.method('switchTurns', async function (this: IRoom) {
     if (this.turn === 1) {
       this.turn = 2;
     } else {
@@ -15,36 +15,35 @@ export function setupRoomMethods(
     await this.save();
   });
 
-  schema.method('addToRoom', async function (this: IRoom, player: IPlayer) {
-    if (this.players.length >= 2) {
-      throw new Error('The room is full.');
-    }
+  schema.method(
+    'addPlayerToRoom',
+    async function (this: IRoom, player: IPlayer) {
+      if (this.players.length >= 2) {
+        throw new Error('This room is full.');
+      }
 
-    try {
       this.players.push(player.id);
-      player.room = this.id;
-
       await this.save();
+
+      player.room = this.id;
       await player.save();
-    } catch (err) {
-      throw new Error('An error occurred while adding player to the room.');
-    }
-  });
+    },
+  );
 
   schema.method(
-    'removeFromRoom',
+    'removePlayerFromRoom',
     async function (this: IRoom, playerId: string) {
-      if (this.players.length < 2) {
+      const updatedPlayers = this.players.filter(
+        (id) => id.toString() !== playerId.toString(),
+      );
+
+      if (updatedPlayers.length === 0) {
         await this.deleteOne();
         return;
       }
 
-      const updatedPlayers = this.players.filter(
-        (id: string) => id.toString() !== playerId.toString(),
-      );
-
       this.players = updatedPlayers;
-      this.disabled = true;
+      this.locked = true;
       await this.save();
     },
   );

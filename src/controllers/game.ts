@@ -1,16 +1,16 @@
-import { ExtendedSocket } from '../socket/router';
-import { SocketManager } from '../utils/SocketManager';
-import { changeTurn } from './turn';
+import { ExtendedSocket } from '../services/socket/router';
+import { SocketServerProvider } from '../services/socket/SocketServerProvider';
+import { switchTurns } from './turn';
 
-import Player from '../models/player/Player';
-import Room from '../models/room/Room';
+import { Player } from '../models/player/Player';
+import { Room } from '../models/room/Room';
 
 export const handleGame = async function (
   this: ExtendedSocket,
   coords: { row: number; col: number },
 ) {
-  const { io } = SocketManager.getInstance();
-  const room = await Room.findById(this.roomId);
+  const { io } = SocketServerProvider.getInstance();
+  const room = await Room.findById(this.roomId).exec();
 
   try {
     if (!room || !io) {
@@ -22,7 +22,7 @@ export const handleGame = async function (
     }
 
     const enemyId = room.players.find((id) => id.toString() !== this.playerId);
-    const enemy = await Player.findById(enemyId);
+    const enemy = await Player.findById(enemyId).exec();
 
     if (!enemy) {
       throw new Error('An unexpected error occurred.');
@@ -72,7 +72,7 @@ export const handleGame = async function (
     if (shipHitted) {
       playerSocket.emit('game-controller', { unlock: true });
     } else {
-      await changeTurn(this.roomId!);
+      await switchTurns(this.roomId!);
       enemySocket.emit('game-controller', { unlock: true });
     }
   } catch (err) {

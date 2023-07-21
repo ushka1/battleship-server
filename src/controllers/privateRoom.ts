@@ -1,13 +1,13 @@
-import Player from '../models/player/Player';
-import Room from '../models/room/Room';
-import { ExtendedSocket } from '../socket/router';
+import { Player } from '../models/player/Player';
+import { Room } from '../models/room/Room';
+import { ExtendedSocket } from '../services/socket/router';
 import { reconnectionCleanup } from '../utils/reconnectionCleanup';
 
 export const createPrivateRoom = async function (this: ExtendedSocket) {
   try {
     await reconnectionCleanup(this);
 
-    const player = await Player.findById(this.playerId);
+    const player = await Player.findById(this.playerId).exec();
     if (!player) {
       throw new Error('Player not found.');
     }
@@ -15,9 +15,9 @@ export const createPrivateRoom = async function (this: ExtendedSocket) {
     const privateRoom = await Room.create({
       players: [],
       private: true,
-      disabled: true,
+      locked: true,
     });
-    privateRoom.addToRoom(player);
+    privateRoom.addPlayerToRoom(player);
 
     this.join(privateRoom.id);
     this.roomId = privateRoom.id;

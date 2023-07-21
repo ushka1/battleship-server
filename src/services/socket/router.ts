@@ -1,12 +1,12 @@
 import { Socket } from 'socket.io';
 
-import { onConnect } from '../controllers/connect';
-import { handleGame } from '../controllers/game';
-import { matchmaking } from '../controllers/matchmaking';
-import { privateMatchmaking } from '../controllers/privateMatchmaking';
-import { createPrivateRoom } from '../controllers/privateRoom';
-import { applySetting } from '../controllers/setting';
-import { getTurnId } from '../controllers/turn';
+import { onConnect } from '../../controllers/connect';
+import { handleGame } from '../../controllers/game';
+import { matchmaking } from '../../controllers/matchmaking';
+import { privateMatchmaking } from '../../controllers/privateMatchmaking';
+import { createPrivateRoom } from '../../controllers/privateRoom';
+import { applySetting } from '../../controllers/setting';
+import { getTurnId } from '../../controllers/turn';
 
 export interface ExtendedSocket extends Socket {
   playerId?: string;
