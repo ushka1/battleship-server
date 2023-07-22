@@ -1,7 +1,7 @@
 import { Player } from '../models/player/Player';
 import { Room } from '../models/room/Room';
 import { SocketServerProvider } from '../services/socket/SocketServerProvider';
-import { ExtendedSocket } from '../services/socket/router';
+import { ExtendedSocket } from '../services/socket/types';
 import { TurnResponse } from '../types/responses';
 
 export const setTurnIds = async (roomId: string) => {

@@ -1,5 +1,5 @@
 import { Room } from '../models/room/Room';
-import { ExtendedSocket } from '../services/socket/router';
+import { ExtendedSocket } from '../services/socket/types';
 
 export const reconnectionCleanup = async (socket: ExtendedSocket) => {
   if (socket.roomId) {

@@ -1,34 +1,26 @@
-import { Socket } from 'socket.io';
-
-import { onConnect } from '../../controllers/connect';
-import { handleGame } from '../../controllers/game';
-import { matchmaking } from '../../controllers/matchmaking';
-import { privateMatchmaking } from '../../controllers/privateMatchmaking';
-import { createPrivateRoom } from '../../controllers/privateRoom';
-import { applySetting } from '../../controllers/setting';
-import { getTurnId } from '../../controllers/turn';
-
-export interface ExtendedSocket extends Socket {
-  playerId?: string;
-  roomId?: string;
-  turnId?: number;
-}
+import { disconnectListener } from '../../listeners/disconnect';
+import { handleGame } from '../../listeners/game';
+import { matchmaking } from '../../listeners/matchmaking';
+import { privateMatchmaking } from '../../listeners/privateMatchmaking';
+import { createPrivateRoom } from '../../listeners/privateRoom';
+import { applySettingListener } from '../../listeners/setting';
+import { getTurnId } from '../../listeners/turn';
+import { userJoinListener } from '../../listeners/userJoin';
+import { listenerWithSocket } from './helpers';
+import { ExtendedSocket } from './types';
 
 export function socketRouter(socket: ExtendedSocket) {
-  //1
-  socket.on('connect-player', onConnect);
-  //1 PRIV
-  socket.on('private', createPrivateRoom);
+  console.log('New user connected.');
 
-  //2
-  socket.on('apply-setting', applySetting);
+  socket.on('user-join', listenerWithSocket(socket, userJoinListener));
+  socket.on('apply-setting', listenerWithSocket(socket, applySettingListener));
 
-  //3
   socket.on('matchmaking', matchmaking);
-  //3 PRIV
+  socket.on('private', createPrivateRoom);
   socket.on('private-matchmaking', privateMatchmaking);
 
-  //4
   socket.on('turn-controller', getTurnId);
   socket.on('game-controller', handleGame);
+
+  socket.on('disconnect', listenerWithSocket(socket, disconnectListener));
 }

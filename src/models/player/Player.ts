@@ -28,8 +28,8 @@ const schema = new Schema<IPlayer, PlayerModel, IPlayerMethods>(
     name: {
       type: String,
       required: true,
-      maxlength: 15,
-      minlength: 3,
+      minlength: 1,
+      maxlength: 32,
     },
     socketId: {
       type: String,

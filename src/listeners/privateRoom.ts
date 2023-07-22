@@ -1,6 +1,6 @@
 import { Player } from '../models/player/Player';
 import { Room } from '../models/room/Room';
-import { ExtendedSocket } from '../services/socket/router';
+import { ExtendedSocket } from '../services/socket/types';
 import { reconnectionCleanup } from '../utils/reconnectionCleanup';
 
 export const createPrivateRoom = async function (this: ExtendedSocket) {

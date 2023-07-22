@@ -1,13 +1,15 @@
-import { ExtendedSocket } from '../services/socket/router';
+import { Player } from '../models/player/Player';
+import { Room } from '../models/room/Room';
+import { ExtendedSocket } from '../services/socket/types';
 import { MatchmakingResponse } from '../types/responses';
+import { getErrorMessage } from '../utils/errors';
 import { reconnectionCleanup } from '../utils/reconnectionCleanup';
 import { setTurnIds } from './turn';
 
-import { Player } from '../models/player/Player';
-import { Room } from '../models/room/Room';
-import { getErrorMessage } from '../utils/errors';
-
 export const matchmaking = async function (this: ExtendedSocket) {
+  if (!this.playerId) return;
+  console.log('Matchmaking');
+
   try {
     await reconnectionCleanup(this);
 
@@ -51,7 +53,7 @@ export const matchmaking = async function (this: ExtendedSocket) {
     };
     this.emit('matchmaking', response);
   } catch (err) {
-    console.error('Error in "controllers/matchmaking.ts [matchmaking]".');
+    console.error('An errorr occurred during matchmaking.', err);
     this._error({ message: getErrorMessage(err) || 'Matchmaking Error' });
   }
 };
