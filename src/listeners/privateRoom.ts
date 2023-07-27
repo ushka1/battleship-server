@@ -1,6 +1,6 @@
 import { Player } from '../models/player/Player';
 import { Room } from '../models/room/Room';
-import { ExtendedSocket } from '../services/socket/types';
+import { ExtendedSocket } from '../router/types';
 import { reconnectionCleanup } from '../utils/reconnectionCleanup';
 
 export const createPrivateRoom = async function (this: ExtendedSocket) {
@@ -23,7 +23,7 @@ export const createPrivateRoom = async function (this: ExtendedSocket) {
     this.roomId = privateRoom.id;
 
     const response = {
-      message: `Congratulations ${player.name}, you successfully joined to the private room!`,
+      message: `Congratulations ${player.username}, you successfully joined to the private room!`,
       roomId: privateRoom.id,
     };
 

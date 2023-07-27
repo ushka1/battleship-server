@@ -1,14 +1,14 @@
 import { Player } from '../models/player/Player';
 import { Room } from '../models/room/Room';
-import { SocketServerProvider } from '../services/socket/SocketServerProvider';
-import { ExtendedSocket } from '../services/socket/types';
+import { ExtendedSocket } from '../router/types';
+import { ServerSocketProvider } from '../services/socket/ServerSocketProvider';
 import { switchTurns } from './turn';
 
 export const handleGame = async function (
   this: ExtendedSocket,
   coords: { row: number; col: number },
 ) {
-  const { io } = SocketServerProvider.getInstance();
+  const { io } = ServerSocketProvider.getInstance();
   const room = await Room.findById(this.roomId).exec();
 
   try {

@@ -3,7 +3,7 @@ import { Board, Ship } from '../../services/settings/types';
 import { setupPlayerMethods } from './methods';
 
 export interface IPlayer extends Document {
-  name: string;
+  username: string;
   socketId: string;
 
   room?: string;
@@ -25,7 +25,7 @@ export type PlayerModel = Model<IPlayer, object, IPlayerMethods>;
 
 const schema = new Schema<IPlayer, PlayerModel, IPlayerMethods>(
   {
-    name: {
+    username: {
       type: String,
       required: true,
       minlength: 1,

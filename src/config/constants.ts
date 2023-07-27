@@ -1,2 +1,2 @@
-export const ROW_COUNT = 10;
-export const COL_COUNT = 10;
+export const BOARD_ROWS = 10;
+export const BOARD_COLS = 10;

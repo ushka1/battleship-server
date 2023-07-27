@@ -1,7 +1,7 @@
 import { Player } from '../models/player/Player';
 import { Room } from '../models/room/Room';
-import { SocketServerProvider } from '../services/socket/SocketServerProvider';
-import { SocketListener } from '../services/socket/types';
+import { SocketListener } from '../router/types';
+import { ServerSocketProvider } from '../services/socket/ServerSocketProvider';
 import { DisconnectResponse } from '../types/responses';
 
 export const disconnectListener: SocketListener = async function (socket) {
@@ -27,7 +27,7 @@ export const disconnectListener: SocketListener = async function (socket) {
           playerLeft: true,
         };
 
-        const { io } = SocketServerProvider.getInstance();
+        const { io } = ServerSocketProvider.getInstance();
         io.to(remainingPlayer.socketId).emit('enemy-disconnected', response);
       }
 

@@ -1,7 +1,7 @@
 import { Player } from '../models/player/Player';
 import { Room } from '../models/room/Room';
-import { SocketServerProvider } from '../services/socket/SocketServerProvider';
-import { ExtendedSocket } from '../services/socket/types';
+import { ExtendedSocket } from '../router/types';
+import { ServerSocketProvider } from '../services/socket/ServerSocketProvider';
 import { getErrorMessage } from '../utils/errors';
 import { setTurnIds } from './turn';
 
@@ -34,7 +34,7 @@ export const privateMatchmaking = async function (
     await player.setNewGame();
 
     if (room.players.length === 2 && !room.locked) {
-      const { io } = SocketServerProvider.getInstance();
+      const { io } = ServerSocketProvider.getInstance();
       await setTurnIds(room.id);
 
       io.in(room.id).emit('private-matchmaking', {

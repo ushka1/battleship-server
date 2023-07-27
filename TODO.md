@@ -9,3 +9,9 @@
 ## Errors
 
 1. Same player join your own room.
+
+## Improvements
+
+1. Account created automatically and bind something to ip or something?
+1. Reset option.
+1. Chat.

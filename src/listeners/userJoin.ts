@@ -1,28 +1,34 @@
-import { Player } from '../models/player/Player';
-import { SocketListener } from '../services/socket/types';
+import { IPlayer, Player } from '../models/player/Player';
+import { SocketListener } from '../router/types';
 
-type OnConnectPayload = { name: string };
-type OnConnectResponse = {
-  message: string;
-  player: { id: string; name: string };
+type UserJoinRequest = { username: string };
+type UserJoinResponse = {
+  player: { id: string; username: string };
 };
 
-export const userJoinListener: SocketListener<OnConnectPayload> =
-  async function (socket, payload) {
-    const { name } = payload;
-
+export const userJoinListener: SocketListener<UserJoinRequest> =
+  async function (socket, { username }) {
     try {
-      const player = await Player.create({ name, socketId: socket.id });
-      socket.playerId = player.id;
+      let player: IPlayer | null = null;
 
-      const response: OnConnectResponse = {
-        message: 'Player joined the game.',
-        player: { id: player.id, name: player.name },
+      if (socket.playerId) {
+        player = await Player.findById(socket.playerId);
+      }
+
+      if (!player) {
+        player = await Player.create({
+          username: username,
+          socketId: socket.id,
+        });
+        socket.playerId = player.id;
+      }
+
+      const response: UserJoinResponse = {
+        player: { id: player.id, username: player.username },
       };
-
       socket.emit('user-join', response);
     } catch (err) {
-      console.error('Error in "controllers/connect.ts [onConnect]".');
-      socket._error({ message: 'User connection fault.' });
+      console.error('User join error.', err);
+      socket._error({ message: 'User join error.' });
     }
   };

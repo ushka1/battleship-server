@@ -1,4 +1,4 @@
-import { COL_COUNT, ROW_COUNT } from '../../config/constants';
+import { BOARD_COLS, BOARD_ROWS } from '../../config/constants';
 import { defaultFleet } from './helpers';
 import { Board, ShipKey } from './types';
 
@@ -42,8 +42,8 @@ export function validateShipPosition(
 
   if (orientation === 'horizontal') {
     // check ship position
-    if (row < 0 || row >= ROW_COUNT) return false;
-    if (col < 0 || col + ship.size - 1 >= COL_COUNT) return false;
+    if (row < 0 || row >= BOARD_ROWS) return false;
+    if (col < 0 || col + ship.size - 1 >= BOARD_COLS) return false;
 
     for (let i = col; i <= col + ship.size - 1; i++) {
       if (board[row][i].shipId !== shipId) {
@@ -68,8 +68,8 @@ export function validateShipPosition(
 
   if (orientation === 'vertical') {
     // check ship position
-    if (row < 0 || row + ship.size - 1 >= ROW_COUNT) return false;
-    if (col < 0 || col >= COL_COUNT) return false;
+    if (row < 0 || row + ship.size - 1 >= BOARD_ROWS) return false;
+    if (col < 0 || col >= BOARD_COLS) return false;
 
     for (let i = row; i < row + ship.size; i++) {
       if (board[i][col].shipId !== shipId) {

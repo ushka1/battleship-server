@@ -1,7 +1,7 @@
 import socketio from 'socket.io';
 
-export class SocketServerProvider {
-  private static instance: SocketServerProvider;
+export class ServerSocketProvider {
+  private static instance: ServerSocketProvider;
 
   private constructor(io: socketio.Server) {
     this.io = io;
@@ -9,12 +9,12 @@ export class SocketServerProvider {
 
   io: socketio.Server;
 
-  static init(io: socketio.Server): SocketServerProvider {
+  static init(io: socketio.Server): ServerSocketProvider {
     this.instance = new this(io);
     return this.instance;
   }
 
-  static getInstance(): SocketServerProvider {
+  static getInstance(): ServerSocketProvider {
     if (this.instance) {
       return this.instance;
     }

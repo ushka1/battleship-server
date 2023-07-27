@@ -1,7 +1,7 @@
 import { Player } from '../models/player/Player';
 import { Room } from '../models/room/Room';
-import { SocketServerProvider } from '../services/socket/SocketServerProvider';
-import { ExtendedSocket } from '../services/socket/types';
+import { ExtendedSocket } from '../router/types';
+import { ServerSocketProvider } from '../services/socket/ServerSocketProvider';
 import { TurnResponse } from '../types/responses';
 
 export const setTurnIds = async (roomId: string) => {
@@ -31,7 +31,7 @@ export const getTurnId = async function (this: ExtendedSocket) {
     this.turnId = player.turnId;
 
     const response: TurnResponse = {
-      message: `Congratulations ${player.name}, your turnId is ${player.turnId}!`,
+      message: `Congratulations ${player.username}, your turnId is ${player.turnId}!`,
       turnId: player.turnId,
       turn: room.turn,
     };
@@ -43,7 +43,7 @@ export const getTurnId = async function (this: ExtendedSocket) {
 };
 
 export const switchTurns = async (roomId: string) => {
-  const { io } = SocketServerProvider.getInstance();
+  const { io } = ServerSocketProvider.getInstance();
   if (!io) {
     throw new Error('Socket Error.');
   }

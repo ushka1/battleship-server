@@ -6,8 +6,8 @@ import socketio from 'socket.io';
 
 import { Player } from './models/player/Player';
 import { Room } from './models/room/Room';
-import { socketRouter } from './services/socket/router';
-import { SocketServerProvider } from './services/socket/SocketServerProvider';
+import { socketRouter } from './router/router';
+import { ServerSocketProvider } from './services/socket/ServerSocketProvider';
 
 const app = express();
 
@@ -75,7 +75,7 @@ function setupSocketIOServer(server: http.Server) {
   const io = new socketio.Server(server, {
     cors: { origin: process.env.SOCKET_ORIGIN, methods: ['GET', 'POST'] },
   });
-  SocketServerProvider.init(io);
+  ServerSocketProvider.init(io);
   io.on('connection', socketRouter);
 }
 

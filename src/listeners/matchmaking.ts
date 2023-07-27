@@ -1,6 +1,6 @@
 import { Player } from '../models/player/Player';
 import { Room } from '../models/room/Room';
-import { ExtendedSocket } from '../services/socket/types';
+import { ExtendedSocket } from '../router/types';
 import { MatchmakingResponse } from '../types/responses';
 import { getErrorMessage } from '../utils/errors';
 import { reconnectionCleanup } from '../utils/reconnectionCleanup';
@@ -48,7 +48,7 @@ export const matchmaking = async function (this: ExtendedSocket) {
     }
 
     const response: MatchmakingResponse = {
-      message: `Congratulations ${player.name}, you successfully joined to the room!`,
+      message: `Congratulations ${player.username}, you successfully joined to the room!`,
       readyToPlay,
     };
     this.emit('matchmaking', response);

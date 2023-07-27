@@ -1,9 +1,9 @@
-import { COL_COUNT, ROW_COUNT } from '../config/constants';
+import { BOARD_COLS, BOARD_ROWS } from '../config/constants';
 import { Player } from '../models/player/Player';
+import { SocketListener } from '../router/types';
 import { defaultFleet } from '../services/settings/helpers';
 import { Board } from '../services/settings/types';
 import { validateShipPosition } from '../services/settings/validators';
-import { SocketListener } from '../services/socket/types';
 import { SettingResponse } from '../types/responses';
 import { getErrorMessage } from '../utils/errors';
 
@@ -17,13 +17,13 @@ export const applySettingListener: SocketListener<{ board: Board }> =
         throw new Error('User connection fault.');
       }
 
-      if (!board[ROW_COUNT - 1] || !board[ROW_COUNT - 1][COL_COUNT - 1]) {
+      if (!board[BOARD_ROWS - 1] || !board[BOARD_ROWS - 1][BOARD_COLS - 1]) {
         throw new Error('User passed invalid setting (invalid board size).');
       }
 
       const foundShips: { [x: string]: boolean } = {};
-      for (let row = 0; row < ROW_COUNT; row++) {
-        for (let col = 0; col < COL_COUNT; col++) {
+      for (let row = 0; row < BOARD_ROWS; row++) {
+        for (let col = 0; col < BOARD_COLS; col++) {
           const { shipId } = board[row][col];
 
           if (defaultFleet[shipId] && foundShips[shipId] === undefined) {
@@ -46,7 +46,7 @@ export const applySettingListener: SocketListener<{ board: Board }> =
       await player.setDefaults(validatedBoard);
 
       const response: SettingResponse = {
-        message: `Congratulations ${player.name}, your setting is right!`,
+        message: `Congratulations ${player.username}, your setting is right!`,
         validatedBoard,
       };
 
