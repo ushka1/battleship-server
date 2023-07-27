@@ -4,8 +4,8 @@ import http from 'http';
 import mongoose from 'mongoose';
 import socketio from 'socket.io';
 
-import { Player } from './models/player/Player';
 import { Room } from './models/room/Room';
+import { User } from './models/user/User';
 import { socketRouter } from './router/router';
 import { ServerSocketProvider } from './services/socket/ServerSocketProvider';
 
@@ -60,7 +60,7 @@ async function connectToMongoDB() {
  */
 async function dropMongoDBCollections() {
   try {
-    await Player.db.dropCollection('players');
+    await User.db.dropCollection('players');
   } catch (err) {
     console.log('Could not drop players collection.');
   }

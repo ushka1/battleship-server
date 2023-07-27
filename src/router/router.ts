@@ -1,9 +1,10 @@
+import { userConnectListener } from '../listeners/connect';
 import { disconnectListener } from '../listeners/disconnect';
 import { listenerWithSocket } from './helpers';
 import { ExtendedSocket } from './types';
 
 export function socketRouter(socket: ExtendedSocket) {
-  console.log('New user connected.');
+  userConnectListener(socket);
 
   socket.on('disconnect', listenerWithSocket(socket, disconnectListener));
 }

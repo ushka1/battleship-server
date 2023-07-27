@@ -2,17 +2,17 @@ import { Schema } from 'mongoose';
 
 import { defaultFleet, sinkShip } from '../../services/settings/helpers';
 import { Board } from '../../services/settings/types';
-import { IPlayer, IPlayerMethods, PlayerModel } from './Player';
+import { IUser, IUserMethods, UserModel } from './User';
 
-export function setupPlayerMethods(
-  schema: Schema<IPlayer, PlayerModel, IPlayerMethods>,
+export function setupUserMethods(
+  schema: Schema<IUser, UserModel, IUserMethods>,
 ) {
-  schema.method('setDefaults', async function (this: IPlayer, board: Board) {
+  schema.method('setDefaults', async function (this: IUser, board: Board) {
     this.boardDefault = board;
     await this.save();
   });
 
-  schema.method('setNewGame', async function (this: IPlayer) {
+  schema.method('setNewGame', async function (this: IUser) {
     if (!this.boardDefault) throw new Error('Default board is not set.');
 
     this.board = this.boardDefault;
@@ -20,7 +20,7 @@ export function setupPlayerMethods(
     await this.save();
   });
 
-  schema.method('resetGame', async function (this: IPlayer) {
+  schema.method('resetGame', async function (this: IUser) {
     await this.updateOne([
       { $unset: ['ships', 'board', 'boardDefault', 'room', 'turnId'] },
     ]).exec();
@@ -28,7 +28,7 @@ export function setupPlayerMethods(
 
   schema.method(
     'handleHit',
-    async function (this: IPlayer, row: number, col: number) {
+    async function (this: IUser, row: number, col: number) {
       if (!this.board) {
         throw new Error('An unexpected error occurred.');
       }
@@ -58,7 +58,7 @@ export function setupPlayerMethods(
     },
   );
 
-  schema.method('hasShips', function (this: IPlayer) {
+  schema.method('hasShips', function (this: IUser) {
     const allShipsSunked = this.ships!.reduce((acc, cur) => {
       if (acc && cur.hp <= 0) {
         return true;

@@ -1,9 +1,9 @@
 import { Document, Model, Schema, model } from 'mongoose';
-import { IPlayer } from '../player/Player';
+import { IUser } from '../user/User';
 import { setupRoomMethods } from './methods';
 
 export interface IRoom extends Document {
-  players: IPlayer['id'][];
+  players: IUser['id'][];
 
   turn?: number;
   locked?: boolean;
@@ -11,8 +11,8 @@ export interface IRoom extends Document {
 }
 
 export interface IRoomMethods {
-  addPlayerToRoom: (player: IPlayer) => Promise<void>;
-  removePlayerFromRoom: (playerId: IPlayer['id']) => Promise<void>;
+  addPlayerToRoom: (player: IUser) => Promise<void>;
+  removePlayerFromRoom: (playerId: IUser['id']) => Promise<void>;
   switchTurns: () => Promise<void>;
 }
 

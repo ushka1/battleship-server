@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { IPlayer } from '../player/Player';
+import { IUser } from '../user/User';
 import { IRoom, IRoomMethods, RoomModel } from './Room';
 
 export function setupRoomMethods(
@@ -15,20 +15,17 @@ export function setupRoomMethods(
     await this.save();
   });
 
-  schema.method(
-    'addPlayerToRoom',
-    async function (this: IRoom, player: IPlayer) {
-      if (this.players.length >= 2) {
-        throw new Error('This room is full.');
-      }
+  schema.method('addPlayerToRoom', async function (this: IRoom, player: IUser) {
+    if (this.players.length >= 2) {
+      throw new Error('This room is full.');
+    }
 
-      this.players.push(player.id);
-      await this.save();
+    this.players.push(player.id);
+    await this.save();
 
-      player.room = this.id;
-      await player.save();
-    },
-  );
+    player.room = this.id;
+    await player.save();
+  });
 
   schema.method(
     'removePlayerFromRoom',

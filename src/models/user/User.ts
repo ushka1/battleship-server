@@ -1,8 +1,8 @@
 import { Document, Model, Schema, model } from 'mongoose';
 import { Board, Ship } from '../../services/settings/types';
-import { setupPlayerMethods } from './methods';
+import { setupUserMethods } from './methods';
 
-export interface IPlayer extends Document {
+export interface IUser extends Document {
   username: string;
   socketId: string;
 
@@ -13,7 +13,7 @@ export interface IPlayer extends Document {
   turnId?: number;
 }
 
-export interface IPlayerMethods {
+export interface IUserMethods {
   setDefaults: (board: Board) => Promise<void>;
   setNewGame: () => Promise<void>;
   resetGame: () => Promise<void>;
@@ -21,9 +21,9 @@ export interface IPlayerMethods {
   hasShips: () => boolean;
 }
 
-export type PlayerModel = Model<IPlayer, object, IPlayerMethods>;
+export type UserModel = Model<IUser, object, IUserMethods>;
 
-const schema = new Schema<IPlayer, PlayerModel, IPlayerMethods>(
+const schema = new Schema<IUser, UserModel, IUserMethods>(
   {
     username: {
       type: String,
@@ -63,5 +63,5 @@ const schema = new Schema<IPlayer, PlayerModel, IPlayerMethods>(
   { autoCreate: true },
 );
 
-setupPlayerMethods(schema);
-export const Player = model<IPlayer, PlayerModel>('Player', schema);
+setupUserMethods(schema);
+export const User = model<IUser, UserModel>('User', schema);
