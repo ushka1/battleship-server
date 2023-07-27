@@ -2,7 +2,6 @@ import { Player } from '../models/player/Player';
 import { Room } from '../models/room/Room';
 import { SocketListener } from '../router/types';
 import { ServerSocketProvider } from '../services/socket/ServerSocketProvider';
-import { DisconnectResponse } from '../types/responses';
 
 export const disconnectListener: SocketListener = async function (socket) {
   console.log('User disconnected.', socket.playerId);
@@ -21,7 +20,7 @@ export const disconnectListener: SocketListener = async function (socket) {
       if (remainingPlayer) {
         await remainingPlayer.setNewGame();
 
-        const response: DisconnectResponse = {
+        const response = {
           message: "Your enemy couldn't stand it, he/she disconnected.",
           board: remainingPlayer.boardDefault,
           playerLeft: true,
