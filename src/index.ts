@@ -60,14 +60,14 @@ async function connectToMongoDB() {
  */
 async function dropMongoDBCollections() {
   try {
-    await User.db.dropCollection('players');
+    await User.db.dropCollection('users');
   } catch (err) {
-    console.log('Could not drop players collection.');
+    console.log('Could not drop [users] collection.');
   }
   try {
     await Room.db.dropCollection('rooms');
   } catch (err) {
-    console.log('Could not drop rooms collection.');
+    console.log('Could not drop [rooms] collection.');
   }
 }
 

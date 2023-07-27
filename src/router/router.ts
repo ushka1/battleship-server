@@ -1,5 +1,5 @@
-import { userConnectListener } from '../listeners/connect';
-import { disconnectListener } from '../listeners/disconnect';
+import { userConnectListener } from 'listeners/connect';
+import { disconnectListener } from 'listeners/disconnect';
 import { listenerWithSocket } from './helpers';
 import { ExtendedSocket } from './types';
 
