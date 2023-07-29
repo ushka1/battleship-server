@@ -1,10 +1,11 @@
-import { userConnectListener } from 'listeners/connect';
-import { disconnectListener } from 'listeners/disconnect';
-import { listenerWithSocket } from './helpers';
-import { ExtendedSocket } from './types';
+import socketio from 'socket.io';
 
-export function socketRouter(socket: ExtendedSocket) {
-  userConnectListener(socket);
+import { userConnectHandler } from 'listeners/connect';
+import { userDisconnectListener } from 'listeners/disconnect';
+import { ExtendedSocket, listenerWrapper } from './utils';
 
-  socket.on('disconnect', listenerWithSocket(socket, disconnectListener));
+export function socketRouter(socket: ExtendedSocket, io: socketio.Server) {
+  userConnectHandler(socket);
+
+  socket.on('disconnect', listenerWrapper(userDisconnectListener, socket, io));
 }

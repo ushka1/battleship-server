@@ -7,7 +7,6 @@ import socketio from 'socket.io';
 import { Room } from './models/room/Room';
 import { User } from './models/user/User';
 import { socketRouter } from './router/router';
-import { ServerSocketProvider } from './services/socket/ServerSocketProvider';
 
 const app = express();
 
@@ -75,8 +74,8 @@ function setupSocketIOServer(server: http.Server) {
   const io = new socketio.Server(server, {
     cors: { origin: process.env.SOCKET_ORIGIN, methods: ['GET', 'POST'] },
   });
-  ServerSocketProvider.init(io);
-  io.on('connection', socketRouter);
+
+  io.on('connection', (socket) => socketRouter(socket, io));
 }
 
 function setupGracefulShutdown(server: http.Server) {

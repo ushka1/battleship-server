@@ -1,7 +1,9 @@
-import { User } from '../models/user/User';
-import { SocketListener } from '../router/types';
+import { User } from 'models/user/User';
+import { SocketListener } from 'router/utils';
 
-export const disconnectListener: SocketListener = async function (socket) {
+export const userDisconnectListener: SocketListener = async function ({
+  socket,
+}) {
   console.log(`User disconnected (socket.id=${socket.id}).`);
 
   if (!socket.userId) {
