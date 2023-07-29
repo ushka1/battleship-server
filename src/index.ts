@@ -15,7 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.status(200).send('Battleship server is up.');
+  res.status(200).send('Material Ships server is up.');
 });
 
 async function startup() {

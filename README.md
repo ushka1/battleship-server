@@ -1,4 +1,4 @@
-# Battleship Server
+# Material Ships Server
 
 ## Setup
 
