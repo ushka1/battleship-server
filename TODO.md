@@ -5,6 +5,7 @@
 1. Errors channel.
 1. Socket handling - use appropriate design pattern.
 1. Logging.
+1. Socket locking (middleware + using channels).
 
 ## Errors
 
