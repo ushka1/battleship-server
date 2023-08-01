@@ -13,8 +13,14 @@ export type MatchmakingResponse = {
   //
 };
 
-export const matchmakingListener: SocketListener<MatchmakingPayload> =
+export const startMatchmakingListener: SocketListener<MatchmakingPayload> =
   async function ({ payload, socket }) {
+    if (socket.roomId) {
+      logger.error(`User already in a room.`, { socket });
+      sendErrorMessage(socket, { message: 'User already in a room.' });
+      return;
+    }
+
     logger.info(`Matchmaking started.`, { socket });
 
     const shipsValid = validateShips(payload.ships);
@@ -33,7 +39,7 @@ export const matchmakingListener: SocketListener<MatchmakingPayload> =
 
     if (room) {
       await room.addUser(user.id);
-      logger.info(`Room found.`, { socket });
+      logger.info(`Room joined.`, { socket });
     } else {
       room = await Room.create({ users: [socket.userId] });
       logger.info(`Room created.`, { socket });
@@ -44,3 +50,19 @@ export const matchmakingListener: SocketListener<MatchmakingPayload> =
 
     // send message to user
   };
+
+export const cancelMatchmakingListener: SocketListener = async function ({
+  socket,
+}) {
+  if (!socket.userId || !socket.roomId) {
+    logger.error(`User not in a room.`, { socket });
+    sendErrorMessage(socket, { message: 'User not in a room.' });
+    return;
+  }
+
+  const room = await Room.findById(socket.roomId).orFail().exec();
+  await room.removeUser(socket.userId);
+
+  await socket.leave(socket.roomId);
+  socket.roomId = undefined;
+};
