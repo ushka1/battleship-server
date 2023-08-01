@@ -1,14 +1,18 @@
 import socketio from 'socket.io';
 
+import { Mutex } from 'async-mutex';
 import { userConnectListener } from 'listeners/connect';
 import { userDisconnectListener } from 'listeners/disconnect';
 import { matchmakingListener } from 'listeners/matchmaking';
 import { ExtendedSocket, listenerWrapper } from './utils';
 
 export function socketRouter(socket: ExtendedSocket, io: socketio.Server) {
-  listenerWrapper(userConnectListener, socket, io)({});
+  const mutex = new Mutex();
+  const args = [socket, io, mutex] as const;
 
-  socket.on('matchmaking', listenerWrapper(matchmakingListener, socket, io));
+  listenerWrapper(userConnectListener, ...args)({});
 
-  socket.on('disconnect', listenerWrapper(userDisconnectListener, socket, io));
+  socket.on('matchmaking', listenerWrapper(matchmakingListener, ...args));
+
+  socket.on('disconnect', listenerWrapper(userDisconnectListener, ...args));
 }
