@@ -36,7 +36,7 @@ export const matchmakingListener: SocketListener<MatchmakingPayload> =
     }).exec();
 
     if (room) {
-      await room.addUser(user);
+      await room.addUser(user.id);
       console.log(`Room found (socket.id=${socket.id}).`);
     } else {
       room = await Room.create({ users: [socket.userId] });

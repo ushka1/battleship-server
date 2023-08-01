@@ -4,6 +4,7 @@ import http from 'http';
 import mongoose from 'mongoose';
 import socketio from 'socket.io';
 
+import { logger } from 'config/logger';
 import { Room } from './models/room/Room';
 import { User } from './models/user/User';
 import { socketRouter } from './router/router';
@@ -21,21 +22,21 @@ app.get('/', (req, res) => {
 async function startup() {
   try {
     await connectToMongoDB();
-    console.log('Connected to MongoDB.');
+    logger.info('MongoDB connection established.');
 
     const port = process.env.PORT ?? 8080;
     const server = app.listen(port);
-    console.log(`Server listening on port ${port}.`);
+    logger.info(`Server listening on port ${port}.`);
 
     setupSocketIOServer(server);
-    console.log(`SocketIO server listening.`);
+    logger.info(`SocketIO server up.`);
 
     setupGracefulShutdown(server);
-    console.log('Graceful shutdown is set.');
+    logger.info('Graceful shutdown set.');
 
-    console.log('Server startup successful.');
+    logger.info('Server startup successful.');
   } catch (err) {
-    console.error(`An error occurred during server startup.`, err);
+    logger.error(`An error occurred during server startup.`, err);
   }
 }
 
@@ -61,12 +62,12 @@ async function dropMongoDBCollections() {
   try {
     await User.db.dropCollection('users');
   } catch (err) {
-    console.log('Could not drop [users] collection.');
+    logger.info('Could not drop [users] collection.');
   }
   try {
     await Room.db.dropCollection('rooms');
   } catch (err) {
-    console.log('Could not drop [rooms] collection.');
+    logger.info('Could not drop [rooms] collection.');
   }
 }
 
@@ -80,11 +81,11 @@ function setupSocketIOServer(server: http.Server) {
 
 function setupGracefulShutdown(server: http.Server) {
   process.on('SIGTERM', () => {
-    console.info('SIGTERM signal received, closing http server.');
+    logger.info('SIGTERM signal received, closing http server.');
     server.close(() => {
-      console.log('Http server closed.');
+      logger.info('Http server closed.');
       mongoose.connection.close(false).then(() => {
-        console.log('MongoDb connection closed.');
+        logger.info('MongoDB connection closed.');
         process.exit(0);
       });
     });

@@ -1,12 +1,12 @@
 import socketio from 'socket.io';
 
-import { userConnectHandler } from 'listeners/connect';
+import { userConnectListener } from 'listeners/connect';
 import { userDisconnectListener } from 'listeners/disconnect';
 import { matchmakingListener } from 'listeners/matchmaking';
 import { ExtendedSocket, listenerWrapper } from './utils';
 
 export function socketRouter(socket: ExtendedSocket, io: socketio.Server) {
-  userConnectHandler(socket);
+  listenerWrapper(userConnectListener, socket, io)({});
 
   socket.on('matchmaking', listenerWrapper(matchmakingListener, socket, io));
 

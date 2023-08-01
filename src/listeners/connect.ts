@@ -1,34 +1,39 @@
+import { logger } from 'config/logger';
 import { IUser, User } from 'models/user/User';
-import { ExtendedSocket } from 'router/utils';
-import { sendErrorMessage } from 'services/messageChannels';
+import { SocketListener } from 'router/utils';
 
 export type userConnectResponse = {
   user: { id: string; username: string };
 };
 
-export const userConnectHandler = async function (socket: ExtendedSocket) {
-  console.log(`User connected (socket.id=${socket.id}).`);
+export const userConnectListener: SocketListener = async function ({ socket }) {
+  logger.info('User connected.', { socket });
+  let user: IUser | null = null;
 
-  try {
-    let user: IUser | null = null;
-
-    if (socket.userId) {
-      user = await User.findById(socket.userId).exec();
+  // check for existing user
+  const userId = socket.handshake.query.userId as string;
+  if (userId) {
+    try {
+      user = await User.findById(userId).exec();
+    } catch (err) {
+      logger.info(
+        'User not found or invalid userId passed in handshake query.',
+        { socket },
+      );
     }
-
-    if (!user) {
-      user = await User.create({
-        socketId: socket.id,
-      });
-      socket.userId = user.id;
-    }
-
-    const response: userConnectResponse = {
-      user: { id: user.id, username: user.username },
-    };
-    socket.emit('user-connect', response);
-  } catch (err) {
-    console.error('Unexpected connect error:', err);
-    sendErrorMessage(socket, { message: 'OOPS!' });
   }
+
+  // create new user if none found
+  if (!user) {
+    user = await User.create({
+      socketId: socket.id,
+    });
+  }
+
+  const response: userConnectResponse = {
+    user: { id: user.id, username: user.username },
+  };
+
+  socket.userId = user.id;
+  socket.emit('user-connect', response);
 };
