@@ -1,3 +1,4 @@
+import { Room } from 'models/room/Room';
 import { User } from 'models/user/User';
 import { SocketListener } from 'router/utils';
 
@@ -6,13 +7,15 @@ export const userDisconnectListener: SocketListener = async function ({
 }) {
   console.log(`User disconnected (socket.id=${socket.id}).`);
 
-  if (!socket.userId) {
-    return;
+  const user = await User.findById(socket.userId).exec();
+  if (!user) return;
+
+  if (socket.roomId) {
+    socket.leave(socket.roomId);
+
+    const room = await Room.findById(socket.roomId).exec();
+    if (room) await room.removeUser(user);
   }
 
-  try {
-    await User.deleteOne({ _id: socket.userId }).exec();
-  } catch (err) {
-    console.error('User disconnect error:', err);
-  }
+  await user.deleteOne();
 };

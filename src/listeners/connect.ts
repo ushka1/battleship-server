@@ -1,12 +1,13 @@
 import { IUser, User } from 'models/user/User';
 import { ExtendedSocket } from 'router/utils';
+import { sendErrorMessage } from 'services/messageChannels';
 
 export type userConnectResponse = {
   user: { id: string; username: string };
 };
 
 export const userConnectHandler = async function (socket: ExtendedSocket) {
-  console.log(`New user connected (socket.id=${socket.id}).`);
+  console.log(`User connected (socket.id=${socket.id}).`);
 
   try {
     let user: IUser | null = null;
@@ -27,7 +28,7 @@ export const userConnectHandler = async function (socket: ExtendedSocket) {
     };
     socket.emit('user-connect', response);
   } catch (err) {
-    console.error('User connect error:', err);
-    // socket._error({ message: 'User join error.' });
+    console.error('Unexpected connect error:', err);
+    sendErrorMessage(socket, { message: 'OOPS!' });
   }
 };

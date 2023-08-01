@@ -4,6 +4,7 @@ import socketio from 'socket.io';
 
 export interface ExtendedSocket extends socketio.Socket {
   userId?: string;
+  roomId?: string;
 }
 
 export type SocketListener<T = any> = (props: {

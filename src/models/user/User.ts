@@ -1,7 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { Document, Model, Schema, model } from 'mongoose';
 
-import { setupUserMethods } from './methods';
 
 export interface IUser extends Document {
   username: string;
@@ -29,5 +28,4 @@ const schema = new Schema<IUser, UserModel, IUserMethods>(
   { autoCreate: true },
 );
 
-setupUserMethods(schema);
 export const User = model<IUser, UserModel>('User', schema);
