@@ -2,9 +2,7 @@
 
 ## High Priority
 
-1. Communication improvement, send errors/warnings, handle possible errors.
-1. Logging.
-1. Socket locking (middleware + using channels).
+1. Socket locking (middleware).
 
 ## Medium Priority
 
