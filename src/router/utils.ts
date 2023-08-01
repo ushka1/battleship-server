@@ -2,7 +2,7 @@
 
 import { Mutex } from 'async-mutex';
 import { logger } from 'config/logger';
-import { sendErrorMessage } from 'services/messageChannels';
+import { sendErrorMessage } from 'services/messageChannel';
 import socketio from 'socket.io';
 
 export interface ExtendedSocket extends socketio.Socket {
@@ -35,7 +35,7 @@ export function listenerWrapper(
       await listener({ payload, socket, io });
     } catch (err) {
       sendErrorMessage(socket, {
-        message: 'An unexpected error occurred, please refresh your page.',
+        content: 'An unexpected error occurred, please refresh your page.',
       });
       logger.error('Unexpected error in socket listener.', {
         err,
