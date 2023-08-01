@@ -22,7 +22,7 @@ app.get('/', (req, res) => {
 async function startup() {
   try {
     await connectToMongoDB();
-    logger.info('MongoDB connection established.');
+    logger.info('MongoDB connected.');
 
     const port = process.env.PORT ?? 8080;
     const server = app.listen(port);
@@ -36,7 +36,7 @@ async function startup() {
 
     logger.info('Server startup successful.');
   } catch (err) {
-    logger.error(`An error occurred during server startup.`, err);
+    logger.error(`Server startup error.`, { err });
   }
 }
 
@@ -62,12 +62,12 @@ async function dropMongoDBCollections() {
   try {
     await User.db.dropCollection('users');
   } catch (err) {
-    logger.info('Could not drop [users] collection.');
+    logger.info('Could not drop collection [users].');
   }
   try {
     await Room.db.dropCollection('rooms');
   } catch (err) {
-    logger.info('Could not drop [rooms] collection.');
+    logger.info('Could not drop collection [rooms].');
   }
 }
 
@@ -81,11 +81,11 @@ function setupSocketIOServer(server: http.Server) {
 
 function setupGracefulShutdown(server: http.Server) {
   process.on('SIGTERM', () => {
-    logger.info('SIGTERM signal received, closing http server.');
+    logger.info('SIGTERM signal received.');
     server.close(() => {
       logger.info('Http server closed.');
       mongoose.connection.close(false).then(() => {
-        logger.info('MongoDB connection closed.');
+        logger.info('MongoDB disconnected.');
         process.exit(0);
       });
     });

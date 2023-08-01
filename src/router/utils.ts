@@ -31,7 +31,7 @@ export function listenerWrapper(
       sendErrorMessage(socket, {
         message: 'An unexpected error occurred, please refresh your page.',
       });
-      logger.error('An unexpected error occurred in a socket listener.', {
+      logger.error('Unexpected error in socket listener.', {
         err,
         socket,
       });

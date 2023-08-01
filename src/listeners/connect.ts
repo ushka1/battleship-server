@@ -16,10 +16,7 @@ export const userConnectListener: SocketListener = async function ({ socket }) {
     try {
       user = await User.findById(userId).exec();
     } catch (err) {
-      logger.info(
-        'User not found or invalid userId passed in handshake query.',
-        { socket },
-      );
+      logger.error('User not found or invalid query.', { err, socket });
     }
   }
 

@@ -1,3 +1,4 @@
+import { logger } from 'config/logger';
 import { Room } from 'models/room/Room';
 import { User } from 'models/user/User';
 import { SocketListener } from 'router/utils';
@@ -14,21 +15,16 @@ export type MatchmakingResponse = {
 
 export const matchmakingListener: SocketListener<MatchmakingPayload> =
   async function ({ payload, socket }) {
-    console.log(`Matchmaking started (socket.id=${socket.id}).`);
+    logger.info(`Matchmaking started.`, { socket });
 
     const shipsValid = validateShips(payload.ships);
     if (!shipsValid) {
-      console.log(`Invalid ships provided (socket.id=${socket.id}).`);
-      sendErrorMessage(socket, { message: 'OOPS!' });
+      logger.error(`Invalid ships provided.`, { socket });
+      sendErrorMessage(socket, { message: 'Invalid ships provided.' });
       return;
     }
 
-    const user = await User.findById(socket.userId).exec();
-    if (!user) {
-      console.log(`User not found (socket.id=${socket.id}).`);
-      sendErrorMessage(socket, { message: 'OOPS!' });
-      return;
-    }
+    const user = await User.findById(socket.userId).orFail().exec();
 
     let room = await Room.findOne({
       users: { $size: 1 },
@@ -37,10 +33,10 @@ export const matchmakingListener: SocketListener<MatchmakingPayload> =
 
     if (room) {
       await room.addUser(user.id);
-      console.log(`Room found (socket.id=${socket.id}).`);
+      logger.info(`Room found.`, { socket });
     } else {
       room = await Room.create({ users: [socket.userId] });
-      console.log(`Room created (socket.id=${socket.id}).`);
+      logger.info(`Room created.`, { socket });
     }
 
     socket.roomId = room.id;

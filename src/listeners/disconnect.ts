@@ -19,7 +19,7 @@ export const userDisconnectListener: SocketListener = async function ({
         await room.removeUser(socket.userId);
       }
     } catch (err) {
-      logger.error('Error removing user from room.', { err, socket });
+      logger.error('Remove user from room error.', { err, socket });
     }
   }
 
