@@ -7,8 +7,8 @@ export interface IRoom extends Document {
 }
 
 export interface IRoomMethods {
-  addUser: (this: IRoom, userId: string | Types.ObjectId) => Promise<void>;
-  removeUser: (this: IRoom, userId: string | Types.ObjectId) => Promise<void>;
+  addUser: (this: IRoom, userId: Types.ObjectId) => Promise<void>;
+  removeUser: (this: IRoom, userId: Types.ObjectId) => Promise<void>;
 }
 
 export type RoomModel = Model<IRoom, object, IRoomMethods>;

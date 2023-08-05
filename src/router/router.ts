@@ -1,8 +1,8 @@
 import socketio from 'socket.io';
 
 import { Mutex } from 'async-mutex';
-import { userConnectListener } from 'listeners/connect';
-import { userDisconnectListener } from 'listeners/disconnect';
+import { roomChatListener } from 'listeners/chat';
+import { userConnectListener, userDisconnectListener } from 'listeners/connect';
 import {
   cancelMatchmakingListener,
   startMatchmakingListener,
@@ -24,6 +24,8 @@ export function socketRouter(socket: ExtendedSocket, io: socketio.Server) {
     'cancel-matchmaking',
     listenerWrapper(cancelMatchmakingListener, ...args),
   );
+
+  socket.on('room-chat', listenerWrapper(roomChatListener, ...args));
 
   socket.on('disconnect', listenerWrapper(userDisconnectListener, ...args));
 }

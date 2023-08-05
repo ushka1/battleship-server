@@ -1,10 +1,11 @@
 import { faker } from '@faker-js/faker';
-import { Document, Model, Schema, model } from 'mongoose';
-
+import { Document, Model, Schema, Types, model } from 'mongoose';
 
 export interface IUser extends Document {
   username: string;
-  socketId: string;
+
+  socketId?: string;
+  roomId?: Types.ObjectId;
 }
 
 export interface IUserMethods {}
@@ -22,7 +23,9 @@ const schema = new Schema<IUser, UserModel, IUserMethods>(
     },
     socketId: {
       type: String,
-      required: true,
+    },
+    roomId: {
+      type: Types.ObjectId,
     },
   },
   { autoCreate: true },

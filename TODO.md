@@ -2,6 +2,8 @@
 
 ## High Priority
 
+1. Create services.
+
 ## Medium Priority
 
 1. I'm not handling case when someone alters database, that's not my job.

@@ -1,9 +1,11 @@
 import { logger } from 'config/logger';
+import { Room } from 'models/room/Room';
 import { IUser, User } from 'models/user/User';
 import { SocketListener } from 'router/utils';
 
 export type userConnectResponse = {
-  user: { id: string; username: string };
+  userId: string;
+  username: string;
 };
 
 export const userConnectListener: SocketListener = async function ({ socket }) {
@@ -16,21 +18,61 @@ export const userConnectListener: SocketListener = async function ({ socket }) {
     try {
       user = await User.findById(userId).exec();
     } catch (err) {
-      logger.error('User not found or invalid query.', { err, socket });
+      logger.error('Invalid userId query param provided.', {
+        err,
+        socket,
+      });
     }
   }
 
   // create new user if none found
   if (!user) {
+    logger.info('Creating new user.', { socket });
     user = await User.create({
       socketId: socket.id,
     });
   }
 
   const response: userConnectResponse = {
-    user: { id: user.id, username: user.username },
+    userId: user.id,
+    username: user.username,
   };
 
   socket.userId = user.id;
-  socket.emit('user-connect', response);
+  socket.emit('user-data', response);
+};
+
+export const userDisconnectListener: SocketListener = async function ({
+  socket,
+}) {
+  logger.info('User disconnected.', { socket });
+
+  const user = await User.findById(socket.userId).exec();
+  if (!user) {
+    logger.error('User not found on disconnect.', { socket });
+    return;
+  }
+
+  // handle case if user was in a room
+  if (user.roomId) {
+    try {
+      socket.leave(user.roomId.toString());
+
+      const room = await Room.findById(user.roomId).exec();
+      if (room) {
+        await room.removeUser(user.id);
+      }
+
+      if (room?.users.length === 0) {
+        await room.deleteOne();
+      }
+
+      user.roomId = undefined;
+    } catch (err) {
+      logger.error('Remove user from room error.', { err, socket });
+    }
+  }
+
+  user.socketId = undefined; // mark user as offline
+  await user.save();
 };
