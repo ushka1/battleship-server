@@ -1,6 +1,6 @@
 import { User } from 'models/user/User';
 import { SocketListener } from 'router/utils';
-import { sendErrorMessage } from 'services/messageChannel';
+import { emitErrorMessage } from 'utils/messageChannel';
 
 export type RoomChatPayload = {
   message: string;
@@ -14,7 +14,7 @@ export const roomChatListener: SocketListener<RoomChatPayload> =
   async function ({ socket, payload, io }) {
     const user = await User.findById(socket.userId).orFail().exec();
     if (!user.roomId) {
-      sendErrorMessage(socket, { content: 'User not in a room.' });
+      emitErrorMessage(socket, { content: 'User not in a room.' });
       return;
     }
 

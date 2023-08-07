@@ -2,9 +2,9 @@ import { logger } from 'config/logger';
 import { Room } from 'models/room/Room';
 import { User } from 'models/user/User';
 import { SocketListener } from 'router/utils';
-import { sendErrorMessage } from 'services/messageChannel';
-import { validateShips } from 'services/shipsValidation';
 import { Ship } from 'types';
+import { emitErrorMessage } from 'utils/messageChannel';
+import { validateShips } from 'utils/shipsValidation';
 
 export type MatchmakingPayload = {
   ships: Ship[];
@@ -21,14 +21,14 @@ export const startMatchmakingListener: SocketListener<MatchmakingPayload> =
 
     if (user.roomId) {
       logger.error(`User already in a room.`, { socket });
-      sendErrorMessage(socket, { content: 'User already in a room.' });
+      emitErrorMessage(socket, { content: 'User already in a room.' });
       return;
     }
 
     const areShipsValid = validateShips(payload.ships);
     if (!areShipsValid) {
       logger.error(`Invalid ships provided.`, { socket });
-      sendErrorMessage(socket, { content: 'Invalid ships provided.' });
+      emitErrorMessage(socket, { content: 'Invalid ships provided.' });
       return;
     }
 
@@ -65,7 +65,7 @@ export const cancelMatchmakingListener: SocketListener = async function ({
 
   if (!user.roomId) {
     logger.error(`User not in a room.`, { socket });
-    sendErrorMessage(socket, { content: 'User not in a room.' });
+    emitErrorMessage(socket, { content: 'User not in a room.' });
     return;
   }
 

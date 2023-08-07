@@ -1,7 +1,7 @@
 import { logger } from 'config/logger';
-import { Room } from 'models/room/Room';
 import { IUser, User } from 'models/user/User';
 import { SocketListener } from 'router/utils';
+import { removeUserFromRoom } from 'services/matchmaking';
 
 export type userConnectResponse = {
   userId: string;
@@ -44,6 +44,7 @@ export const userConnectListener: SocketListener = async function ({ socket }) {
 
 export const userDisconnectListener: SocketListener = async function ({
   socket,
+  io,
 }) {
   logger.info('User disconnected.', { socket });
 
@@ -56,20 +57,9 @@ export const userDisconnectListener: SocketListener = async function ({
   // handle case if user was in a room
   if (user.roomId) {
     try {
-      socket.leave(user.roomId.toString());
-
-      const room = await Room.findById(user.roomId).exec();
-      if (room) {
-        await room.removeUser(user.id);
-      }
-
-      if (room?.users.length === 0) {
-        await room.deleteOne();
-      }
-
-      user.roomId = undefined;
+      await removeUserFromRoom(user, socket, io);
     } catch (err) {
-      logger.error('Remove user from room error.', { err, socket });
+      logger.error('Error removing user from room.', { err, socket });
     }
   }
 
