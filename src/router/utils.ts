@@ -27,7 +27,7 @@ export function listenerWrapper(
   io: socketio.Server,
   mutex: Mutex,
 ) {
-  return async (payload: any) => {
+  return async (payload?: any) => {
     const release = await mutex.acquire();
 
     try {
