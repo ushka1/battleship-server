@@ -3,6 +3,8 @@ import { Document, Model, Schema, Types, model } from 'mongoose';
 
 export interface IUser extends Document {
   username: string;
+  isOnline: boolean;
+  inRoom: boolean;
 
   socketId?: string;
   roomId?: Types.ObjectId;
@@ -30,5 +32,13 @@ const schema = new Schema<IUser, UserModel, IUserMethods>(
   },
   { autoCreate: true },
 );
+
+schema.virtual('isOnline').get(function (this: IUser) {
+  return !!this.socketId;
+});
+
+schema.virtual('inRoom').get(function (this: IUser) {
+  return !!this.roomId;
+});
 
 export const User = model<IUser, UserModel>('User', schema);

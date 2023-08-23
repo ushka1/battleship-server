@@ -1,39 +1,28 @@
 import { logger } from 'config/logger';
-import { IUser, User } from 'models/user/User';
 import { SocketListener } from 'router/utils';
-import { removeUserFromRoom } from 'services/matchmaking';
+import {
+  connectUser,
+  createNewUser,
+  disconnectUser,
+  findUser,
+} from 'services/connect';
 
-export type userConnectResponse = {
+export type UserDataResponse = {
   userId: string;
   username: string;
 };
 
-export const userConnectListener: SocketListener = async function ({ socket }) {
-  logger.info('User connected.', { socket });
-  let user: IUser | null = null;
+export const connectHandler: SocketListener = async function ({ socket, io }) {
+  logger.info('New socket connection.', { socket });
 
-  // check for existing user
-  const userId = socket.handshake.query.userId as string;
-  if (userId) {
-    try {
-      user = await User.findById(userId).exec();
-    } catch (err) {
-      logger.error('Invalid userId query param provided.', {
-        err,
-        socket,
-      });
-    }
+  let user = await findUser(socket);
+  if (user) {
+    await connectUser(user, socket, io);
+  } else {
+    user = await createNewUser(socket);
   }
 
-  // create new user if none found
-  if (!user) {
-    logger.info('Creating new user.', { socket });
-    user = await User.create({
-      socketId: socket.id,
-    });
-  }
-
-  const response: userConnectResponse = {
+  const response: UserDataResponse = {
     userId: user.id,
     username: user.username,
   };
@@ -42,27 +31,17 @@ export const userConnectListener: SocketListener = async function ({ socket }) {
   socket.emit('user-data', response);
 };
 
-export const userDisconnectListener: SocketListener = async function ({
+export const disconnectListener: SocketListener = async function ({
   socket,
   io,
 }) {
-  logger.info('User disconnected.', { socket });
+  logger.info('Socket disconnection.', { socket });
 
-  const user = await User.findById(socket.userId).exec();
+  const user = await findUser(socket);
   if (!user) {
-    logger.error('User not found on disconnect.', { socket });
+    logger.error('User not found while disconnecting.', { socket });
     return;
   }
 
-  // handle case if user was in a room
-  if (user.roomId) {
-    try {
-      await removeUserFromRoom(user, socket, io);
-    } catch (err) {
-      logger.error('Error removing user from room.', { err, socket });
-    }
-  }
-
-  user.socketId = undefined; // mark user as offline
-  await user.save();
+  await disconnectUser(user, socket, io);
 };

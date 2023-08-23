@@ -2,6 +2,7 @@
 
 ## High Priority
 
+1. User connected from two tabs.
 1. Create services.
 
 ## Medium Priority

@@ -1,6 +1,6 @@
 import { User } from 'models/user/User';
 import { SocketListener } from 'router/utils';
-import { emitErrorMessage } from 'utils/messageChannel';
+import { emitErrorMessage } from 'services/messageChannel';
 
 export type RoomChatPayload = {
   message: string;

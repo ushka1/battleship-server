@@ -2,8 +2,8 @@ import { logger } from 'config/logger';
 import { Room } from 'models/room/Room';
 import { User } from 'models/user/User';
 import { SocketListener } from 'router/utils';
+import { emitErrorMessage } from 'services/messageChannel';
 import { Ship } from 'types';
-import { emitErrorMessage } from 'utils/messageChannel';
 import { validateShips } from 'utils/shipsValidation';
 
 export type MatchmakingPayload = {

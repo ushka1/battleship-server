@@ -2,8 +2,8 @@
 
 import { Mutex } from 'async-mutex';
 import { logger } from 'config/logger';
+import { emitErrorMessage } from 'services/messageChannel';
 import socketio from 'socket.io';
-import { emitErrorMessage } from 'utils/messageChannel';
 
 export interface ExtendedSocket extends socketio.Socket {
   userId?: string;
