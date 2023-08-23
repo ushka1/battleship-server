@@ -5,7 +5,12 @@ import socketio from 'socket.io';
 import { removeUserFromRoom } from './matchmaking';
 import { emitErrorMessage } from './messageChannel';
 
-export async function findUser(socket: ExtendedSocket): Promise<IUser | null> {
+/**
+ * Find user using the userId query param in the handshake.
+ */
+export async function findUserFromHandshake(
+  socket: ExtendedSocket,
+): Promise<IUser | null> {
   logger.info('Finding user.', { socket });
 
   let user: IUser | null = null;

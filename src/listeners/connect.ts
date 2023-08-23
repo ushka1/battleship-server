@@ -1,10 +1,11 @@
 import { logger } from 'config/logger';
+import { User } from 'models/user/User';
 import { SocketListener } from 'router/utils';
 import {
   connectUser,
   createNewUser,
   disconnectUser,
-  findUser,
+  findUserFromHandshake,
 } from 'services/connect';
 
 export type UserDataResponse = {
@@ -15,7 +16,7 @@ export type UserDataResponse = {
 export const connectHandler: SocketListener = async function ({ socket, io }) {
   logger.info('New socket connection.', { socket });
 
-  let user = await findUser(socket);
+  let user = await findUserFromHandshake(socket);
   if (user) {
     await connectUser(user, socket, io);
   } else {
@@ -37,7 +38,7 @@ export const disconnectListener: SocketListener = async function ({
 }) {
   logger.info('Socket disconnection.', { socket });
 
-  const user = await findUser(socket);
+  const user = await User.findOne({ id: socket.userId }).exec();
   if (!user) {
     logger.error('User not found while disconnecting.', { socket });
     return;
