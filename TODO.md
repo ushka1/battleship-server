@@ -2,17 +2,13 @@
 
 ## High Priority
 
-1. User connected from two tabs.
-1. Create services.
+1. Finalize and move to service matchmaking with reconnection/disconnection/leaving/canceling.
 
 ## Medium Priority
 
-1. I'm not handling case when someone alters database, that's not my job.
 1. Server down -> try to recreate everything, users will be unique so this may be possible.
-1. Remove inactive users after some time (e.g. 30 days).
 
 ## Low Priority
 
-1. Account created automatically and bind something to ip or something?
+1. Remove inactive users after some time (e.g. 30 days).
 1. Reset option.
-1. Chat.
