@@ -38,7 +38,7 @@ export const disconnectListener: SocketListener = async function ({
 }) {
   logger.info('Socket disconnection.', { socket });
 
-  const user = await User.findOne({ id: socket.userId }).exec();
+  const user = await User.findById(socket.userId).exec();
   if (!user) {
     logger.error('User not found while disconnecting.', { socket });
     return;

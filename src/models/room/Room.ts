@@ -1,3 +1,4 @@
+import { IUser } from 'models/user/User';
 import { Document, Model, Schema, Types, model } from 'mongoose';
 import { addUser, removeUser } from './methods';
 
@@ -7,8 +8,8 @@ export interface IRoom extends Document {
 }
 
 export interface IRoomMethods {
-  addUser: (this: IRoom, userId: Types.ObjectId) => Promise<void>;
-  removeUser: (this: IRoom, userId: Types.ObjectId) => Promise<void>;
+  addUser: (this: IRoom, user: IUser) => Promise<void>;
+  removeUser: (this: IRoom, user: IUser) => Promise<void>;
 }
 
 export type RoomModel = Model<IRoom, object, IRoomMethods>;

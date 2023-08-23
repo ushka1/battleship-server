@@ -1,10 +1,10 @@
 import { logger } from 'config/logger';
-import { Room } from 'models/room/Room';
 import { User } from 'models/user/User';
 import { SocketListener } from 'router/utils';
 import { emitErrorMessage } from 'services/messageChannel';
+import { addUserToRoom, removeUserFromRoom } from 'services/room';
+import { validateShips } from 'services/shipsValidation';
 import { Ship } from 'types';
-import { validateShips } from 'utils/shipsValidation';
 
 export type MatchmakingPayload = {
   ships: Ship[];
@@ -19,35 +19,20 @@ export const startMatchmakingListener: SocketListener<MatchmakingPayload> =
 
     const user = await User.findById(socket.userId).orFail().exec();
 
-    if (user.roomId) {
+    if (user.inRoom) {
       logger.error(`User already in a room.`, { socket });
       emitErrorMessage(socket, { content: 'User already in a room.' });
       return;
     }
 
-    const areShipsValid = validateShips(payload.ships);
-    if (!areShipsValid) {
-      logger.error(`Invalid ships provided.`, { socket });
-      emitErrorMessage(socket, { content: 'Invalid ships provided.' });
+    const shipsValid = validateShips(payload.ships);
+    if (!shipsValid) {
+      logger.error(`Invalid ships setup provided.`, { socket });
+      emitErrorMessage(socket, { content: 'Invalid ships setup provided.' });
       return;
     }
 
-    let room = await Room.findOne({
-      users: { $size: 1 },
-      locked: false,
-    }).exec();
-
-    if (room) {
-      await room.addUser(user.id);
-      logger.info(`Room joined.`, { socket });
-    } else {
-      room = await Room.create({ users: [socket.userId] });
-      logger.info(`Room created.`, { socket });
-    }
-
-    user.roomId = room.id;
-    await user.save();
-
+    const room = await addUserToRoom(user, socket);
     await socket.join(room.id);
 
     if (room.users.length === 2) {
@@ -55,24 +40,27 @@ export const startMatchmakingListener: SocketListener<MatchmakingPayload> =
         gameReady: true,
       };
       io.in(room.id.toString()).emit('matchmaking-start', response);
+    } else {
+      const response: MatchmakingResponse = {
+        gameReady: false,
+      };
+      socket.emit('matchmaking-start', response);
     }
   };
 
 export const cancelMatchmakingListener: SocketListener = async function ({
   socket,
+  io,
 }) {
-  const user = await User.findById(socket.userId).orFail().exec();
+  logger.info(`Matchmaking cancelled.`, { socket });
 
-  if (!user.roomId) {
+  const user = await User.findById(socket.userId).orFail().exec();
+  if (!user.inRoom) {
     logger.error(`User not in a room.`, { socket });
     emitErrorMessage(socket, { content: 'User not in a room.' });
     return;
   }
 
-  const room = await Room.findById(user.roomId).orFail().exec();
-  await room.removeUser(user.id);
-
-  await socket.leave(user.roomId.toString());
-  user.roomId = undefined;
-  await user.save();
+  await socket.leave(user.roomId!.toString());
+  await removeUserFromRoom(user, socket, io);
 };

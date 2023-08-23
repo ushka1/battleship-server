@@ -2,8 +2,8 @@ import { logger } from 'config/logger';
 import { IUser, User } from 'models/user/User';
 import { ExtendedSocket } from 'router/utils';
 import socketio from 'socket.io';
-import { removeUserFromRoom } from './matchmaking';
 import { emitErrorMessage } from './messageChannel';
+import { removeUserFromRoom } from './room';
 
 /**
  * Find user using the userId query param in the handshake.
@@ -47,6 +47,10 @@ export async function createNewUser(socket: ExtendedSocket): Promise<IUser> {
   return user;
 }
 
+/**
+ * Connect/reconnect user.
+ * If the user is already connected, will be disconnected from older session.
+ */
 export async function connectUser(
   user: IUser,
   socket: ExtendedSocket,

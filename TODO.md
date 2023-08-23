@@ -7,8 +7,10 @@
 ## Medium Priority
 
 1. Server down -> try to recreate everything, users will be unique so this may be possible.
+1. Improve logging.
+1. Improve messaging.
 
 ## Low Priority
 
 1. Remove inactive users after some time (e.g. 30 days).
-1. Reset option.
+1. Reset option (?).
