@@ -1,9 +1,9 @@
 import { logger } from 'config/logger';
-import { IUser, User } from 'models/user/User';
+import { IUser, User } from 'models/User';
 import { ExtendedSocket } from 'router/utils';
 import socketio from 'socket.io';
-import { emitErrorMessage } from './messageChannel';
-import { removeUserFromRoom } from './room';
+import { emitErrorMessage } from './messagingService';
+import { removeUserFromRoom } from './roomService';
 
 /**
  * Find user using the userId query param in the handshake.

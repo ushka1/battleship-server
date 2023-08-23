@@ -1,10 +1,10 @@
 import { Mutex } from 'async-mutex';
-import { roomChatListener } from 'listeners/chat';
-import { connectHandler, disconnectListener } from 'listeners/connect';
+import { connectHandler, disconnectListener } from 'listeners/connectListener';
 import {
-  cancelMatchmakingListener,
-  startMatchmakingListener,
-} from 'listeners/matchmaking';
+  roomChatListener,
+  roomJoinListener,
+  roomLeaveListener,
+} from 'listeners/roomListener';
 import socketio from 'socket.io';
 import { ExtendedSocket, listenerWrapper as lw } from './utils';
 
@@ -16,10 +16,9 @@ export function socketRouter(socket: ExtendedSocket, io: socketio.Server) {
   const wrappedConnectHandler = lw(connectHandler, ...args);
   wrappedConnectHandler();
 
-  // event listeners
-  socket.on('start-matchmaking', lw(startMatchmakingListener, ...args));
-  socket.on('cancel-matchmaking', lw(cancelMatchmakingListener, ...args));
-
+  // room listeners
+  socket.on('room-join', lw(roomJoinListener, ...args));
+  socket.on('room-leave', lw(roomLeaveListener, ...args));
   socket.on('room-chat', lw(roomChatListener, ...args));
 
   socket.on('disconnect', lw(disconnectListener, ...args));

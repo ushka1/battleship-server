@@ -5,8 +5,8 @@ import mongoose from 'mongoose';
 import socketio from 'socket.io';
 
 import { logger } from 'config/logger';
-import { Room } from './models/room/Room';
-import { User } from './models/user/User';
+import { Room } from './models/Room';
+import { User } from './models/User';
 import { socketRouter } from './router/router';
 
 const app = express();

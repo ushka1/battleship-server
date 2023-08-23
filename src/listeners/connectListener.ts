@@ -1,14 +1,14 @@
 import { logger } from 'config/logger';
-import { User } from 'models/user/User';
+import { User } from 'models/User';
 import { SocketListener } from 'router/utils';
 import {
   connectUser,
   createNewUser,
   disconnectUser,
   findUserFromHandshake,
-} from 'services/connect';
+} from 'services/connectService';
 
-export type UserDataResponse = {
+export type UserUpdateResponse = {
   userId: string;
   username: string;
 };
@@ -23,13 +23,13 @@ export const connectHandler: SocketListener = async function ({ socket, io }) {
     user = await createNewUser(socket);
   }
 
-  const response: UserDataResponse = {
+  const response: UserUpdateResponse = {
     userId: user.id,
     username: user.username,
   };
 
   socket.userId = user.id;
-  socket.emit('user-data', response);
+  socket.emit('user-update', response);
 };
 
 export const disconnectListener: SocketListener = async function ({

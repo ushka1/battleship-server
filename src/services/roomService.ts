@@ -1,6 +1,6 @@
 import { logger } from 'config/logger';
-import { IRoom, Room } from 'models/room/Room';
-import { IUser } from 'models/user/User';
+import { IRoom, Room } from 'models/Room';
+import { IUser } from 'models/User';
 import { ExtendedSocket } from 'router/utils';
 import socketio from 'socket.io';
 
