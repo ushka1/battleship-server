@@ -1,5 +1,5 @@
 import { BOARD_COLS, BOARD_ROWS } from 'config/constants';
-import { Ship } from 'types';
+import { Ship } from 'types/game';
 
 /**
  * Creates empty board.

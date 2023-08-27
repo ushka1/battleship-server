@@ -2,7 +2,7 @@ import { logger } from 'config/logger';
 import { IUser, User } from 'models/User';
 import { ExtendedSocket } from 'router/utils';
 import socketio from 'socket.io';
-import { emitErrorMessage } from './messagingService';
+import { emitErrorNotification } from './notificationService';
 import { removeUserFromRoom } from './roomService';
 
 /**
@@ -63,7 +63,7 @@ export async function connectUser(
 
     const otherSocket = io.sockets.sockets.get(user.socketId!);
     if (otherSocket) {
-      emitErrorMessage(otherSocket, {
+      emitErrorNotification(otherSocket, {
         content: 'Another active session was found.',
       });
       await disconnectUser(user, otherSocket, io);

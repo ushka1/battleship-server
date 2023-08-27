@@ -3,6 +3,7 @@ import { IRoom, Room } from 'models/Room';
 import { IUser } from 'models/User';
 import { ExtendedSocket } from 'router/utils';
 import socketio from 'socket.io';
+import { RoomState, RoomUpdatePayload } from 'types/room';
 
 export async function addUserToRoom(
   user: IUser,
@@ -38,15 +39,15 @@ export async function removeUserFromRoom(
   }
 
   const room = await Room.findById(user.roomId).orFail().exec();
-  await room.removeUser(user.id);
+  await room.removeUser(user);
 
   if (room.users.length === 0) {
     await room.deleteOne();
   } else {
-    io.in(room.id.toString()).emit('room-update', {
-      message: 'Opponent left.',
-      opponentLeft: true,
-    });
+    const payload: RoomUpdatePayload = {
+      roomState: RoomState.UNREADY,
+    };
+    io.in(room.id.toString()).emit('room-update', payload);
   }
 
   user.roomId = undefined;

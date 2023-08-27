@@ -7,6 +7,10 @@ export interface IRoom extends Document {
   locked?: boolean;
 }
 
+export interface IPopulatedRoom {
+  users: IUser[];
+}
+
 export interface IRoomMethods {
   addUser: (this: IRoom, user: IUser) => Promise<void>;
   removeUser: (this: IRoom, user: IUser) => Promise<void>;
