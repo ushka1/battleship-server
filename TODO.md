@@ -10,6 +10,7 @@
 1. Server down -> try to recreate everything, users will be unique so this may be possible.
 1. Improve logging.
 1. Improve messaging.
+1. Socketio middleware - find guest-user/authenticate.
 
 ## Low Priority
 

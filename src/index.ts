@@ -5,6 +5,8 @@ import mongoose from 'mongoose';
 import socketio from 'socket.io';
 
 import { logger } from 'config/logger';
+import { initPoolService } from 'services/poolService';
+import { SocketProvider } from 'utils/socketProvider';
 import { Room } from './models/Room';
 import { User } from './models/User';
 import { socketRouter } from './router/router';
@@ -34,9 +36,12 @@ async function startup() {
     setupGracefulShutdown(server);
     logger.info('Graceful shutdown set.');
 
+    setupServices();
+    logger.info('Services initialized.');
+
     logger.info('Server startup successful.');
   } catch (err) {
-    logger.error(`Server startup error.`, { err });
+    logger.error(`Server startup error.`, { error: err });
   }
 }
 
@@ -76,7 +81,12 @@ function setupSocketIOServer(server: http.Server) {
     cors: { origin: process.env.SOCKET_ORIGIN, methods: ['GET', 'POST'] },
   });
 
+  SocketProvider.initialize(io);
   io.on('connection', (socket) => socketRouter(socket, io));
+}
+
+function setupServices() {
+  initPoolService();
 }
 
 function setupGracefulShutdown(server: http.Server) {

@@ -9,20 +9,20 @@ export interface ExtendedSocket extends socketio.Socket {
   userId?: string;
 }
 
-export type SocketListener<T = any> = (props: {
-  payload: T;
+export type SocketController<T = any> = (props: {
+  payload?: T;
   socket: ExtendedSocket;
   io: socketio.Server;
 }) => Promise<void>;
 
 /**
- * Wraps a SocketListener function to:
+ * Wraps a SocketController function to:
  * - provide the access to socket and io objects,
- * - handle any unexpected errors that may occur in the listener,
- * - force sequential execution of listeners to avoid race conditions.
+ * - handle any unexpected errors that may occur in the controller,
+ * - force sequential execution of controllers to avoid race conditions.
  */
-export function listenerWrapper(
-  listener: SocketListener,
+export function controllerWrapper(
+  controller: SocketController,
   socket: ExtendedSocket,
   io: socketio.Server,
   mutex: Mutex,
@@ -31,13 +31,13 @@ export function listenerWrapper(
     const release = await mutex.acquire();
 
     try {
-      await listener({ payload, socket, io });
+      await controller({ payload, socket, io });
     } catch (err) {
       emitErrorNotification(socket, {
         content: 'An unexpected error occurred, please refresh your page.',
       });
-      logger.error('Unexpected error in socket listener.', {
-        err,
+      logger.error('Unexpected error in socket controller.', {
+        error: err,
         socket,
       });
 

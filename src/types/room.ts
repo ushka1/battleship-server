@@ -1,9 +1,7 @@
 export enum RoomState {
-  INACTIVE = 'INACTIVE',
-  MATCHMAKING = 'MATCHMAKING',
-  READY = 'READY',
-  UNREADY = 'UNREADY',
   PLAYING = 'PLAYING',
+  PLAYER_LEFT = 'PLAYER_LEFT',
+  FINISHED = 'FINISHED',
 }
 
 export type RivalData = {

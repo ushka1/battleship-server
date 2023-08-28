@@ -1,0 +1,52 @@
+import { logger } from 'config/logger';
+import { User } from 'models/User';
+import { SocketController } from 'router/utils';
+import {
+  connectUser,
+  createNewUser,
+  disconnectFromAnotherActiveSession,
+  disconnectUser,
+  findUserFromHandshake,
+} from 'services/connectService';
+import { removeUserFromRoom } from 'services/roomService';
+import { UserUpdatePayload } from 'types/user';
+
+export const connectController: SocketController = async function ({
+  socket,
+  io,
+}) {
+  logger.info('New socket connection.', { socket });
+
+  let user = await findUserFromHandshake(socket);
+  if (user) {
+    if (user.isOnline) {
+      await disconnectFromAnotherActiveSession(user, socket, io);
+    }
+
+    await connectUser(user, socket);
+  } else {
+    user = await createNewUser(socket);
+  }
+
+  const response: UserUpdatePayload = {
+    userId: user.id,
+    username: user.username,
+  };
+
+  socket.userId = user.id;
+  socket.emit('user-update', response);
+};
+
+export const disconnectController: SocketController = async function ({
+  socket,
+  io,
+}) {
+  logger.info('Socket disconnection.', { socket });
+
+  const user = await User.findById(socket.userId).orFail().exec();
+  if (user.inRoom) {
+    await removeUserFromRoom(user, io);
+  }
+
+  await disconnectUser(user, socket);
+};
