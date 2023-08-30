@@ -4,9 +4,11 @@ import { Document, Model, Schema, Types, model } from 'mongoose';
 export interface IUser extends Document {
   username: string;
   isOnline: boolean;
+  inPool: boolean;
   inRoom: boolean;
 
   socketId?: string;
+  poolId?: string;
   roomId?: Types.ObjectId;
 }
 
@@ -26,6 +28,9 @@ const schema = new Schema<IUser, UserModel, IUserMethods>(
     socketId: {
       type: String,
     },
+    poolId: {
+      type: String,
+    },
     roomId: {
       type: Types.ObjectId,
     },
@@ -35,6 +40,10 @@ const schema = new Schema<IUser, UserModel, IUserMethods>(
 
 schema.virtual('isOnline').get(function (this: IUser) {
   return !!this.socketId;
+});
+
+schema.virtual('inPool').get(function (this: IUser) {
+  return !!this.poolId;
 });
 
 schema.virtual('inRoom').get(function (this: IUser) {

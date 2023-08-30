@@ -73,6 +73,9 @@ export async function addUserToPool(user: IUser) {
     createdAt: new Date(),
   });
 
+  user.poolId = 'classic';
+  await user.save();
+
   release();
 }
 
@@ -97,6 +100,9 @@ export async function removeUserFromPool(user: IUser) {
   const release = await mutex.acquire();
 
   pool = pool.filter((entry) => entry.userId !== user.id);
+
+  user.poolId = undefined;
+  await user.save();
 
   release();
 }

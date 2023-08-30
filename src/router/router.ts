@@ -23,9 +23,9 @@ export function socketRouter(socket: ExtendedSocket, io: socketio.Server) {
   connect(); // called immediately on connection
 
   socket.on('pool-join', middleware(joinPoolController, ...args));
-  socket.on('leave-pool', middleware(leavePoolController, ...args));
+  socket.on('pool-leave', middleware(leavePoolController, ...args));
 
-  socket.on('leave-room', middleware(leaveRoomController, ...args));
+  socket.on('room-leave', middleware(leaveRoomController, ...args));
 
   socket.on('disconnect', middleware(disconnectController, ...args));
 }

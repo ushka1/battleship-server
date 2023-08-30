@@ -4,7 +4,10 @@ import { logger } from 'config/logger';
 import { IUser, User } from 'models/User';
 import { ExtendedSocket } from 'router/middleware';
 import { emitErrorNotification } from 'services/notificationService';
+import { removeUserFromPool } from 'services/poolService';
 import { removeUserFromRoom } from 'services/roomService';
+
+/* ========================= CONNECT ========================= */
 
 /**
  * Find user using the userId query param in the handshake.
@@ -37,9 +40,19 @@ export async function createNewUser(socket: ExtendedSocket): Promise<IUser> {
   const user = await User.create({
     socketId: socket.id,
   });
+
   logger.info('New user created.', { socket, user });
   return user;
 }
+
+export async function connectUser(user: IUser, socket: ExtendedSocket) {
+  user.socketId = socket.id;
+  await user.save();
+
+  logger.info('User connected.', { socket, user });
+}
+
+/* ========================= DISCONNECT ========================= */
 
 /**
  * Disconnect another active session of the user.
@@ -63,10 +76,7 @@ export async function disconnectUserFromAnotherSession(
       otherSocket.disconnect();
 
       // perform standard disconnection cleanup
-      if (user.inRoom) {
-        await removeUserFromRoom(user, io);
-      }
-
+      await disconnectUserCleanup(user, io);
       await disconnectUser(user, socket);
     } catch (e) {
       logger.error('Error while disconnecting another active session.', {
@@ -79,11 +89,13 @@ export async function disconnectUserFromAnotherSession(
   logger.info('Another active session closed.', { socket });
 }
 
-export async function connectUser(user: IUser, socket: ExtendedSocket) {
-  user.socketId = socket.id;
-  await user.save();
-
-  logger.info('User connected.', { socket, user });
+export async function disconnectUserCleanup(user: IUser, io: socketio.Server) {
+  if (user.inRoom) {
+    await removeUserFromRoom(user, io);
+  }
+  if (user.inPool) {
+    await removeUserFromPool(user);
+  }
 }
 
 export async function disconnectUser(user: IUser, socket: ExtendedSocket) {

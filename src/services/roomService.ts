@@ -4,6 +4,7 @@ import { logger } from 'config/logger';
 import { Room } from 'models/Room';
 import { IUser, User } from 'models/User';
 import { RoomStatus, RoomUpdatePayload } from 'types/room';
+import { UserStatus, UserUpdatePayload } from 'types/user';
 import { SocketProvider } from 'utils/socketProvider';
 import { addUserToPool } from './poolService';
 
@@ -35,25 +36,35 @@ export async function addUsersToRoom(userId1: string, userId2: string) {
   }
 
   const room = await Room.create({ users: [user1.id, user2.id] });
+  await user1.updateOne({ roomId: room.id }).exec();
+  await user2.updateOne({ roomId: room.id }).exec();
+
   socket1.join(room.id);
   socket2.join(room.id);
 
-  const payload1: RoomUpdatePayload = {
+  const userPayload: UserUpdatePayload = {
+    userStatus: UserStatus.ROOM,
+  };
+
+  socket1.emit('user-update', userPayload);
+  socket2.emit('user-update', userPayload);
+
+  const roomPayload1: RoomUpdatePayload = {
     roomStatus: RoomStatus.PLAYING,
     rivalData: {
       username: user2.username,
     },
   };
 
-  const payload2: RoomUpdatePayload = {
+  const roomPayload2: RoomUpdatePayload = {
     roomStatus: RoomStatus.PLAYING,
     rivalData: {
       username: user1.username,
     },
   };
 
-  socket1.emit('room-update', payload1);
-  socket2.emit('room-update', payload2);
+  socket1.emit('room-update', roomPayload1);
+  socket2.emit('room-update', roomPayload2);
 
   // TODO: proceed to the game
 }
@@ -91,7 +102,7 @@ export async function removeUserFromRoom(user: IUser, io: socketio.Server) {
   await user.save();
 }
 
-export async function removeUserFromRoomValidator(user: IUser) {
+export function removeUserFromRoomValidator(user: IUser) {
   if (!user.inRoom) {
     return 'User not in a room.';
   }

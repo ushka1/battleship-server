@@ -3,15 +3,17 @@ import { User } from 'models/User';
 import { SocketController } from 'router/middleware';
 import { emitErrorNotification } from 'services/notificationService';
 import {
-  removeUserFromPool,
-  removeUserFromPoolValidator,
-} from 'services/poolService';
+  removeUserFromRoom,
+  removeUserFromRoomValidator,
+} from 'services/roomService';
+import { UserStatus, UserUpdatePayload } from 'types/user';
 
 export const leaveRoomController: SocketController = async function ({
   socket,
+  io,
 }) {
   const user = await User.findById(socket.userId).orFail().exec();
-  const error = removeUserFromPoolValidator(user);
+  const error = removeUserFromRoomValidator(user);
 
   if (error) {
     emitErrorNotification(socket, { content: error });
@@ -19,5 +21,10 @@ export const leaveRoomController: SocketController = async function ({
     return;
   }
 
-  await removeUserFromPool(user);
+  await removeUserFromRoom(user, io);
+
+  const payload: UserUpdatePayload = {
+    userStatus: UserStatus.IDLE,
+  };
+  socket.emit('user-update', payload);
 };
