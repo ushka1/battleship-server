@@ -9,19 +9,23 @@ import {
   joinPoolController,
   leavePoolController,
 } from 'controllers/poolControllers';
-import { ExtendedSocket, controllerWrapper as lw } from './utils';
+import { leaveRoomController } from 'controllers/roomControllers';
+import {
+  ExtendedSocket,
+  controllerMiddleware as middleware,
+} from 'router/middleware';
 
 export function socketRouter(socket: ExtendedSocket, io: socketio.Server) {
   const mutex = new Mutex();
   const args = [socket, io, mutex] as const;
 
-  // called immediately after connection
-  const wrappedConnectHandler = lw(connectController, ...args);
-  wrappedConnectHandler();
+  const connect = middleware(connectController, ...args);
+  connect(); // called immediately on connection
 
-  // pool controllers
-  socket.on('pool-join', lw(joinPoolController, ...args));
-  socket.on('leave-pool', lw(leavePoolController, ...args));
+  socket.on('pool-join', middleware(joinPoolController, ...args));
+  socket.on('leave-pool', middleware(leavePoolController, ...args));
 
-  socket.on('disconnect', lw(disconnectController, ...args));
+  socket.on('leave-room', middleware(leaveRoomController, ...args));
+
+  socket.on('disconnect', middleware(disconnectController, ...args));
 }

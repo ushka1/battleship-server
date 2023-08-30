@@ -1,6 +1,7 @@
-import { IUser } from 'models/User';
 import { Document, Model, Schema, Types, model } from 'mongoose';
-import { addUser, removeUser } from './roomMethods';
+
+import { IUser } from 'models/User';
+import { addUser, removeUser } from 'models/roomMethods';
 
 export interface IRoom extends Document {
   users: Types.ObjectId[];

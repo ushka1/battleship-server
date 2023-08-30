@@ -1,4 +1,4 @@
-export enum UserState {
+export enum UserStatus {
   IDLE = 'IDLE',
   POOL = 'POOL',
   ROOM = 'ROOM',
@@ -6,7 +6,7 @@ export enum UserState {
 }
 
 export type UserUpdatePayload = {
-  userState?: UserState;
+  userStatus?: UserStatus;
 
   userId?: string;
   username?: string;

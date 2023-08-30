@@ -1,23 +1,11 @@
+import socketio from 'socket.io';
+
 import { logger } from 'config/logger';
 import { Room } from 'models/Room';
 import { IUser, User } from 'models/User';
-import socketio from 'socket.io';
-import { RoomState, RoomUpdatePayload } from 'types/room';
-import { SocketProvider } from '../utils/socketProvider';
-
-function addUsersToRoomValidator(user: IUser | null): string | void {
-  if (!user) {
-    return 'User not found.';
-  }
-
-  if (!user.isOnline) {
-    return 'User is offline.';
-  }
-
-  if (user.inRoom) {
-    return 'User already in a room.';
-  }
-}
+import { RoomStatus, RoomUpdatePayload } from 'types/room';
+import { SocketProvider } from 'utils/socketProvider';
+import { addUserToPool } from './poolService';
 
 export async function addUsersToRoom(userId1: string, userId2: string) {
   const user1 = (await User.findById(userId1).exec())!;
@@ -26,14 +14,14 @@ export async function addUsersToRoom(userId1: string, userId2: string) {
   const user1Error = addUsersToRoomValidator(user1);
   const user2Error = addUsersToRoomValidator(user2);
 
+  // TODO: better handling
   if (user1Error && user2Error) {
-    // log
     return;
   } else if (user1Error) {
-    // re-add user2 to pool
+    await addUserToPool(user2);
     return;
   } else if (user2Error) {
-    // re-add user1 to pool
+    await addUserToPool(user1);
     return;
   }
 
@@ -51,14 +39,14 @@ export async function addUsersToRoom(userId1: string, userId2: string) {
   socket2.join(room.id);
 
   const payload1: RoomUpdatePayload = {
-    roomState: RoomState.PLAYING,
+    roomStatus: RoomStatus.PLAYING,
     rivalData: {
       username: user2.username,
     },
   };
 
   const payload2: RoomUpdatePayload = {
-    roomState: RoomState.PLAYING,
+    roomStatus: RoomStatus.PLAYING,
     rivalData: {
       username: user1.username,
     },
@@ -67,16 +55,20 @@ export async function addUsersToRoom(userId1: string, userId2: string) {
   socket1.emit('room-update', payload1);
   socket2.emit('room-update', payload2);
 
-  // process to game
+  // TODO: proceed to the game
 }
 
-export async function removeUserFromRoomValidator(user: IUser) {
+function addUsersToRoomValidator(user: IUser | null): string | void {
   if (!user) {
     return 'User not found.';
   }
 
-  if (!user.inRoom) {
-    return 'User not in a room.';
+  if (!user.isOnline) {
+    return 'User is offline.';
+  }
+
+  if (user.inRoom) {
+    return 'User already in a room.';
   }
 }
 
@@ -87,7 +79,7 @@ export async function removeUserFromRoom(user: IUser, io: socketio.Server) {
     await room.removeUser(user);
 
     const payload: RoomUpdatePayload = {
-      roomState: RoomState.PLAYER_LEFT,
+      roomStatus: RoomStatus.PLAYER_LEFT,
     };
 
     io.to(room.id).emit('room-update', payload);
@@ -97,4 +89,10 @@ export async function removeUserFromRoom(user: IUser, io: socketio.Server) {
 
   user.roomId = undefined;
   await user.save();
+}
+
+export async function removeUserFromRoomValidator(user: IUser) {
+  if (!user.inRoom) {
+    return 'User not in a room.';
+  }
 }

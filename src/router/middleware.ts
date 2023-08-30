@@ -21,7 +21,7 @@ export type SocketController<T = any> = (props: {
  * - handle any unexpected errors that may occur in the controller,
  * - force sequential execution of controllers to avoid race conditions.
  */
-export function controllerWrapper(
+export function controllerMiddleware(
   controller: SocketController,
   socket: ExtendedSocket,
   io: socketio.Server,

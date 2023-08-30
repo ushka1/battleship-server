@@ -1,9 +1,10 @@
-import { logger } from 'config/logger';
-import { disconnectController } from 'controllers/connectControllers';
-import { IUser, User } from 'models/User';
-import { ExtendedSocket } from 'router/utils';
 import socketio from 'socket.io';
-import { emitErrorNotification } from './notificationService';
+
+import { logger } from 'config/logger';
+import { IUser, User } from 'models/User';
+import { ExtendedSocket } from 'router/middleware';
+import { emitErrorNotification } from 'services/notificationService';
+import { removeUserFromRoom } from 'services/roomService';
 
 /**
  * Find user using the userId query param in the handshake.
@@ -29,11 +30,13 @@ export async function findUserFromHandshake(
   logger.error('User not found from handshake.', { socket });
 }
 
+/**
+ * Create new user.
+ */
 export async function createNewUser(socket: ExtendedSocket): Promise<IUser> {
   const user = await User.create({
     socketId: socket.id,
   });
-
   logger.info('New user created.', { socket, user });
   return user;
 }
@@ -41,7 +44,7 @@ export async function createNewUser(socket: ExtendedSocket): Promise<IUser> {
 /**
  * Disconnect another active session of the user.
  */
-export async function disconnectFromAnotherActiveSession(
+export async function disconnectUserFromAnotherSession(
   user: IUser,
   socket: ExtendedSocket,
   io: socketio.Server,
@@ -60,7 +63,11 @@ export async function disconnectFromAnotherActiveSession(
       otherSocket.disconnect();
 
       // perform standard disconnection cleanup
-      await disconnectController({ socket: otherSocket, io });
+      if (user.inRoom) {
+        await removeUserFromRoom(user, io);
+      }
+
+      await disconnectUser(user, socket);
     } catch (e) {
       logger.error('Error while disconnecting another active session.', {
         socket,
@@ -75,6 +82,8 @@ export async function disconnectFromAnotherActiveSession(
 export async function connectUser(user: IUser, socket: ExtendedSocket) {
   user.socketId = socket.id;
   await user.save();
+
+  logger.info('User connected.', { socket, user });
 }
 
 export async function disconnectUser(user: IUser, socket: ExtendedSocket) {

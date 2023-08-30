@@ -5,11 +5,11 @@ import mongoose from 'mongoose';
 import socketio from 'socket.io';
 
 import { logger } from 'config/logger';
+import { Room } from 'models/Room';
+import { User } from 'models/User';
+import { socketRouter } from 'router/router';
 import { initPoolService } from 'services/poolService';
 import { SocketProvider } from 'utils/socketProvider';
-import { Room } from './models/Room';
-import { User } from './models/User';
-import { socketRouter } from './router/router';
 
 const app = express();
 

@@ -1,5 +1,6 @@
 import { Types } from 'mongoose';
-import { IRoomMethods } from './Room';
+
+import { IRoomMethods } from 'models/Room';
 
 export const addUser: IRoomMethods['addUser'] = async function (user) {
   this.users.push(new Types.ObjectId(user.id));

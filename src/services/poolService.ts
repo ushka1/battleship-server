@@ -1,80 +1,20 @@
 import { Mutex } from 'async-mutex';
-import { IUser } from 'models/User';
-import { addUsersToRoom } from './roomService';
 
-type PoolTicket = {
+import { IUser } from 'models/User';
+import { addUsersToRoom } from 'services/roomService';
+
+/* ========================= MATCHING ========================= */
+
+type PoolEntry = {
   userId: string;
   eloScore: number;
   createdAt: Date;
 };
 
-let pool: PoolTicket[] = [];
+let pool: PoolEntry[] = [];
 let timer: NodeJS.Timeout | null = null;
 const mutex = new Mutex();
 const matchTimeout = 1000;
-
-export function addUserToPoolValidator(user: IUser | null): string | void {
-  if (!user) {
-    return 'User not found.';
-  }
-
-  if (!user.isOnline) {
-    return 'User not online.';
-  }
-
-  if (user.inRoom) {
-    return 'User already in room.';
-  }
-
-  if (isUserInPool(user)) {
-    return 'User already in pool.';
-  }
-}
-
-/**
- * Add user to the pool.
- */
-export async function addUserToPool(user: IUser) {
-  const release = await mutex.acquire();
-
-  pool.push({
-    userId: user.id,
-    eloScore: 0,
-    createdAt: new Date(),
-  });
-
-  release();
-}
-
-export function removeUserFromPoolValidator(user: IUser | null): string | void {
-  if (!user) {
-    return 'User not found.';
-  }
-
-  if (!isUserInPool(user)) {
-    return 'User not in pool.';
-  }
-}
-
-/**
- * Remove user from the pool.
- */
-export async function removeUserFromPool(user: IUser) {
-  const release = await mutex.acquire();
-
-  pool = pool.filter((ticket) => ticket.userId !== user.id);
-
-  release();
-}
-
-/**
- * Check if user is in the pool.
- */
-function isUserInPool(user: IUser): boolean {
-  return !!pool.find((ticket) => ticket.userId === user.id);
-}
-
-/* ============================================================ */
 
 /**
  * Initialize the pool service.
@@ -91,7 +31,9 @@ function restartService() {
     clearInterval(timer);
   }
 
-  timer = setInterval(matchUsers, matchTimeout);
+  timer = setInterval(() => {
+    matchUsers();
+  }, matchTimeout);
 }
 
 /**
@@ -115,4 +57,59 @@ async function matchUsers() {
   }
 
   release();
+}
+
+/* ========================= JOIN/LEAVE ========================= */
+
+/**
+ * Add user to the pool.
+ */
+export async function addUserToPool(user: IUser) {
+  const release = await mutex.acquire();
+
+  pool.push({
+    userId: user.id,
+    eloScore: 0,
+    createdAt: new Date(),
+  });
+
+  release();
+}
+
+export function addUserToPoolValidator(user: IUser): string | void {
+  if (!user.isOnline) {
+    return 'User not online.';
+  }
+
+  if (user.inRoom) {
+    return 'User already in room.';
+  }
+
+  if (isUserInPool(user)) {
+    return 'User already in pool.';
+  }
+}
+
+/**
+ * Remove user from the pool.
+ */
+export async function removeUserFromPool(user: IUser) {
+  const release = await mutex.acquire();
+
+  pool = pool.filter((entry) => entry.userId !== user.id);
+
+  release();
+}
+
+export function removeUserFromPoolValidator(user: IUser): string | void {
+  if (!isUserInPool(user)) {
+    return 'User not in pool.';
+  }
+}
+
+/**
+ * Check if user is in the pool.
+ */
+function isUserInPool(user: IUser): boolean {
+  return !!pool.find((entry) => entry.userId === user.id);
 }

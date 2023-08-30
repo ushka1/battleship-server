@@ -1,11 +1,11 @@
 import { logger } from 'config/logger';
 import { User } from 'models/User';
-import { SocketController } from 'router/utils';
+import { SocketController } from 'router/middleware';
 import {
   connectUser,
   createNewUser,
-  disconnectFromAnotherActiveSession,
   disconnectUser,
+  disconnectUserFromAnotherSession,
   findUserFromHandshake,
 } from 'services/connectService';
 import { removeUserFromRoom } from 'services/roomService';
@@ -18,14 +18,13 @@ export const connectController: SocketController = async function ({
   logger.info('New socket connection.', { socket });
 
   let user = await findUserFromHandshake(socket);
-  if (user) {
-    if (user.isOnline) {
-      await disconnectFromAnotherActiveSession(user, socket, io);
-    }
-
-    await connectUser(user, socket);
-  } else {
+  if (!user) {
     user = await createNewUser(socket);
+  } else {
+    if (user.isOnline) {
+      await disconnectUserFromAnotherSession(user, socket, io);
+    }
+    await connectUser(user, socket);
   }
 
   const response: UserUpdatePayload = {

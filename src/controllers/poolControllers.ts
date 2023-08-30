@@ -1,6 +1,6 @@
 import { logger } from 'config/logger';
 import { User } from 'models/User';
-import { SocketController } from 'router/utils';
+import { SocketController } from 'router/middleware';
 import { emitErrorNotification } from 'services/notificationService';
 import {
   addUserToPool,
@@ -12,7 +12,7 @@ import {
 export const joinPoolController: SocketController = async function ({
   socket,
 }) {
-  const user = await User.findById(socket.userId).exec();
+  const user = await User.findById(socket.userId).orFail().exec();
   const error = addUserToPoolValidator(user);
 
   if (error) {
@@ -22,7 +22,7 @@ export const joinPoolController: SocketController = async function ({
   }
 
   try {
-    addUserToPool(user!);
+    await addUserToPool(user);
   } catch (e) {
     logger.error('Add user to pool error.', { socket, error: e });
     emitErrorNotification(socket, { content: 'An unexpected error occured.' });
@@ -32,7 +32,7 @@ export const joinPoolController: SocketController = async function ({
 export const leavePoolController: SocketController = async function ({
   socket,
 }) {
-  const user = await User.findById(socket.userId).exec();
+  const user = await User.findById(socket.userId).orFail().exec();
   const error = removeUserFromPoolValidator(user);
 
   if (error) {
@@ -42,7 +42,7 @@ export const leavePoolController: SocketController = async function ({
   }
 
   try {
-    removeUserFromPool(user!);
+    await removeUserFromPool(user);
   } catch (e) {
     logger.error('Remove user from pool error.', { socket, error: e });
     emitErrorNotification(socket, { content: 'An unexpected error occured.' });

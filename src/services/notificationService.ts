@@ -1,4 +1,4 @@
-import { ExtendedSocket } from 'router/utils';
+import { ExtendedSocket } from 'router/middleware';
 
 type Notification = {
   content: string;

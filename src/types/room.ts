@@ -1,4 +1,4 @@
-export enum RoomState {
+export enum RoomStatus {
   PLAYING = 'PLAYING',
   PLAYER_LEFT = 'PLAYER_LEFT',
   FINISHED = 'FINISHED',
@@ -14,7 +14,7 @@ export type ChatMessage = {
 };
 
 export type RoomUpdatePayload = {
-  roomState?: RoomState;
+  roomStatus?: RoomStatus;
   rivalData?: RivalData;
   chat?: ChatMessage[];
 };
