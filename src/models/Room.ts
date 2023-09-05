@@ -1,7 +1,7 @@
 import { Document, Model, Schema, Types, model } from 'mongoose';
 
 import { IUser } from 'models/User';
-import { addUser, removeUser } from 'models/roomMethods';
+import { addUser, removeUser } from 'models/methods/roomMethods';
 
 export interface IRoom extends Document {
   users: Types.ObjectId[];
@@ -19,7 +19,7 @@ export interface IRoomMethods {
 
 export type RoomModel = Model<IRoom, object, IRoomMethods>;
 
-const schema = new Schema<IRoom, RoomModel, IRoomMethods>(
+const roomSchema = new Schema<IRoom, RoomModel, IRoomMethods>(
   {
     users: {
       type: [
@@ -38,7 +38,7 @@ const schema = new Schema<IRoom, RoomModel, IRoomMethods>(
   { autoCreate: true },
 );
 
-schema.method('addUser', addUser);
-schema.method('removeUser', removeUser);
+roomSchema.method('addUser', addUser);
+roomSchema.method('removeUser', removeUser);
 
-export const Room = model<IRoom, RoomModel>('Room', schema);
+export const Room = model<IRoom, RoomModel>('Room', roomSchema);

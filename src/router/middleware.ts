@@ -10,7 +10,7 @@ export interface ExtendedSocket extends socketio.Socket {
 }
 
 export type SocketController<T = any> = (props: {
-  payload?: T;
+  body?: T;
   socket: ExtendedSocket;
   io: socketio.Server;
 }) => Promise<void>;
@@ -27,11 +27,11 @@ export function controllerMiddleware(
   io: socketio.Server,
   mutex: Mutex,
 ) {
-  return async (payload?: any) => {
+  return async (body?: any) => {
     const release = await mutex.acquire();
 
     try {
-      await controller({ payload, socket, io });
+      await controller({ body, socket, io });
     } catch (err) {
       emitErrorNotification(socket, {
         content: 'An unexpected error occurred, please refresh your page.',

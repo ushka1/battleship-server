@@ -1,5 +1,5 @@
 import { BOARD_COLS, BOARD_ROWS } from 'config/constants';
-import { Ship } from 'types/game';
+import { IShip } from 'models/Ship';
 
 /**
  * Creates empty board.
@@ -39,8 +39,12 @@ function validateCellAndSurroundings(
 /**
  * Validates if ships can be placed on the board.
  */
-export function validateShips(ships: Ship[]): boolean {
+export function validateShips(ships: IShip[]): boolean {
   const board = createEmptyShipBoard();
+
+  if (ships.length !== 10) {
+    return false;
+  }
 
   for (const s of ships) {
     const { id, row, col, size, orientation } = s;

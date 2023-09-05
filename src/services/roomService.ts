@@ -6,22 +6,23 @@ import { IUser, User } from 'models/User';
 import { RoomStatus, RoomUpdatePayload } from 'types/room';
 import { UserStatus, UserUpdatePayload } from 'types/user';
 import { SocketProvider } from 'utils/socketProvider';
+import { startGame } from './gameService';
 import { addUserToPool } from './poolService';
 
 export async function addUsersToRoom(userId1: string, userId2: string) {
   const user1 = (await User.findById(userId1).exec())!;
   const user2 = (await User.findById(userId2).exec())!;
 
-  const user1Error = addUsersToRoomValidator(user1);
-  const user2Error = addUsersToRoomValidator(user2);
+  const userError1 = addUsersToRoomValidator(user1);
+  const userError2 = addUsersToRoomValidator(user2);
 
   // TODO: better handling
-  if (user1Error && user2Error) {
+  if (userError1 && userError2) {
     return;
-  } else if (user1Error) {
+  } else if (userError1) {
     await addUserToPool(user2);
     return;
-  } else if (user2Error) {
+  } else if (userError2) {
     await addUserToPool(user1);
     return;
   }
@@ -67,6 +68,8 @@ export async function addUsersToRoom(userId1: string, userId2: string) {
   socket2.emit('room-update', roomPayload2);
 
   // TODO: proceed to the game
+
+  startGame(room.id);
 }
 
 function addUsersToRoomValidator(user: IUser | null): string | void {
