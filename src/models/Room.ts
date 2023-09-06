@@ -3,6 +3,8 @@ import { Document, Model, Schema, Types, model } from 'mongoose';
 import { IUser } from 'models/User';
 import { addUser, removeUser } from 'models/methods/roomMethods';
 
+/* ========================= DEF ========================= */
+
 export interface IRoom extends Document {
   users: Types.ObjectId[];
   locked?: boolean;
@@ -18,6 +20,8 @@ export interface IRoomMethods {
 }
 
 export type RoomModel = Model<IRoom, object, IRoomMethods>;
+
+/* ========================= IMPL ========================= */
 
 const roomSchema = new Schema<IRoom, RoomModel, IRoomMethods>(
   {

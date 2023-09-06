@@ -1,11 +1,13 @@
 import { Document, Model, Schema, Types, model } from 'mongoose';
-import { IBoard, boardSchema } from './Board';
+import { IBoard, IBoardMethods, boardSchema } from './Board';
 import { IShip, shipSchema } from './Ship';
+
+/* ========================= DEF ========================= */
 
 export interface IGame extends Document {
   data: {
-    userId: Types.ObjectId;
-    board: IBoard;
+    user: Types.ObjectId;
+    board: IBoard & IBoardMethods;
     ships: IShip[];
   }[];
   turn: number;
@@ -15,12 +17,14 @@ export interface IGameMethods {}
 
 export type GameModel = Model<IGame, object, IGameMethods>;
 
+/* ========================= IMPL ========================= */
+
 const gameSchema = new Schema<IGame, GameModel, IGameMethods>(
   {
     data: {
       type: [
         {
-          userId: {
+          user: {
             type: Schema.Types.ObjectId,
             ref: 'User',
             required: true,
@@ -36,6 +40,7 @@ const gameSchema = new Schema<IGame, GameModel, IGameMethods>(
                 required: true,
               },
             ],
+            required: true,
           },
         },
       ],

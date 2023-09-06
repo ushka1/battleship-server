@@ -2,6 +2,8 @@ import { faker } from '@faker-js/faker';
 import { IShip } from 'models/Ship';
 import { Document, Model, Schema, Types, model } from 'mongoose';
 
+/* ========================= DEF ========================= */
+
 export interface IUser extends Document {
   username: string;
   currentSetting?: IShip[];
@@ -18,6 +20,8 @@ export interface IUser extends Document {
 export interface IUserMethods {}
 
 export type UserModel = Model<IUser, object, IUserMethods>;
+
+/* ========================= IMPL ========================= */
 
 const userSchema = new Schema<IUser, UserModel, IUserMethods>(
   {
@@ -55,11 +59,9 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 userSchema.virtual('isOnline').get(function (this: IUser) {
   return !!this.socketId;
 });
-
 userSchema.virtual('inPool').get(function (this: IUser) {
   return !!this.poolId;
 });
-
 userSchema.virtual('inRoom').get(function (this: IUser) {
   return !!this.roomId;
 });
