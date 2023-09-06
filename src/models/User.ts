@@ -1,69 +1,41 @@
 import { faker } from '@faker-js/faker';
-import { IShip } from 'models/Ship';
-import { Document, Model, Schema, Types, model } from 'mongoose';
+import { DocumentType, getModelForClass, prop } from '@typegoose/typegoose';
+import { Ship } from 'models/Ship';
+import { Types } from 'mongoose';
 
-/* ========================= DEF ========================= */
+class User {
+  @prop({
+    required: true,
+    minlength: 1,
+    maxlength: 32,
+    default: () => faker.internet.userName(),
+  })
+  public username!: string;
 
-export interface IUser extends Document {
-  username: string;
-  currentSetting?: IShip[];
+  @prop()
+  public currentSetting?: Ship[];
 
-  isOnline: boolean;
-  inPool: boolean;
-  inRoom: boolean;
+  @prop()
+  public socketId?: string;
 
-  socketId?: string;
-  poolId?: string;
-  roomId?: Types.ObjectId;
+  @prop()
+  public poolId?: string;
+
+  @prop()
+  public roomId?: Types.ObjectId;
+
+  public get isOnline() {
+    return !!this.socketId;
+  }
+
+  public get inPool() {
+    return !!this.poolId;
+  }
+
+  public get inRoom() {
+    return !!this.roomId;
+  }
 }
 
-export interface IUserMethods {}
-
-export type UserModel = Model<IUser, object, IUserMethods>;
-
-/* ========================= IMPL ========================= */
-
-const userSchema = new Schema<IUser, UserModel, IUserMethods>(
-  {
-    username: {
-      type: String,
-      required: true,
-      default: () => faker.internet.userName(),
-      minlength: 1,
-      maxlength: 32,
-    },
-    currentSetting: {
-      type: [
-        {
-          id: String,
-          row: Number,
-          col: Number,
-          size: Number,
-          orientation: String,
-        },
-      ],
-    },
-    socketId: {
-      type: String,
-    },
-    poolId: {
-      type: String,
-    },
-    roomId: {
-      type: Types.ObjectId,
-    },
-  },
-  { autoCreate: true },
-);
-
-userSchema.virtual('isOnline').get(function (this: IUser) {
-  return !!this.socketId;
-});
-userSchema.virtual('inPool').get(function (this: IUser) {
-  return !!this.poolId;
-});
-userSchema.virtual('inRoom').get(function (this: IUser) {
-  return !!this.roomId;
-});
-
-export const User = model<IUser, UserModel>('User', userSchema);
+export type UserDocument = DocumentType<User>;
+export const UserModel = getModelForClass(User);

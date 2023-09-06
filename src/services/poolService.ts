@@ -1,6 +1,6 @@
 import { Mutex } from 'async-mutex';
 
-import { IUser } from 'models/User';
+import { UserDocument } from 'models/User';
 import { addUsersToRoom } from 'services/roomService';
 
 /* ========================= MATCHING ========================= */
@@ -64,7 +64,7 @@ async function matchUsers() {
 /**
  * Add user to the pool.
  */
-export async function addUserToPool(user: IUser) {
+export async function addUserToPool(user: UserDocument) {
   const release = await mutex.acquire();
 
   pool.push({
@@ -79,7 +79,7 @@ export async function addUserToPool(user: IUser) {
   release();
 }
 
-export function addUserToPoolValidator(user: IUser): string | void {
+export function addUserToPoolValidator(user: UserDocument): string | void {
   if (!user.isOnline) {
     return 'User not online.';
   }
@@ -96,7 +96,7 @@ export function addUserToPoolValidator(user: IUser): string | void {
 /**
  * Remove user from the pool.
  */
-export async function removeUserFromPool(user: IUser) {
+export async function removeUserFromPool(user: UserDocument) {
   const release = await mutex.acquire();
 
   pool = pool.filter((entry) => entry.userId !== user.id);
@@ -107,7 +107,7 @@ export async function removeUserFromPool(user: IUser) {
   release();
 }
 
-export function removeUserFromPoolValidator(user: IUser): string | void {
+export function removeUserFromPoolValidator(user: UserDocument): string | void {
   if (!isUserInPool(user)) {
     return 'User not in pool.';
   }
@@ -116,6 +116,6 @@ export function removeUserFromPoolValidator(user: IUser): string | void {
 /**
  * Check if user is in the pool.
  */
-function isUserInPool(user: IUser): boolean {
+function isUserInPool(user: UserDocument): boolean {
   return !!pool.find((entry) => entry.userId === user.id);
 }

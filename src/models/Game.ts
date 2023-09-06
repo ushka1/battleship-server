@@ -1,52 +1,19 @@
-import { Document, Model, Schema, Types, model } from 'mongoose';
-import { IBoard, IBoardMethods, boardSchema } from './Board';
-import { IShip, shipSchema } from './Ship';
+import { DocumentType, getModelForClass, prop } from '@typegoose/typegoose';
 
-/* ========================= DEF ========================= */
+import { Board } from './Board';
+import { Ship } from './Ship';
 
-export interface IGame extends Document {
-  data: {
-    user: Types.ObjectId;
-    board: IBoard & IBoardMethods;
-    ships: IShip[];
+class Game {
+  @prop({ required: true, default: [] })
+  public data!: {
+    user: string;
+    board: Board;
+    ships: Ship[];
   }[];
-  turn: number;
+
+  @prop({ required: true })
+  public turn!: number;
 }
 
-export interface IGameMethods {}
-
-export type GameModel = Model<IGame, object, IGameMethods>;
-
-/* ========================= IMPL ========================= */
-
-const gameSchema = new Schema<IGame, GameModel, IGameMethods>(
-  {
-    data: {
-      type: [
-        {
-          user: {
-            type: Schema.Types.ObjectId,
-            ref: 'User',
-            required: true,
-          },
-          board: {
-            type: boardSchema,
-            required: true,
-          },
-          ships: {
-            type: [
-              {
-                type: shipSchema,
-                required: true,
-              },
-            ],
-            required: true,
-          },
-        },
-      ],
-    },
-  },
-  { autoCreate: true },
-);
-
-export const Game = model<IGame, GameModel>('Game', gameSchema);
+export type GameDocument = DocumentType<Game>;
+export const GameModel = getModelForClass(Game);

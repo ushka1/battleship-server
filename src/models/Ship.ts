@@ -1,24 +1,18 @@
-import { Schema } from 'mongoose';
+import { prop } from '@typegoose/typegoose';
 
-/* ========================= DEF ========================= */
+export class Ship {
+  @prop({ required: true })
+  id!: string;
 
-export type IShip = {
-  id: string;
-  size: number;
-  row: number;
-  col: number;
-  orientation: 'h' | 'v';
-};
+  @prop({ required: true })
+  size!: number;
 
-/* ========================= IMPL ========================= */
+  @prop({ required: true })
+  row!: number;
 
-export const shipSchema = new Schema<IShip>({
-  id: String,
-  size: Number,
-  row: Number,
-  col: Number,
-  orientation: {
-    type: String,
-    enum: ['h', 'v'],
-  },
-});
+  @prop({ required: true })
+  col!: number;
+
+  @prop({ required: true, enum: ['h', 'v'] })
+  orientation!: 'h' | 'v';
+}

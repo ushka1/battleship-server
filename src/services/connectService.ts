@@ -1,7 +1,7 @@
 import socketio from 'socket.io';
 
 import { logger } from 'config/logger';
-import { IUser, User } from 'models/User';
+import { UserDocument, UserModel } from 'models/User';
 import { ExtendedSocket } from 'router/middleware';
 import { emitErrorNotification } from 'services/notificationService';
 import { removeUserFromPool } from 'services/poolService';
@@ -14,18 +14,17 @@ import { removeUserFromRoom } from 'services/roomService';
  */
 export async function findUserFromHandshake(
   socket: ExtendedSocket,
-): Promise<IUser | void> {
+): Promise<UserDocument | void> {
   const userId = socket.handshake.query.userId as string;
 
   if (userId) {
     try {
-      const user = await User.findById(userId).orFail().exec();
+      const user = await UserModel.findById(userId).orFail().exec();
       logger.info('User found from handshake.', { socket, user });
       return user;
     } catch (e) {
       logger.error('Error while finding user from handshake.', {
         socket,
-        error: e,
       });
     }
   }
@@ -36,8 +35,10 @@ export async function findUserFromHandshake(
 /**
  * Create new user.
  */
-export async function createNewUser(socket: ExtendedSocket): Promise<IUser> {
-  const user = await User.create({
+export async function createNewUser(
+  socket: ExtendedSocket,
+): Promise<UserDocument> {
+  const user = await UserModel.create({
     socketId: socket.id,
   });
 
@@ -45,7 +46,7 @@ export async function createNewUser(socket: ExtendedSocket): Promise<IUser> {
   return user;
 }
 
-export async function connectUser(user: IUser, socket: ExtendedSocket) {
+export async function connectUser(user: UserDocument, socket: ExtendedSocket) {
   user.socketId = socket.id;
   await user.save();
 
@@ -58,7 +59,7 @@ export async function connectUser(user: IUser, socket: ExtendedSocket) {
  * Disconnect another active session of the user.
  */
 export async function disconnectUserFromAnotherSession(
-  user: IUser,
+  user: UserDocument,
   socket: ExtendedSocket,
   io: socketio.Server,
 ) {
@@ -89,7 +90,10 @@ export async function disconnectUserFromAnotherSession(
   logger.info('Another active session closed.', { socket });
 }
 
-export async function disconnectUserCleanup(user: IUser, io: socketio.Server) {
+export async function disconnectUserCleanup(
+  user: UserDocument,
+  io: socketio.Server,
+) {
   if (user.inRoom) {
     await removeUserFromRoom(user, io);
   }
@@ -98,7 +102,10 @@ export async function disconnectUserCleanup(user: IUser, io: socketio.Server) {
   }
 }
 
-export async function disconnectUser(user: IUser, socket: ExtendedSocket) {
+export async function disconnectUser(
+  user: UserDocument,
+  socket: ExtendedSocket,
+) {
   user.socketId = undefined;
   await user.save();
 

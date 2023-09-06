@@ -1,5 +1,5 @@
 import { logger } from 'config/logger';
-import { User } from 'models/User';
+import { UserModel } from 'models/User';
 import { SocketController } from 'router/middleware';
 import { emitErrorNotification } from 'services/notificationService';
 import {
@@ -14,7 +14,7 @@ import { UserStatus, UserUpdatePayload } from 'types/user';
 
 export const joinPoolController: SocketController<JoinPoolBody> =
   async function ({ socket, body }) {
-    const user = await User.findById(socket.userId).orFail().exec();
+    const user = await UserModel.findById(socket.userId).orFail().exec();
     const error = addUserToPoolValidator(user);
 
     if (error) {
@@ -53,7 +53,7 @@ export const joinPoolController: SocketController<JoinPoolBody> =
 export const leavePoolController: SocketController = async function ({
   socket,
 }) {
-  const user = await User.findById(socket.userId).orFail().exec();
+  const user = await UserModel.findById(socket.userId).orFail().exec();
   const error = removeUserFromPoolValidator(user);
 
   if (error) {

@@ -1,5 +1,5 @@
 import { logger } from 'config/logger';
-import { User } from 'models/User';
+import { UserModel } from 'models/User';
 import { SocketController } from 'router/middleware';
 import {
   connectUser,
@@ -42,7 +42,7 @@ export const disconnectController: SocketController = async function ({
 }) {
   logger.info('Socket disconnection.', { socket });
 
-  const user = await User.findById(socket.userId).orFail().exec();
+  const user = await UserModel.findById(socket.userId).orFail().exec();
 
   await disconnectUserCleanup(user, io);
   await disconnectUser(user, socket);

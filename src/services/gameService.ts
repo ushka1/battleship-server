@@ -1,19 +1,19 @@
-import { IBoard } from 'models/Board';
-import { Game, IGame } from 'models/Game';
-import { Room } from 'models/Room';
-import { IShip } from 'models/Ship';
-import { IUser, User } from 'models/User';
+import { Board } from 'models/Board';
+import { GameDocument, GameModel } from 'models/Game';
+import { RoomModel } from 'models/Room';
+import { Ship } from 'models/Ship';
+import { UserDocument, UserModel } from 'models/User';
 
 export async function startGame(roomId: string) {
-  const room = (await Room.findById(roomId).exec())!;
+  const room = (await RoomModel.findById(roomId).exec())!;
   if (!room || room.users.length !== 2) {
     // handle this case
     return;
   }
 
   // populate instead
-  const user1 = (await User.findById(room.users[0]).exec())!;
-  const user2 = (await User.findById(room.users[1]).exec())!;
+  const user1 = (await UserModel.findById(room.users[0]).exec())!;
+  const user2 = (await UserModel.findById(room.users[1]).exec())!;
 
   const userError1 = startGameUserValidator(user1);
   const userError2 = startGameUserValidator(user2);
@@ -32,7 +32,7 @@ export async function startGame(roomId: string) {
   await createGame(user1, user2);
 }
 
-function startGameUserValidator(user: IUser | null): string | void {
+function startGameUserValidator(user: UserDocument | null): string | void {
   if (!user) {
     return 'User not found.';
   }
@@ -42,15 +42,15 @@ function startGameUserValidator(user: IUser | null): string | void {
   }
 }
 
-function createBoard(ships: IShip[]): Partial<IBoard> {
-  const gameBoard: IBoard['gameBoard'] = new Array(10).fill(null).map(() =>
+function createBoard(ships: Ship[]): Partial<Board> {
+  const gameBoard: Board['gameBoard'] = new Array(10).fill(null).map(() =>
     new Array(10).fill({
       shipId: null,
       hit: false,
     }),
   );
 
-  const displayBoard: IBoard['displayBoard'] = new Array(10)
+  const displayBoard: Board['displayBoard'] = new Array(10)
     .fill(null)
     .map(() => new Array(10).fill(0));
 
@@ -69,7 +69,10 @@ function createBoard(ships: IShip[]): Partial<IBoard> {
   return { gameBoard, displayBoard };
 }
 
-async function createGame(user1: IUser, user2: IUser): Promise<IGame> {
+async function createGame(
+  user1: UserDocument,
+  user2: UserDocument,
+): Promise<GameDocument> {
   const ships1 = user1.currentSetting;
   const ships2 = user2.currentSetting;
 
@@ -81,15 +84,15 @@ async function createGame(user1: IUser, user2: IUser): Promise<IGame> {
   const board1 = createBoard(ships1);
   const board2 = createBoard(ships2);
 
-  return await Game.create({
+  return await GameModel.create({
     data: [
       {
-        user: user1._id,
+        user: user1.id,
         board: board1,
         ships: ships1,
       },
       {
-        user: user2._id,
+        user: user2.id,
         board: board2,
         ships: ships2,
       },

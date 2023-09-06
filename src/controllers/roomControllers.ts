@@ -1,5 +1,5 @@
 import { logger } from 'config/logger';
-import { User } from 'models/User';
+import { UserModel } from 'models/User';
 import { SocketController } from 'router/middleware';
 import { emitErrorNotification } from 'services/notificationService';
 import {
@@ -12,7 +12,7 @@ export const leaveRoomController: SocketController = async function ({
   socket,
   io,
 }) {
-  const user = await User.findById(socket.userId).orFail().exec();
+  const user = await UserModel.findById(socket.userId).orFail().exec();
   const error = removeUserFromRoomValidator(user);
 
   if (error) {

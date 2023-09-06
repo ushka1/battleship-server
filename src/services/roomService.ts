@@ -1,8 +1,8 @@
 import socketio from 'socket.io';
 
 import { logger } from 'config/logger';
-import { Room } from 'models/Room';
-import { IUser, User } from 'models/User';
+import { RoomModel } from 'models/Room';
+import { UserDocument, UserModel } from 'models/User';
 import { RoomStatus, RoomUpdatePayload } from 'types/room';
 import { UserStatus, UserUpdatePayload } from 'types/user';
 import { SocketProvider } from 'utils/socketProvider';
@@ -10,8 +10,8 @@ import { startGame } from './gameService';
 import { addUserToPool } from './poolService';
 
 export async function addUsersToRoom(userId1: string, userId2: string) {
-  const user1 = (await User.findById(userId1).exec())!;
-  const user2 = (await User.findById(userId2).exec())!;
+  const user1 = (await UserModel.findById(userId1).exec())!;
+  const user2 = (await UserModel.findById(userId2).exec())!;
 
   const userError1 = addUsersToRoomValidator(user1);
   const userError2 = addUsersToRoomValidator(user2);
@@ -36,7 +36,7 @@ export async function addUsersToRoom(userId1: string, userId2: string) {
     return;
   }
 
-  const room = await Room.create({ users: [user1.id, user2.id] });
+  const room = await RoomModel.create({ users: [user1.id, user2.id] });
   await user1.updateOne({ roomId: room.id }).exec();
   await user2.updateOne({ roomId: room.id }).exec();
 
@@ -72,7 +72,7 @@ export async function addUsersToRoom(userId1: string, userId2: string) {
   startGame(room.id);
 }
 
-function addUsersToRoomValidator(user: IUser | null): string | void {
+function addUsersToRoomValidator(user: UserDocument | null): string | void {
   if (!user) {
     return 'User not found.';
   }
@@ -86,8 +86,11 @@ function addUsersToRoomValidator(user: IUser | null): string | void {
   }
 }
 
-export async function removeUserFromRoom(user: IUser, io: socketio.Server) {
-  const room = await Room.findById(user.roomId).orFail().exec();
+export async function removeUserFromRoom(
+  user: UserDocument,
+  io: socketio.Server,
+) {
+  const room = await RoomModel.findById(user.roomId).orFail().exec();
 
   if (room.users.length === 2) {
     await room.removeUser(user);
@@ -105,7 +108,7 @@ export async function removeUserFromRoom(user: IUser, io: socketio.Server) {
   await user.save();
 }
 
-export function removeUserFromRoomValidator(user: IUser) {
+export function removeUserFromRoomValidator(user: UserDocument) {
   if (!user.inRoom) {
     return 'User not in a room.';
   }

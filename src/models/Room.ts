@@ -1,48 +1,23 @@
-import { Document, Model, Schema, Types, model } from 'mongoose';
+import { DocumentType, getModelForClass, prop } from '@typegoose/typegoose';
+import { UserDocument } from 'models/User';
 
-import { IUser } from 'models/User';
-import { addUser, removeUser } from 'models/methods/roomMethods';
+class Room {
+  @prop({ required: true, default: [] })
+  public users!: string[];
 
-/* ========================= DEF ========================= */
+  @prop()
+  public locked?: boolean;
 
-export interface IRoom extends Document {
-  users: Types.ObjectId[];
-  locked?: boolean;
+  public async addUser(this: RoomDocument, user: UserDocument) {
+    this.users.push(user.id);
+    await this.save();
+  }
+
+  public async removeUser(this: RoomDocument, user: UserDocument) {
+    this.users = this.users.filter((id) => id !== user.id);
+    await this.save();
+  }
 }
 
-export interface IPopulatedRoom {
-  users: IUser[];
-}
-
-export interface IRoomMethods {
-  addUser: (this: IRoom, user: IUser) => Promise<void>;
-  removeUser: (this: IRoom, user: IUser) => Promise<void>;
-}
-
-export type RoomModel = Model<IRoom, object, IRoomMethods>;
-
-/* ========================= IMPL ========================= */
-
-const roomSchema = new Schema<IRoom, RoomModel, IRoomMethods>(
-  {
-    users: {
-      type: [
-        {
-          type: Schema.Types.ObjectId,
-          ref: 'User',
-        },
-      ],
-      required: true,
-    },
-    locked: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  { autoCreate: true },
-);
-
-roomSchema.method('addUser', addUser);
-roomSchema.method('removeUser', removeUser);
-
-export const Room = model<IRoom, RoomModel>('Room', roomSchema);
+export type RoomDocument = DocumentType<Room>;
+export const RoomModel = getModelForClass(Room);

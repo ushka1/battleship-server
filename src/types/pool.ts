@@ -1,5 +1,5 @@
-import { IShip } from 'models/Ship';
+import { Ship } from 'models/Ship';
 
 export type JoinPoolBody = {
-  ships: IShip[];
+  ships: Ship[];
 };

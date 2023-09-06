@@ -5,8 +5,9 @@ import mongoose from 'mongoose';
 import socketio from 'socket.io';
 
 import { logger } from 'config/logger';
-import { Room } from 'models/Room';
-import { User } from 'models/User';
+import { GameModel } from 'models/Game';
+import { RoomModel } from 'models/Room';
+import { UserModel } from 'models/User';
 import { socketRouter } from 'router/router';
 import { initPoolService } from 'services/poolService';
 import { SocketProvider } from 'utils/socketProvider';
@@ -65,14 +66,11 @@ async function connectToMongoDB() {
  */
 async function dropMongoDBCollections() {
   try {
-    await User.db.dropCollection('users');
+    await UserModel.db.dropCollection('users');
+    await RoomModel.db.dropCollection('rooms');
+    await GameModel.db.dropCollection('games');
   } catch (err) {
-    logger.info('Could not drop collection [users].');
-  }
-  try {
-    await Room.db.dropCollection('rooms');
-  } catch (err) {
-    logger.info('Could not drop collection [rooms].');
+    logger.info('Could not drop collections.');
   }
 }
 
