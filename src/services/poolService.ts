@@ -3,7 +3,7 @@ import { Mutex } from 'async-mutex';
 import { UserDocument } from 'models/User';
 import { createNewRoom } from 'services/roomService';
 
-/* ========================= MATCHING ========================= */
+/* ========================= MATCHMAKING ========================= */
 
 type PoolEntry = {
   userId: string;

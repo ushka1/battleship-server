@@ -1,4 +1,4 @@
-import { prop } from '@typegoose/typegoose';
+import { DocumentType, prop } from '@typegoose/typegoose';
 
 export class Ship {
   @prop({ required: true })
@@ -6,6 +6,9 @@ export class Ship {
 
   @prop({ required: true })
   size!: number;
+
+  @prop({ required: true, default: (doc: DocumentType<Ship>) => doc.size })
+  hp?: number;
 
   @prop({ required: true })
   row!: number;

@@ -2,8 +2,9 @@
 
 ## High Priority
 
-1. Clear poolId after joining room.
 1. Game logic.
+1. Use aggregation.
+1. Clear poolId after joining room.
 1. Socket authorization (+ account claim) -> another middleware, that can be stacket with existing one.
 1. Socketio middleware - find guest-user/authenticate.
 

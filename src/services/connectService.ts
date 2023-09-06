@@ -1,11 +1,10 @@
-import socketio from 'socket.io';
-
 import { logger } from 'config/logger';
 import { UserDocument, UserModel } from 'models/User';
 import { ExtendedSocket } from 'router/middleware';
 import { emitErrorNotification } from 'services/notificationService';
 import { removeUserFromPool } from 'services/poolService';
 import { removeUserFromRoom } from 'services/roomService';
+import { SocketProvider } from 'utils/socketProvider';
 
 /* ========================= CONNECT ========================= */
 
@@ -61,11 +60,10 @@ export async function connectUser(user: UserDocument, socket: ExtendedSocket) {
 export async function disconnectUserFromAnotherSession(
   user: UserDocument,
   socket: ExtendedSocket,
-  io: socketio.Server,
 ) {
   logger.info('Another active session found.', { socket });
 
-  const otherSocket = io.sockets.sockets.get(user.socketId!);
+  const otherSocket = SocketProvider.getSocket(user.socketId!);
   if (otherSocket) {
     emitErrorNotification(otherSocket, {
       content: 'You connected from another place, this session will be closed.',
@@ -77,7 +75,7 @@ export async function disconnectUserFromAnotherSession(
       otherSocket.disconnect();
 
       // perform standard disconnection cleanup
-      await disconnectUserCleanup(user, io);
+      await disconnectUserCleanup(user);
       await disconnectUser(user, socket);
     } catch (e) {
       logger.error('Error while disconnecting another active session.', {
@@ -90,12 +88,9 @@ export async function disconnectUserFromAnotherSession(
   logger.info('Another active session closed.', { socket });
 }
 
-export async function disconnectUserCleanup(
-  user: UserDocument,
-  io: socketio.Server,
-) {
+export async function disconnectUserCleanup(user: UserDocument) {
   if (user.inRoom) {
-    await removeUserFromRoom(user, io);
+    await removeUserFromRoom(user);
   }
   if (user.inPool) {
     await removeUserFromPool(user);

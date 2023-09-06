@@ -80,7 +80,7 @@ function setupSocketIOServer(server: http.Server) {
   });
 
   SocketProvider.initialize(io);
-  io.on('connection', (socket) => socketRouter(socket, io));
+  io.on('connection', (socket) => socketRouter(socket));
 }
 
 function setupServices() {

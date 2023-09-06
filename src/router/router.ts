@@ -1,10 +1,10 @@
 import { Mutex } from 'async-mutex';
-import socketio from 'socket.io';
 
 import {
   connectController,
   disconnectController,
 } from 'controllers/connectControllers';
+import { gameHitController } from 'controllers/gameController';
 import {
   joinPoolController,
   leavePoolController,
@@ -15,15 +15,17 @@ import {
   controllerMiddleware as middleware,
 } from 'router/middleware';
 
-export function socketRouter(socket: ExtendedSocket, io: socketio.Server) {
+export function socketRouter(socket: ExtendedSocket) {
   const mutex = new Mutex();
-  const args = [socket, io, mutex] as const;
+  const args = [socket, mutex] as const;
 
   const connect = middleware(connectController, ...args);
   connect(); // called immediately on connection
 
   socket.on('pool-join', middleware(joinPoolController, ...args));
   socket.on('pool-leave', middleware(leavePoolController, ...args));
+
+  socket.on('game-hit', middleware(gameHitController, ...args));
 
   socket.on('room-leave', middleware(leaveRoomController, ...args));
 

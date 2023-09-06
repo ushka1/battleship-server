@@ -10,7 +10,6 @@ import { UserStatus, UserUpdatePayload } from 'types/payloads/user';
 
 export const leaveRoomController: SocketController = async function ({
   socket,
-  io,
 }) {
   const user = await UserModel.findById(socket.userId).orFail().exec();
   const error = removeUserFromRoomValidator(user);
@@ -21,7 +20,7 @@ export const leaveRoomController: SocketController = async function ({
     return;
   }
 
-  await removeUserFromRoom(user, io);
+  await removeUserFromRoom(user);
 
   const payload: UserUpdatePayload = {
     userStatus: UserStatus.IDLE,

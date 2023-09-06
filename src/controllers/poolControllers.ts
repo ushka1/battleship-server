@@ -13,7 +13,7 @@ import { JoinPoolPayload } from 'types/payloads/pool';
 import { UserStatus, UserUpdatePayload } from 'types/payloads/user';
 
 export const joinPoolController: SocketController<JoinPoolPayload> =
-  async function ({ socket, body }) {
+  async function ({ socket, payload: body }) {
     const user = await UserModel.findById(socket.userId).orFail().exec();
     const error = addUserToPoolValidator(user);
 
@@ -32,7 +32,7 @@ export const joinPoolController: SocketController<JoinPoolPayload> =
       return;
     }
 
-    user.currentSetting = body!.ships;
+    user.shipsSetting = body!.ships;
     await user.save();
 
     try {

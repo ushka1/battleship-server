@@ -13,7 +13,7 @@ class User {
   public username!: string;
 
   @prop()
-  public currentSetting?: Ship[];
+  public shipsSetting?: Ship[];
 
   @prop()
   public socketId?: string;

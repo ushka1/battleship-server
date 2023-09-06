@@ -1,5 +1,3 @@
-import socketio from 'socket.io';
-
 import { logger } from 'config/logger';
 import { RoomModel } from 'models/Room';
 import { UserDocument, UserModel } from 'models/User';
@@ -27,9 +25,8 @@ export async function createNewRoom(userId1: string, userId2: string) {
     return;
   }
 
-  const io = SocketProvider.getInstance().io;
-  const socket1 = io.sockets.sockets.get(user1.socketId!);
-  const socket2 = io.sockets.sockets.get(user2.socketId!);
+  const socket1 = SocketProvider.getSocket(user1.socketId!);
+  const socket2 = SocketProvider.getSocket(user2.socketId!);
 
   if (!socket1 || !socket2) {
     logger.error(`Socket not found.`);
@@ -67,7 +64,7 @@ export async function createNewRoom(userId1: string, userId2: string) {
   socket1.emit('room-update', roomPayload1);
   socket2.emit('room-update', roomPayload2);
 
-  startNewGame(room.id);
+  startNewGame(room);
 }
 
 function addUsersToRoomValidator(user: UserDocument | null): string | void {
@@ -84,10 +81,8 @@ function addUsersToRoomValidator(user: UserDocument | null): string | void {
   }
 }
 
-export async function removeUserFromRoom(
-  user: UserDocument,
-  io: socketio.Server,
-) {
+export async function removeUserFromRoom(user: UserDocument) {
+  const io = SocketProvider.getIO();
   const room = await RoomModel.findById(user.roomId).orFail().exec();
 
   if (room.users.length === 2) {

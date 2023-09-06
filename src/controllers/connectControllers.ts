@@ -11,10 +11,7 @@ import {
 } from 'services/connectService';
 import { UserUpdatePayload } from 'types/payloads/user';
 
-export const connectController: SocketController = async function ({
-  socket,
-  io,
-}) {
+export const connectController: SocketController = async function ({ socket }) {
   logger.info('New socket connection.', { socket });
 
   let user = await findUserFromHandshake(socket);
@@ -22,7 +19,7 @@ export const connectController: SocketController = async function ({
     user = await createNewUser(socket);
   } else {
     if (user.isOnline) {
-      await disconnectUserFromAnotherSession(user, socket, io);
+      await disconnectUserFromAnotherSession(user, socket);
     }
     await connectUser(user, socket);
   }
@@ -38,12 +35,11 @@ export const connectController: SocketController = async function ({
 
 export const disconnectController: SocketController = async function ({
   socket,
-  io,
 }) {
   logger.info('Socket disconnection.', { socket });
 
   const user = await UserModel.findById(socket.userId).orFail().exec();
 
-  await disconnectUserCleanup(user, io);
+  await disconnectUserCleanup(user);
   await disconnectUser(user, socket);
 };

@@ -11,6 +11,9 @@ class Game {
     ships: Ship[];
   }[];
 
+  @prop()
+  public winner?: string;
+
   @prop({ required: true })
   public turn!: number;
 }

@@ -6,13 +6,15 @@ export enum GameStatus {
   LOSE = 'LOSE',
 }
 
+export type Hit = { row: number; col: number; shipHit?: boolean };
+
 export type GameUpdatePayload = {
   gameStatus?: GameStatus;
-  userShots?: { row: number; col: number; shipHit?: boolean }[];
-  rivalShots?: { row: number; col: number; shipHit?: boolean }[];
+  hitsDealt?: Hit[];
+  hitsReceived?: Hit[];
 };
 
-export type GameShotPayload = {
+export type GameHitPayload = {
   row: number;
   col: number;
 };

@@ -21,3 +21,4 @@
 ## Tips
 
 1. Source maps are required for debugging.
+1. Checking for user status (online/offline) and therefore for socket connection is not required, because everything is stored in database anyway. When user will reconnect, he will return to game and get all required data.

@@ -2,8 +2,11 @@ import { DocumentType, getModelForClass, prop } from '@typegoose/typegoose';
 import { UserDocument } from 'models/User';
 
 class Room {
-  @prop({ required: true, default: [] })
+  @prop({ required: true, maxlength: 2, default: [] })
   public users!: string[];
+
+  @prop()
+  public gameId?: string;
 
   @prop()
   public locked?: boolean;
@@ -16,6 +19,11 @@ class Room {
   public async removeUser(this: RoomDocument, user: UserDocument) {
     this.users = this.users.filter((id) => id !== user.id);
     await this.save();
+  }
+
+  public getRival(this: RoomDocument, user: UserDocument): string | undefined {
+    const rival = this.users.find((id) => id !== user.id);
+    return rival!;
   }
 }
 
