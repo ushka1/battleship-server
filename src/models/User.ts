@@ -1,7 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { DocumentType, getModelForClass, prop } from '@typegoose/typegoose';
 import { Ship } from 'models/Ship';
-import { Types } from 'mongoose';
 
 class User {
   @prop({
@@ -22,7 +21,7 @@ class User {
   public poolId?: string;
 
   @prop()
-  public roomId?: Types.ObjectId;
+  public roomId?: string;
 
   public get isOnline() {
     return !!this.socketId;

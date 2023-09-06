@@ -9,6 +9,10 @@ import {
   joinPoolController,
   leavePoolController,
 } from 'controllers/poolControllers';
+import {
+  revengeReadyController,
+  revengeWillController,
+} from 'controllers/revengeController';
 import { leaveRoomController } from 'controllers/roomControllers';
 import {
   ExtendedSocket,
@@ -27,7 +31,9 @@ export function socketRouter(socket: ExtendedSocket) {
 
   socket.on('game-hit', middleware(gameHitController, ...args));
 
-  socket.on('room-leave', middleware(leaveRoomController, ...args));
+  socket.on('revenge-will', middleware(revengeWillController, ...args));
+  socket.on('revenge-ready', middleware(revengeReadyController, ...args));
 
+  socket.on('room-leave', middleware(leaveRoomController, ...args));
   socket.on('disconnect', middleware(disconnectController, ...args));
 }
