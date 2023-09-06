@@ -3,13 +3,13 @@ import socketio from 'socket.io';
 import { logger } from 'config/logger';
 import { RoomModel } from 'models/Room';
 import { UserDocument, UserModel } from 'models/User';
-import { RoomStatus, RoomUpdatePayload } from 'types/room';
-import { UserStatus, UserUpdatePayload } from 'types/user';
+import { RoomStatus, RoomUpdatePayload } from 'types/payloads/room';
+import { UserStatus, UserUpdatePayload } from 'types/payloads/user';
 import { SocketProvider } from 'utils/socketProvider';
-import { startGame } from './gameService';
+import { startNewGame } from './gameService';
 import { addUserToPool } from './poolService';
 
-export async function addUsersToRoom(userId1: string, userId2: string) {
+export async function createNewRoom(userId1: string, userId2: string) {
   const user1 = (await UserModel.findById(userId1).exec())!;
   const user2 = (await UserModel.findById(userId2).exec())!;
 
@@ -67,9 +67,7 @@ export async function addUsersToRoom(userId1: string, userId2: string) {
   socket1.emit('room-update', roomPayload1);
   socket2.emit('room-update', roomPayload2);
 
-  // TODO: proceed to the game
-
-  startGame(room.id);
+  startNewGame(room.id);
 }
 
 function addUsersToRoomValidator(user: UserDocument | null): string | void {

@@ -1,5 +1,5 @@
 import { Ship } from 'models/Ship';
 
-export type JoinPoolBody = {
+export type JoinPoolPayload = {
   ships: Ship[];
 };

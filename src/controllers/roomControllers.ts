@@ -6,7 +6,7 @@ import {
   removeUserFromRoom,
   removeUserFromRoomValidator,
 } from 'services/roomService';
-import { UserStatus, UserUpdatePayload } from 'types/user';
+import { UserStatus, UserUpdatePayload } from 'types/payloads/user';
 
 export const leaveRoomController: SocketController = async function ({
   socket,

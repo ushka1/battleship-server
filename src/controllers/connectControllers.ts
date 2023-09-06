@@ -9,7 +9,7 @@ import {
   disconnectUserFromAnotherSession,
   findUserFromHandshake,
 } from 'services/connectService';
-import { UserUpdatePayload } from 'types/user';
+import { UserUpdatePayload } from 'types/payloads/user';
 
 export const connectController: SocketController = async function ({
   socket,

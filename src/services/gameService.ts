@@ -1,45 +1,76 @@
 import { Board } from 'models/Board';
 import { GameDocument, GameModel } from 'models/Game';
-import { RoomModel } from 'models/Room';
+import { RoomDocument } from 'models/Room';
 import { Ship } from 'models/Ship';
 import { UserDocument, UserModel } from 'models/User';
+import { GameStatus, GameUpdatePayload } from 'types/payloads/game';
+import { SocketProvider } from 'utils/socketProvider';
 
-export async function startGame(roomId: string) {
-  const room = (await RoomModel.findById(roomId).exec())!;
-  if (!room || room.users.length !== 2) {
+export async function startNewGame(room: RoomDocument) {
+  if (room.users.length !== 2) {
     // handle this case
     return;
   }
 
-  // populate instead
   const user1 = (await UserModel.findById(room.users[0]).exec())!;
   const user2 = (await UserModel.findById(room.users[1]).exec())!;
 
-  const userError1 = startGameUserValidator(user1);
-  const userError2 = startGameUserValidator(user2);
-
-  // TODO: better handling
-  if (userError1 && userError2) {
-    return;
-  } else if (userError1) {
-    // handle this case
-    return;
-  } else if (userError2) {
-    // handle this case
-    return;
-  }
-
-  await createGame(user1, user2);
+  const game = await createNewGame(user1, user2);
+  changeTurns(user1, user2, game);
 }
 
-function startGameUserValidator(user: UserDocument | null): string | void {
-  if (!user) {
-    return 'User not found.';
+async function changeTurns(
+  user1: UserDocument,
+  user2: UserDocument,
+  game: GameDocument,
+) {
+  const io = SocketProvider.getInstance().io;
+  const socket1 = io.sockets.sockets.get(user1.socketId!);
+  const socket2 = io.sockets.sockets.get(user2.socketId!);
+
+  if (!socket1 || !socket2) {
+    return;
   }
 
-  if (!user.isOnline) {
-    return 'User not online.';
-  }
+  game.turn = (game.turn + 1) % 2;
+  await game.save();
+
+  const payload1: GameUpdatePayload = {
+    gameStatus: game.turn === 0 ? GameStatus.USER_TURN : GameStatus.RIVAL_TURN,
+  };
+  const payload2: GameUpdatePayload = {
+    gameStatus: game.turn === 1 ? GameStatus.USER_TURN : GameStatus.RIVAL_TURN,
+  };
+
+  socket1.emit('game-update', payload1);
+  socket2.emit('game-update', payload2);
+}
+
+async function createNewGame(
+  user1: UserDocument,
+  user2: UserDocument,
+): Promise<GameDocument> {
+  const ships1 = user1.currentSetting!;
+  const board1 = createBoard(ships1);
+
+  const ships2 = user2.currentSetting!;
+  const board2 = createBoard(ships2);
+
+  return await GameModel.create({
+    data: [
+      {
+        user: user1.id,
+        board: board1,
+        ships: ships1,
+      },
+      {
+        user: user2.id,
+        board: board2,
+        ships: ships2,
+      },
+    ],
+    turn: Math.round(Math.random()),
+  });
 }
 
 function createBoard(ships: Ship[]): Partial<Board> {
@@ -67,36 +98,4 @@ function createBoard(ships: Ship[]): Partial<Board> {
   });
 
   return { gameBoard, displayBoard };
-}
-
-async function createGame(
-  user1: UserDocument,
-  user2: UserDocument,
-): Promise<GameDocument> {
-  const ships1 = user1.currentSetting;
-  const ships2 = user2.currentSetting;
-
-  if (!ships1 || !ships2) {
-    // handle this case
-    throw new Error('User ships not found.');
-  }
-
-  const board1 = createBoard(ships1);
-  const board2 = createBoard(ships2);
-
-  return await GameModel.create({
-    data: [
-      {
-        user: user1.id,
-        board: board1,
-        ships: ships1,
-      },
-      {
-        user: user2.id,
-        board: board2,
-        ships: ships2,
-      },
-    ],
-    turn: Math.round(Math.random()),
-  });
 }

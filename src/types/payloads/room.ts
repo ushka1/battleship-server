@@ -8,7 +8,7 @@ export type RivalData = {
   username: string;
 };
 
-export type RoomChatPayload = {
+export type RoomChatMessage = {
   username: string;
   content: string;
 };
@@ -16,5 +16,5 @@ export type RoomChatPayload = {
 export type RoomUpdatePayload = {
   roomStatus?: RoomStatus;
   rivalData?: RivalData;
-  chat?: RoomChatPayload[];
+  chat?: RoomChatMessage[];
 };

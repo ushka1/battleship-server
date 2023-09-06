@@ -9,10 +9,10 @@ import {
   removeUserFromPoolValidator,
 } from 'services/poolService';
 import { validateShips } from 'services/shipValidationService';
-import { JoinPoolBody } from 'types/pool';
-import { UserStatus, UserUpdatePayload } from 'types/user';
+import { JoinPoolPayload } from 'types/payloads/pool';
+import { UserStatus, UserUpdatePayload } from 'types/payloads/user';
 
-export const joinPoolController: SocketController<JoinPoolBody> =
+export const joinPoolController: SocketController<JoinPoolPayload> =
   async function ({ socket, body }) {
     const user = await UserModel.findById(socket.userId).orFail().exec();
     const error = addUserToPoolValidator(user);

@@ -1,7 +1,7 @@
 import { Mutex } from 'async-mutex';
 
 import { UserDocument } from 'models/User';
-import { addUsersToRoom } from 'services/roomService';
+import { createNewRoom } from 'services/roomService';
 
 /* ========================= MATCHING ========================= */
 
@@ -53,7 +53,7 @@ async function matchUsers() {
 
   while (pool.length >= 2) {
     const [user1, user2] = pool.splice(0, 2);
-    addUsersToRoom(user1.userId, user2.userId);
+    createNewRoom(user1.userId, user2.userId);
   }
 
   release();
