@@ -1,6 +1,7 @@
 import { RoomModel } from 'models/Room';
 import { UserModel } from 'models/User';
 import { SocketController } from 'router/middleware';
+import { startNewGame } from 'services/gameService';
 import { getOrSetMutex, unsetMutex } from 'services/mutexService';
 import { validateShipsSetting } from 'services/shipsSettingService';
 import { RevengeReadyPayload } from 'types/payloads/revenge';
@@ -59,6 +60,7 @@ export const revengeReadyController: SocketController<RevengeReadyPayload> =
       if (room.getRevengeReadyCount() === 2) {
         // send update...
         unsetMutex(user.roomId!);
+        startNewGame(room); // for sure?
       } else {
         // send update...
       }

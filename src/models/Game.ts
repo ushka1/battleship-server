@@ -16,6 +16,17 @@ class Game {
 
   @prop({ required: true })
   public turn!: number;
+
+  /* ========================= HELPERS ========================= */
+
+  public get isFinished(): boolean {
+    return !!this.winner;
+  }
+
+  public isUserTurn(userId: string): boolean {
+    const userIndex = this.data.findIndex((d) => d.user === userId);
+    return userIndex === this.turn;
+  }
 }
 
 export type GameDocument = DocumentType<Game>;

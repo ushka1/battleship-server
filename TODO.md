@@ -10,6 +10,10 @@
 1. Improve messaging.
 1. Refactor.
 
+1. Instead of using hardcoded PayloadState, refactor it to "action", you only inform user that something changed but "state" is not fully controlled on backend.
+1. Room-level synchronization.
+1. Transactions.
+
 ## Medium Priority
 
 1. Private match.

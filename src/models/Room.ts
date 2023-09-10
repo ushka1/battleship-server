@@ -24,6 +24,10 @@ class Room {
 
   /* ========================= HELPERS ========================= */
 
+  public get inGame(): boolean {
+    return !!this.gameId;
+  }
+
   public getRival(this: RoomDocument, user: UserDocument): string | undefined {
     const rival = this.users.find((id) => id !== user.id);
     return rival;

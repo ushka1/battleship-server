@@ -54,8 +54,8 @@ async function matchUsers() {
     sortPool();
 
     while (pool.length >= 2) {
-      const [user1, user2] = pool.splice(0, 2);
-      createNewRoom(user1.userId, user2.userId);
+      const [entry1, entry2] = pool.splice(0, 2);
+      createNewRoom(entry1.userId, entry2.userId);
     }
   } finally {
     release();

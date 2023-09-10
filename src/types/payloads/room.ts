@@ -10,6 +10,7 @@ export type RoomUpdatePayload = {
 export enum RoomStatus {
   PLAYING = 'PLAYING',
   PLAYER_LEFT = 'PLAYER_LEFT',
+  PLAYER_DISCONNECTED = 'PLAYER_DISCONNECTED',
   FINISHED = 'FINISHED',
 }
 

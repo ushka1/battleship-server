@@ -34,8 +34,8 @@ export async function createNewRoom(userId1: string, userId2: string) {
   }
 
   const room = await RoomModel.create({ users: [user1.id, user2.id] });
-  await user1.updateOne({ roomId: room.id }).exec();
-  await user2.updateOne({ roomId: room.id }).exec();
+  await user1.updateOne({ roomId: room.id, poolId: undefined }).exec();
+  await user2.updateOne({ roomId: room.id, poolId: undefined }).exec();
 
   socket1.join(room.id);
   socket2.join(room.id);
@@ -79,6 +79,12 @@ function addUsersToRoomValidator(user: UserDocument | null): string | void {
   if (user.inRoom) {
     return 'User already in a room.';
   }
+}
+
+export async function disconnectUserInRoom(user: UserDocument) {
+  const room = await RoomModel.findById(user.roomId).orFail().exec();
+
+  room.setUserDisconnected(user, true);
 }
 
 export async function removeUserFromRoom(user: UserDocument) {

@@ -5,10 +5,11 @@ import {
   connectUser,
   createNewUser,
   disconnectUser,
-  disconnectUserCleanup,
   disconnectUserFromAnotherSession,
   findUserFromHandshake,
 } from 'services/connectService';
+import { removeUserFromPool } from 'services/poolService';
+import { removeUserFromRoom } from 'services/roomService';
 import { UserUpdatePayload } from 'types/payloads/user';
 
 export const connectController: SocketController = async function ({ socket }) {
@@ -39,7 +40,12 @@ export const disconnectController: SocketController = async function ({
   logger.info('Socket disconnection.', { socket });
 
   const user = await UserModel.findById(socket.userId).orFail().exec();
+  if (user.inPool) {
+    await removeUserFromPool(user);
+  }
+  if (user.inRoom) {
+    await removeUserFromRoom(user);
+  }
 
-  await disconnectUserCleanup(user);
   await disconnectUser(user, socket);
 };

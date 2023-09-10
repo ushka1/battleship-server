@@ -1,9 +1,10 @@
 import { logger } from 'config/logger';
+import { GameModel } from 'models/Game';
+import { RoomModel } from 'models/Room';
 import { UserDocument, UserModel } from 'models/User';
 import { ExtendedSocket } from 'router/middleware';
 import { emitErrorNotification } from 'services/notificationService';
-import { removeUserFromPool } from 'services/poolService';
-import { removeUserFromRoom } from 'services/roomService';
+import { RoomUpdatePayload } from 'types/payloads/room';
 import { SocketProvider } from 'utils/socketProvider';
 
 /* ========================= CONNECT ========================= */
@@ -65,6 +66,7 @@ export async function disconnectUserFromAnotherSession(
 
   const otherSocket = SocketProvider.getSocket(user.socketId!);
   if (otherSocket) {
+    // change this to some payload that will cause app close
     emitErrorNotification(otherSocket, {
       content: 'You connected from another place, this session will be closed.',
     });
@@ -74,9 +76,8 @@ export async function disconnectUserFromAnotherSession(
       otherSocket.removeAllListeners();
       otherSocket.disconnect();
 
-      // perform standard disconnection cleanup
-      await disconnectUserCleanup(user);
-      await disconnectUser(user, socket);
+      // perform standart reconnection
+      await reconnectUser(user, socket);
     } catch (e) {
       logger.error('Error while disconnecting another active session.', {
         socket,
@@ -86,15 +87,6 @@ export async function disconnectUserFromAnotherSession(
   }
 
   logger.info('Another active session closed.', { socket });
-}
-
-export async function disconnectUserCleanup(user: UserDocument) {
-  if (user.inRoom) {
-    await removeUserFromRoom(user);
-  }
-  if (user.inPool) {
-    await removeUserFromPool(user);
-  }
 }
 
 export async function disconnectUser(
@@ -109,6 +101,35 @@ export async function disconnectUser(
 
 /* ========================= RECONNECT ========================= */
 
-export async function reconnectUser() {
-  //
+export async function reconnectUser(
+  user: UserDocument,
+  socket: ExtendedSocket,
+) {
+  if (user.inRoom) {
+    const room = await RoomModel.findById(user.roomId).orFail().exec();
+    const rival = await UserModel.findById(room.getRival(user)).orFail().exec();
+
+    if (room.inGame) {
+      const game = await GameModel.findById(room.gameId).orFail().exec();
+
+      if (game.isFinished) {
+        //
+      } else {
+        const userTurn = game.isUserTurn(user.id);
+        //
+      }
+    }
+
+    const roomPayload: RoomUpdatePayload = {
+      rivalData: {
+        username: rival.username,
+      },
+    };
+    socket.emit('room-update', roomPayload);
+  }
+
+  user.socketId = socket.id;
+  await user.save();
+
+  logger.info('User reconnected.', { socket, user });
 }

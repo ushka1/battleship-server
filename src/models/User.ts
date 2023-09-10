@@ -23,6 +23,8 @@ class User {
   @prop()
   public roomId?: string;
 
+  /* ========================= HELPERS ========================= */
+
   public get isOnline() {
     return !!this.socketId;
   }
