@@ -16,9 +16,10 @@ export type SocketController<T = any> = (props: {
 
 /**
  * Wraps a SocketController function to:
- * - provide the access to socket and io objects,
+ * - provide the access to socket and payload,
  * - handle any unexpected errors that may occur in the controller,
- * - force sequential execution of controllers to avoid race conditions.
+ * - force sequential execution of controllers to avoid race conditions (synchronized
+ * on requests).
  */
 export function controllerMiddleware(
   controller: SocketController,
@@ -34,6 +35,7 @@ export function controllerMiddleware(
       emitErrorNotification(socket, {
         content: 'An unexpected error occurred, please refresh your page.',
       });
+
       logger.error('Unexpected error in socket controller.', {
         error: err,
         socket,

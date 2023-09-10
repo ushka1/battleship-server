@@ -106,3 +106,9 @@ export async function disconnectUser(
 
   logger.info('User disconnected.', { socket, user });
 }
+
+/* ========================= RECONNECT ========================= */
+
+export async function reconnectUser() {
+  //
+}

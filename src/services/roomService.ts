@@ -82,16 +82,21 @@ function addUsersToRoomValidator(user: UserDocument | null): string | void {
 }
 
 export async function removeUserFromRoom(user: UserDocument) {
-  const io = SocketProvider.getIO();
+  const socket = SocketProvider.getSocket(user.socketId!);
+  if (socket) {
+    await socket.leave(user.roomId!);
+  }
+
   const room = await RoomModel.findById(user.roomId).orFail().exec();
-
   if (room.users.length === 2) {
-    await room.removeUser(user);
+    room.removeUser(user);
+    room.disabled = true;
+    await room.save();
 
+    const io = SocketProvider.getIO();
     const payload: RoomUpdatePayload = {
       roomStatus: RoomStatus.PLAYER_LEFT,
     };
-
     io.to(room.id).emit('room-update', payload);
   } else {
     await room.deleteOne();

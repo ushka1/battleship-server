@@ -8,7 +8,7 @@ import {
   removeUserFromPool,
   removeUserFromPoolValidator,
 } from 'services/poolService';
-import { validateShips } from 'services/shipValidationService';
+import { validateShipsSetting } from 'services/shipsSettingService';
 import { JoinPoolPayload } from 'types/payloads/pool';
 import { UserStatus, UserUpdatePayload } from 'types/payloads/user';
 
@@ -23,7 +23,7 @@ export const joinPoolController: SocketController<JoinPoolPayload> =
       return;
     }
 
-    const shipsValid = validateShips(body!.ships);
+    const shipsValid = validateShipsSetting(body!.ships);
     if (!shipsValid) {
       logger.error('Invalid ships', { socket });
       emitErrorNotification(socket, {

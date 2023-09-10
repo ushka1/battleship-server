@@ -2,47 +2,68 @@ import { RoomModel } from 'models/Room';
 import { UserModel } from 'models/User';
 import { SocketController } from 'router/middleware';
 import { getOrSetMutex, unsetMutex } from 'services/mutexService';
+import { validateShipsSetting } from 'services/shipsSettingService';
+import { RevengeReadyPayload } from 'types/payloads/revenge';
 
+/**
+ * Synchronized on room.
+ */
 export const revengeWillController: SocketController = async function ({
   socket,
 }) {
   const user = await UserModel.findById(socket.userId).orFail().exec();
+  const room = await RoomModel.findById(user.roomId!).orFail().exec();
 
   const mutex = getOrSetMutex(user.roomId!);
   const release = await mutex.acquire();
 
-  const room = await RoomModel.findById(user.roomId!).orFail().exec();
-  room.markRevengeWill(user);
-  await room.save();
+  try {
+    room.setUserRevengeWill(user, true);
+    await room.save();
 
-  release();
-
-  if (room.revenge!.willing.length === 2) {
-    // do stuff...
-
-    unsetMutex(user.roomId!);
+    if (room.getRevengeWillingCount() === 2) {
+      // send update...
+      unsetMutex(user.roomId!);
+    } else {
+      // send update...
+    }
+  } finally {
+    release();
   }
 };
 
-export const revengeReadyController: SocketController = async function ({
-  socket,
-}) {
-  const user = await UserModel.findById(socket.userId).orFail().exec();
+/**
+ * Synchronized on room.
+ */
+export const revengeReadyController: SocketController<RevengeReadyPayload> =
+  async function ({ socket, payload }) {
+    const shipsValid = validateShipsSetting(payload!.shipsSetting);
+    if (!shipsValid) {
+      // send error...
+      return;
+    }
 
-  const mutex = getOrSetMutex(user.roomId!);
-  const release = await mutex.acquire();
+    const user = await UserModel.findById(socket.userId).orFail().exec();
+    const room = await RoomModel.findById(user.roomId!).orFail().exec();
 
-  // update setting
+    const mutex = getOrSetMutex(user.roomId!);
+    const release = await mutex.acquire();
 
-  const room = await RoomModel.findById(user.roomId!).orFail().exec();
-  room.markRevengeReady(user);
-  await room.save();
+    try {
+      user.shipsSetting = payload!.shipsSetting;
+      await user.save();
 
-  release();
+      room.setUserRevengeReady(user, true);
+      await room.save();
 
-  if (room.revenge!.ready.length === 2) {
-    // start game
-
-    unsetMutex(user.roomId!);
-  }
-};
+      if (room.getRevengeReadyCount() === 2) {
+        // send update...
+        unsetMutex(user.roomId!);
+      } else {
+        // send update...
+      }
+    } finally {
+      release();
+    }
+    // update setting
+  };

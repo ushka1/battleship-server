@@ -20,13 +20,13 @@ const matchTimeout = 1000;
  * Initialize the pool service.
  */
 export function initPoolService() {
-  restartService();
+  restartPoolService();
 }
 
 /**
  * Restart the matching service.
  */
-function restartService() {
+function restartPoolService() {
   if (timer) {
     clearInterval(timer);
   }
@@ -45,38 +45,44 @@ function sortPool() {
 
 /**
  * Match users in the pool.
+ * Synchronized on pool.
  */
 async function matchUsers() {
   const release = await mutex.acquire();
 
-  sortPool();
+  try {
+    sortPool();
 
-  while (pool.length >= 2) {
-    const [user1, user2] = pool.splice(0, 2);
-    createNewRoom(user1.userId, user2.userId);
+    while (pool.length >= 2) {
+      const [user1, user2] = pool.splice(0, 2);
+      createNewRoom(user1.userId, user2.userId);
+    }
+  } finally {
+    release();
   }
-
-  release();
 }
 
 /* ========================= JOIN/LEAVE ========================= */
 
 /**
  * Add user to the pool.
+ * Synchronized on pool.
  */
 export async function addUserToPool(user: UserDocument) {
   const release = await mutex.acquire();
 
-  pool.push({
-    userId: user.id,
-    eloScore: 0,
-    createdAt: new Date(),
-  });
+  try {
+    pool.push({
+      userId: user.id,
+      eloScore: 0,
+      createdAt: new Date(),
+    });
 
-  user.poolId = 'classic';
-  await user.save();
-
-  release();
+    user.poolId = 'classic';
+    await user.save();
+  } finally {
+    release();
+  }
 }
 
 export function addUserToPoolValidator(user: UserDocument): string | void {
@@ -95,16 +101,19 @@ export function addUserToPoolValidator(user: UserDocument): string | void {
 
 /**
  * Remove user from the pool.
+ * Synchronized on pool.
  */
 export async function removeUserFromPool(user: UserDocument) {
   const release = await mutex.acquire();
 
-  pool = pool.filter((entry) => entry.userId !== user.id);
+  try {
+    pool = pool.filter((entry) => entry.userId !== user.id);
 
-  user.poolId = undefined;
-  await user.save();
-
-  release();
+    user.poolId = undefined;
+    await user.save();
+  } finally {
+    release();
+  }
 }
 
 export function removeUserFromPoolValidator(user: UserDocument): string | void {

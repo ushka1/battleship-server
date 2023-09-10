@@ -1,49 +1,92 @@
 import { DocumentType, getModelForClass, prop } from '@typegoose/typegoose';
 import { UserDocument } from 'models/User';
 
+type UserState = {
+  revengeWilling?: boolean;
+  revengeReady?: boolean;
+  disconnected?: boolean;
+};
+
 class Room {
   @prop({ required: true, maxlength: 2, default: [] })
   public users!: string[];
 
+  @prop({ default: {} })
+  public usersState?: {
+    [user: string]: UserState;
+  };
+
   @prop()
   public gameId?: string;
 
-  @prop({ default: { willing: [], ready: [] } })
-  public revenge?: {
-    willing: string[];
-    ready: string[];
-  };
+  @prop()
+  public disabled?: boolean;
+
+  /* ========================= HELPERS ========================= */
 
   public getRival(this: RoomDocument, user: UserDocument): string | undefined {
     const rival = this.users.find((id) => id !== user.id);
-    return rival!;
+    return rival;
   }
 
-  public markRevengeWill(this: RoomDocument, user: UserDocument) {
-    if (this.revenge!.willing.includes(user.id)) return;
-    this.revenge!.willing.push(user.id);
-  }
+  /* ========================= ADD / REMOVE ========================= */
 
-  public markRevengeReady(this: RoomDocument, user: UserDocument) {
-    if (this.revenge!.ready.includes(user.id)) return;
-    this.revenge!.ready.push(user.id);
-  }
-
-  public clearRevenge(this: RoomDocument) {
-    this.revenge!.willing = [];
-    this.revenge!.ready = [];
-  }
-
-  /* ========================= TO REMOVE ========================= */
-
-  public async addUser(this: RoomDocument, user: UserDocument) {
+  public addUser(this: RoomDocument, user: UserDocument) {
     this.users.push(user.id);
-    await this.save();
+    this.usersState![user.id] = {};
   }
 
-  public async removeUser(this: RoomDocument, user: UserDocument) {
+  public removeUser(this: RoomDocument, user: UserDocument) {
     this.users = this.users.filter((id) => id !== user.id);
-    await this.save();
+    delete this.usersState![user.id];
+  }
+
+  /* ========================= USER STATE ========================= */
+
+  public setUserRevengeWill(
+    this: RoomDocument,
+    user: UserDocument,
+    value: boolean,
+  ) {
+    if (!this.usersState) this.usersState = {};
+    if (!this.usersState[user.id]) this.usersState[user.id] = {};
+
+    this.usersState[user.id].revengeWilling = value;
+  }
+
+  public setUserRevengeReady(
+    this: RoomDocument,
+    user: UserDocument,
+    value: boolean,
+  ) {
+    if (!this.usersState) this.usersState = {};
+    if (!this.usersState[user.id]) this.usersState[user.id] = {};
+
+    this.usersState[user.id].revengeReady = value;
+  }
+
+  public setUserDisconnected(
+    this: RoomDocument,
+    user: UserDocument,
+    value: boolean,
+  ) {
+    if (!this.usersState) this.usersState = {};
+    if (!this.usersState[user.id]) this.usersState[user.id] = {};
+
+    this.usersState[user.id].disconnected = value;
+  }
+
+  public getRevengeWillingCount(this: RoomDocument): number {
+    return Object.values(this.usersState!).filter((s) => s.revengeWilling)
+      .length;
+  }
+
+  public getRevengeReadyCount(this: RoomDocument): number {
+    return Object.values(this.usersState!).filter((s) => s.revengeReady).length;
+  }
+
+  public getDisconnectedCount(this: RoomDocument): number {
+    return Object.values(this.usersState!).filter((s) => s.disconnected).length;
   }
 }
 
