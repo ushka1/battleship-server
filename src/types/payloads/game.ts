@@ -1,3 +1,21 @@
+/**
+ * Request payload.
+ */
+export type GameHitPayload = {
+  row: number;
+  col: number;
+};
+
+/**
+ * Response payload.
+ */
+export type GameUpdatePayload = {
+  gameStatus?: GameStatus;
+  hitsDealt?: Hit[];
+  hitsReceived?: Hit[];
+  // TODO: Add fields for ships.
+};
+
 export enum GameStatus {
   INACTIVE = 'INACTIVE',
   USER_TURN = 'USER_TURN',
@@ -7,14 +25,3 @@ export enum GameStatus {
 }
 
 export type Hit = { row: number; col: number; shipHit?: boolean };
-
-export type GameUpdatePayload = {
-  gameStatus?: GameStatus;
-  hitsDealt?: Hit[];
-  hitsReceived?: Hit[];
-};
-
-export type GameHitPayload = {
-  row: number;
-  col: number;
-};

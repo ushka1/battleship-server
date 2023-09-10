@@ -1,3 +1,12 @@
+/**
+ * Response payload.
+ */
+export type RoomUpdatePayload = {
+  roomStatus?: RoomStatus;
+  rivalData?: RivalData;
+  chat?: RoomChatMessage[];
+};
+
 export enum RoomStatus {
   PLAYING = 'PLAYING',
   PLAYER_LEFT = 'PLAYER_LEFT',
@@ -11,10 +20,4 @@ export type RivalData = {
 export type RoomChatMessage = {
   username: string;
   content: string;
-};
-
-export type RoomUpdatePayload = {
-  roomStatus?: RoomStatus;
-  rivalData?: RivalData;
-  chat?: RoomChatMessage[];
 };

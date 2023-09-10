@@ -1,10 +1,16 @@
 import { Ship } from 'models/Ship';
 
+/**
+ * Request payload.
+ */
 export type RevengeReadyPayload = {
   shipsSetting: Ship[];
 };
 
+/**
+ * Response payload.
+ */
 export type RevengeUpdatePayload = {
-  ready?: string[];
-  willing?: string[];
+  revengeWillingUsers?: string[];
+  revengeReadyUsers?: string[];
 };
