@@ -1,4 +1,5 @@
 import { logger } from 'config/logger';
+import { emitUserData } from 'emitters/userEmitter';
 import { UserModel } from 'models/User';
 import { SocketController } from 'router/middleware';
 import {
@@ -10,7 +11,6 @@ import {
 } from 'services/connectService';
 import { removeUserFromPool } from 'services/poolService';
 import { removeUserFromRoom } from 'services/roomService';
-import { UserUpdatePayload } from 'types/payloads/user';
 
 export const connectController: SocketController = async function ({ socket }) {
   logger.info('New socket connection.', { socket });
@@ -25,13 +25,10 @@ export const connectController: SocketController = async function ({ socket }) {
     await connectUser(user, socket);
   }
 
-  const response: UserUpdatePayload = {
+  emitUserData(socket, {
     userId: user.id,
     username: user.username,
-  };
-
-  socket.userId = user.id;
-  socket.emit('user-update', response);
+  });
 };
 
 export const disconnectController: SocketController = async function ({
@@ -40,12 +37,8 @@ export const disconnectController: SocketController = async function ({
   logger.info('Socket disconnection.', { socket });
 
   const user = await UserModel.findById(socket.userId).orFail().exec();
-  if (user.inPool) {
-    await removeUserFromPool(user);
-  }
-  if (user.inRoom) {
-    await removeUserFromRoom(user);
-  }
+  if (user.inPool) await removeUserFromPool(user);
+  if (user.inRoom) await removeUserFromRoom(user);
 
   await disconnectUser(user, socket);
 };

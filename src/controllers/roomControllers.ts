@@ -1,12 +1,12 @@
 import { logger } from 'config/logger';
+import { emitErrorNotification } from 'emitters/notificationEmitter';
+import { emitRoomLeave } from 'emitters/roomEmitter';
 import { UserModel } from 'models/User';
 import { SocketController } from 'router/middleware';
-import { emitErrorNotification } from 'services/notificationService';
 import {
   removeUserFromRoom,
   removeUserFromRoomValidator,
 } from 'services/roomService';
-import { UserStatus, UserUpdatePayload } from 'types/payloads/user';
 
 export const leaveRoomController: SocketController = async function ({
   socket,
@@ -21,9 +21,5 @@ export const leaveRoomController: SocketController = async function ({
   }
 
   await removeUserFromRoom(user);
-
-  const payload: UserUpdatePayload = {
-    userStatus: UserStatus.IDLE,
-  };
-  socket.emit('user-update', payload);
+  emitRoomLeave(socket);
 };

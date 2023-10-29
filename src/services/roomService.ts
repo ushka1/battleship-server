@@ -1,35 +1,76 @@
 import { logger } from 'config/logger';
+import {
+  emitRoomJoin,
+  emitRoomPlayerDisconnected,
+  emitRoomPlayerLeft,
+  emitRoomPlayerReconnected,
+} from 'emitters/roomEmitter';
 import { RoomModel } from 'models/Room';
 import { UserDocument, UserModel } from 'models/User';
-import { RoomStatus, RoomUpdatePayload } from 'types/payloads/room';
-import { UserStatus, UserUpdatePayload } from 'types/payloads/user';
 import { SocketProvider } from 'utils/socketProvider';
-import { startNewGame } from './gameService';
 import { addUserToPool } from './poolService';
+
+function createNewRoomUserValidator(user: UserDocument | null): string | void {
+  if (!user) return 'User not found.';
+  if (!user.isOnline) return 'User is offline.';
+  if (user.inRoom) return 'User already in a room.';
+}
 
 export async function createNewRoom(userId1: string, userId2: string) {
   const user1 = (await UserModel.findById(userId1).exec())!;
   const user2 = (await UserModel.findById(userId2).exec())!;
 
-  const userError1 = addUsersToRoomValidator(user1);
-  const userError2 = addUsersToRoomValidator(user2);
-
-  // TODO: better handling
+  const userError1 = createNewRoomUserValidator(user1);
+  const userError2 = createNewRoomUserValidator(user2);
   if (userError1 && userError2) {
+    logger.error(
+      'Both users are invalid. userId1: %s, userId2: %s',
+      userId1,
+      userId2,
+    );
     return;
   } else if (userError1) {
+    logger.error(
+      'User1 is invalid. userId1: %s, userId2: %s',
+      userId1,
+      userId2,
+    );
     await addUserToPool(user2);
     return;
   } else if (userError2) {
+    logger.error(
+      'User2 is invalid. userId1: %s, userId2: %s',
+      userId1,
+      userId2,
+    );
     await addUserToPool(user1);
     return;
   }
 
-  const socket1 = SocketProvider.getSocket(user1.socketId!);
-  const socket2 = SocketProvider.getSocket(user2.socketId!);
-
-  if (!socket1 || !socket2) {
-    logger.error(`Socket not found.`);
+  const socket1 = SocketProvider.getSocket(user1.socketId!)!;
+  const socket2 = SocketProvider.getSocket(user2.socketId!)!;
+  if (!socket1 && !socket2) {
+    logger.error(
+      'Both sockets are not connected. userId1: %s, userId2: %s',
+      userId1,
+      userId2,
+    );
+    return;
+  } else if (!socket1) {
+    logger.error(
+      'Socket1 is not connected. userId1: %s, userId2: %s',
+      userId1,
+      userId2,
+    );
+    await addUserToPool(user2);
+    return;
+  } else if (!socket2) {
+    logger.error(
+      'Socket2 is not connected. userId1: %s, userId2: %s',
+      userId1,
+      userId2,
+    );
+    await addUserToPool(user1);
     return;
   }
 
@@ -40,51 +81,22 @@ export async function createNewRoom(userId1: string, userId2: string) {
   socket1.join(room.id);
   socket2.join(room.id);
 
-  const userPayload: UserUpdatePayload = {
-    userStatus: UserStatus.ROOM,
-  };
-
-  socket1.emit('user-update', userPayload);
-  socket2.emit('user-update', userPayload);
-
-  const roomPayload1: RoomUpdatePayload = {
-    roomStatus: RoomStatus.PLAYING,
-    rivalData: {
+  emitRoomJoin(socket1, {
+    rival: {
       username: user2.username,
     },
-  };
-
-  const roomPayload2: RoomUpdatePayload = {
-    roomStatus: RoomStatus.PLAYING,
-    rivalData: {
+  });
+  emitRoomJoin(socket2, {
+    rival: {
       username: user1.username,
     },
-  };
-
-  socket1.emit('room-update', roomPayload1);
-  socket2.emit('room-update', roomPayload2);
-
-  startNewGame(room);
+  });
 }
 
-function addUsersToRoomValidator(user: UserDocument | null): string | void {
-  if (!user) {
-    return 'User not found.';
+export function removeUserFromRoomValidator(user: UserDocument) {
+  if (!user.inRoom) {
+    return 'User not in a room.';
   }
-
-  if (!user.isOnline) {
-    return 'User is offline.';
-  }
-
-  if (user.inRoom) {
-    return 'User already in a room.';
-  }
-}
-
-export async function disconnectUserInRoom(user: UserDocument) {
-  const room = await RoomModel.findById(user.roomId).orFail().exec();
-
-  room.setUserDisconnected(user, true);
 }
 
 export async function removeUserFromRoom(user: UserDocument) {
@@ -99,11 +111,11 @@ export async function removeUserFromRoom(user: UserDocument) {
     room.disabled = true;
     await room.save();
 
-    const io = SocketProvider.getIO();
-    const payload: RoomUpdatePayload = {
-      roomStatus: RoomStatus.PLAYER_LEFT,
-    };
-    io.to(room.id).emit('room-update', payload);
+    emitRoomPlayerLeft(room.id, {
+      player: {
+        username: user.username,
+      },
+    });
   } else {
     await room.deleteOne();
   }
@@ -112,8 +124,26 @@ export async function removeUserFromRoom(user: UserDocument) {
   await user.save();
 }
 
-export function removeUserFromRoomValidator(user: UserDocument) {
-  if (!user.inRoom) {
-    return 'User not in a room.';
-  }
+export async function disconnectUserInRoom(user: UserDocument) {
+  const room = await RoomModel.findById(user.roomId).orFail().exec();
+  room.setUserDisconnected(user, true);
+  await room.save();
+
+  emitRoomPlayerDisconnected(room.id, {
+    player: {
+      username: user.username,
+    },
+  });
+}
+
+export async function reconnectUserInRoom(user: UserDocument) {
+  const room = await RoomModel.findById(user.roomId).orFail().exec();
+  room.setUserDisconnected(user, false);
+  await room.save();
+
+  emitRoomPlayerReconnected(room.id, {
+    player: {
+      username: user.username,
+    },
+  });
 }

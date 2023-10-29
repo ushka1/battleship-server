@@ -4,7 +4,7 @@ import { RoomModel } from 'models/Room';
 import { UserDocument, UserModel } from 'models/User';
 import { ExtendedSocket } from 'router/middleware';
 import { emitErrorNotification } from 'services/notificationService';
-import { RoomUpdatePayload } from 'types/payloads/room';
+import { RoomUpdateResponse } from 'types/payloads/room';
 import { SocketProvider } from 'utils/socketProvider';
 
 /* ========================= CONNECT ========================= */
@@ -120,7 +120,7 @@ export async function reconnectUser(
       }
     }
 
-    const roomPayload: RoomUpdatePayload = {
+    const roomPayload: RoomUpdateResponse = {
       rivalData: {
         username: rival.username,
       },

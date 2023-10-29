@@ -1,7 +1,9 @@
 import { logger } from 'config/logger';
+import { emitErrorNotification } from 'emitters/notificationEmitter';
+import { emitPoolJoin, emitPoolLeave } from 'emitters/poolEmitter';
+import { Ship } from 'models/Ship';
 import { UserModel } from 'models/User';
 import { SocketController } from 'router/middleware';
-import { emitErrorNotification } from 'services/notificationService';
 import {
   addUserToPool,
   addUserToPoolValidator,
@@ -9,8 +11,10 @@ import {
   removeUserFromPoolValidator,
 } from 'services/poolService';
 import { validateShipsSetting } from 'services/shipsSettingService';
-import { JoinPoolPayload } from 'types/payloads/pool';
-import { UserStatus, UserUpdatePayload } from 'types/payloads/user';
+
+type JoinPoolPayload = {
+  ships: Ship[];
+};
 
 export const joinPoolController: SocketController<JoinPoolPayload> =
   async function ({ socket, payload: body }) {
@@ -37,11 +41,7 @@ export const joinPoolController: SocketController<JoinPoolPayload> =
 
     try {
       await addUserToPool(user);
-
-      const payload: UserUpdatePayload = {
-        userStatus: UserStatus.POOL,
-      };
-      socket.emit('user-update', payload);
+      emitPoolJoin(socket);
     } catch (e) {
       logger.error('Add user to pool error.', { socket, error: e });
       emitErrorNotification(socket, {
@@ -64,11 +64,7 @@ export const leavePoolController: SocketController = async function ({
 
   try {
     await removeUserFromPool(user);
-
-    const payload: UserUpdatePayload = {
-      userStatus: UserStatus.IDLE,
-    };
-    socket.emit('user-update', payload);
+    emitPoolLeave(socket);
   } catch (e) {
     logger.error('Remove user from pool error.', { socket, error: e });
     emitErrorNotification(socket, { content: 'An unexpected error occured.' });
